@@ -1,0 +1,28 @@
+servers:
+  admin:
+    command: 'cd ./apps/admin && bun run dev'
+    working_dir: './'
+    port: 3222
+    autostart: false
+
+  client:
+    command: 'cd ./apps/client && bun run dev'
+    working_dir: './'
+    port: 3555
+    autostart: true
+
+  shop:
+    command: 'cd ./apps/shop && bun run dev'
+    working_dir: './'
+    port: 3444
+    autostart: false
+
+  debug-tunnel:
+    command: './scripts/tunnel.sh start'
+    stop_command: './scripts/tunnel.sh stop'
+    port: 8890
+    working_dir: './'
+    autostart: false
+
+  # web-lander removed from config (per user request: not needed for now)
+  # to re-enable, add back with autostart: true

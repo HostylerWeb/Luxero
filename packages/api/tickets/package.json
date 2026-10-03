@@ -1,0 +1,32 @@
+{
+  "name": "@luxero/api-tickets",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:ci": "vitest run"
+  },
+  "dependencies": {
+    "@luxero/api-db": "workspace:*",
+    "@luxero/api-infra": "workspace:*",
+    "@luxero/api-errors": "workspace:*",
+    "@luxero/api-payment-core": "workspace:*",
+    "@luxero/types": "workspace:*",
+    "@luxero/api-logger": "workspace:*",
+    "mongoose": "^9.6.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.19",
+    "@types/node": "^20.11.17",
+    "mongodb-memory-server": "^10.4.0",
+    "vitest": "^4.1.8"
+  }
+}

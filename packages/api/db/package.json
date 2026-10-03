@@ -1,0 +1,27 @@
+{
+  "name": "@luxero/api-db",
+  "private": true,
+  "type": "module",
+"exports": {
+    ".": "./src/index.ts",
+    "./db": "./src/db.ts",
+    "./models": "./src/models/index.ts",
+    "./models/*": "./src/models/*.ts",
+    "./plugins/*": "./src/plugins/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/"
+  },
+  "dependencies": {
+    "@luxero/api-infra": "workspace:*",
+    "@luxero/types": "workspace:*",
+    "mongoose": "^9.6.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.19",
+    "@types/node": "^20.11.17"
+  }
+}

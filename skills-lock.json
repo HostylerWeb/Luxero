@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "vike-skills": {
+      "source": "yuann3/skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/vike-skills/SKILL.md",
+      "computedHash": "43926f9980120c5baecc278e0982acf973e398ef341f7ae577739f7bb132f008"
+    },
+    "vitest": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "669c7275f7e1379b06b2bcfa593603aead4c983b951c7e8edbc09640aa38d0a1"
+    }
+  }
+}

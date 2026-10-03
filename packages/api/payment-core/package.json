@@ -1,0 +1,27 @@
+{
+  "name": "@luxero/api-payment-core",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@luxero/utils": "workspace:*",
+    "@luxero/api-logger": "workspace:*",
+    "mongoose": "^9.6.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/",
+    "test": "vitest run",
+    "test:ci": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.8"
+  }
+}

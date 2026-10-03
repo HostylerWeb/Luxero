@@ -1,0 +1,51 @@
+# Environment files (never commit secrets or env-specific configs)
+.env
+*.env
+staging.env
+production.env
+nginx.conf
+environments/
+
+# Security / sensitive
+.ssh/
+ssh_keys.zip
+
+# Personal / tool config
+.mcp.json
+.mcp/
+opencode.json
+opencode/
+.claude/
+
+# Temp / test artifacts
+.data/
+staging-json-db/
+.test-deploy-notify
+.playwright-mcp/
+e2e/test-results/
+e2e/playwright-report/
+*.png
+
+# Dependencies and build
+node_modules/
+dist/
+.turbo/
+.next/
+.turborc
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+.vscode/
+.idea/
+
+# Script artifacts (HAR files, screenshots, audit results)
+/.artifacts/
+
+# Environment files (ignore all .env.* except .env.example)
+.env
+.env.*
+!.env.example

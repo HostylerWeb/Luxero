@@ -1,0 +1,26 @@
+{
+  "name": "@luxero/env",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./vike": "./src/vike.ts",
+    "./next": "./src/next.ts",
+    "./server": "./src/server.ts",
+    "./client": "./src/vike.ts",
+    "./admin": "./src/next.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "lint": "biome check src/"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

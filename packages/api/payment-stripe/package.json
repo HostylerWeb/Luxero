@@ -1,0 +1,30 @@
+{
+  "name": "@luxero/api-payment-stripe",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/",
+    "test": "vitest run",
+    "test:ci": "vitest run"
+  },
+  "dependencies": {
+    "@luxero/api-axios": "workspace:*",
+    "@luxero/env": "workspace:*",
+    "stripe": "^17.6.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.19",
+    "@types/node": "^20.11.17",
+    "axios": "^1.16.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.8"
+  }
+}

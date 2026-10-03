@@ -1,0 +1,109 @@
+import { runtimeConfig } from "@luxero/api-infra/runtime-config";
+import {
+  createLuxeroProfile,
+  type HookAuthUser,
+  syncProfileFromAuthUser,
+} from "@luxero/auth-admin/auth-hooks";
+import { getMongoDb } from "@luxero/auth-admin/auth-mongo";
+import { getBool, getEnv, getNum } from "@luxero/env/server";
+import type { BetterAuthOptions } from "better-auth";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+
+export interface BuildAuthConfig {
+  appName: string;
+  baseURL: string;
+  trustedOrigins:
+    | string[]
+    | ((
+        request?: Request
+      ) => (string | null | undefined)[] | Promise<(string | null | undefined)[]>);
+  emailAndPassword?: {
+    enabled: boolean;
+    requireEmailVerification?: boolean;
+    onExistingUserSignUp?: (opts: { user: { emailVerified: boolean } }) => Promise<void>;
+  };
+  emailVerification?: {
+    sendOnSignUp?: boolean;
+    autoSignInAfterVerification?: boolean;
+  };
+  session?: {
+    modelName?: string;
+    storeSessionInDatabase?: boolean;
+  };
+  user?: {
+    modelName?: string;
+  };
+  account?: {
+    modelName?: string;
+    accountLinking?: {
+      enabled: boolean;
+      trustedProviders?: string[];
+      updateUserInfoOnLink?: boolean;
+    };
+  };
+  verification?: {
+    modelName?: string;
+  };
+  plugins: BetterAuthOptions["plugins"];
+  hooks?: BetterAuthOptions["hooks"];
+  socialProviders?: BetterAuthOptions["socialProviders"];
+  onAPIErrorURL: string;
+  rateLimit?: Record<string, unknown>;
+  advanced?: Record<string, unknown>;
+}
+
+export function buildAuth(config: BuildAuthConfig): BetterAuthOptions {
+  return {
+    appName: config.appName,
+    secret: getEnv("BETTER_AUTH_SECRET"),
+    baseURL: config.baseURL,
+    trustedOrigins: config.trustedOrigins,
+    database: mongodbAdapter(getMongoDb()),
+    session: {
+      storeSessionInDatabase: true,
+      ...config.session,
+    },
+    emailAndPassword: config.emailAndPassword,
+    emailVerification: config.emailVerification,
+    user: {
+      additionalFields: {
+        firstName: { type: "string" as const, required: false, input: true },
+        lastName: { type: "string" as const, required: false, input: true },
+      },
+      ...config.user,
+    },
+    account: config.account,
+    verification: config.verification,
+    plugins: config.plugins,
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (user: HookAuthUser) => {
+            await createLuxeroProfile(user);
+          },
+        },
+        update: {
+          after: async (user: HookAuthUser) => {
+            await syncProfileFromAuthUser(user);
+          },
+        },
+      },
+    },
+    hooks: config.hooks,
+    rateLimit: {
+      enabled: getNum("RATE_LIMIT_AUTH", 0) > 0,
+      storage: "memory" as const,
+      window: 60,
+      max: 20,
+      ...config.rateLimit,
+    },
+    advanced: {
+      useSecureCookies: runtimeConfig.secureCookies,
+      crossSubDomainCookies: { enabled: getBool("CROSS_SUBDOMAIN_COOKIES") },
+      defaultCookieAttributes: { sameSite: runtimeConfig.secureCookies ? "none" : "lax" },
+      ...config.advanced,
+    },
+    socialProviders: config.socialProviders,
+    onAPIError: { errorURL: config.onAPIErrorURL },
+  };
+}

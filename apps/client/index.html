@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (() => {
+              try {
+                const root = document.documentElement;
+                root.classList.remove("light", "dark");
+                root.classList.add("dark");
+                root.style.colorScheme = "dark";
+              } catch {
+                // Ignore errors and keep default CSS.
+              }
+            })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#C9A84C" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://assets.luxero.win" />
+    <link rel="preconnect" href="https://assets.luxero.win" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2WZB820JXC"></script>
+
+    <title>Luxero</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

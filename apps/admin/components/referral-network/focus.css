@@ -1,0 +1,28 @@
+.referral-focus-canvas .react-flow__node.rfn-focus .rfn-card {
+  box-shadow:
+    0 0 0 2px var(--primary),
+    0 0 32px -4px oklch(0.72 0.18 264 / 0.55);
+}
+
+.referral-focus-canvas .react-flow__node.rfn-focus-root .rfn-card {
+  box-shadow:
+    0 0 0 2px oklch(0.78 0.17 80),
+    0 0 32px -4px oklch(0.78 0.17 80 / 0.55);
+}
+
+.referral-focus-canvas .react-flow__edge.rfn-edge-focus .react-flow__edge-path {
+  stroke-width: 2.25;
+}
+
+.referral-focus-canvas .react-flow__node .rfn-focus-action {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.referral-focus-canvas .react-flow__node:hover .rfn-focus-action,
+.referral-focus-canvas .react-flow__node.rfn-focus .rfn-focus-action {
+  opacity: 1;
+}

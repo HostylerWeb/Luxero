@@ -1,0 +1,103 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --color-background: oklch(0.1 0 0);
+  --color-foreground: oklch(0.93 0 0);
+  --color-gold: oklch(0.78 0.14 85);
+  --color-gold-light: oklch(0.85 0.12 85);
+  --color-gold-dark: oklch(0.65 0.14 85);
+  --color-card: oklch(0.14 0 0);
+  --color-card-foreground: oklch(0.93 0 0);
+  --color-muted: oklch(0.18 0 0);
+  --color-muted-foreground: oklch(0.6 0 0);
+  --color-border: oklch(0.22 0 0);
+  --color-border-subtle: oklch(1 0 0 / 0.08);
+  --color-primary: oklch(0.78 0.14 85);
+  --color-primary-foreground: oklch(0 0 0);
+  --color-secondary: oklch(0.18 0 0);
+  --color-secondary-foreground: oklch(0.93 0 0);
+  --color-accent: oklch(0.18 0 0);
+  --color-accent-foreground: oklch(0.93 0 0);
+  --color-destructive: oklch(0.55 0.18 27);
+  --color-destructive-foreground: oklch(0.98 0 0);
+  --color-ring: oklch(0.3 0 0);
+  --color-success: oklch(0.65 0.18 145);
+  --color-warning: oklch(0.75 0.15 65);
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+  --gold-rgb: 212 175 55;
+}
+
+@layer utilities {
+  .luxero-container {
+    max-width: min(100% - 2rem, 80rem);
+    margin-inline: auto;
+  }
+}
+
+@keyframes pulse-gold {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgb(var(--gold-rgb) / 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgb(var(--gold-rgb) / 0.4);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+
+@utility animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out;
+}
+
+@keyframes blur-in {
+  from {
+    filter: blur(20px);
+    opacity: 0;
+    transform: scale(1.08);
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@utility animate-blur-in {
+  animation: blur-in 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+select option {
+  background: var(--color-card);
+  color: var(--color-foreground);
+}

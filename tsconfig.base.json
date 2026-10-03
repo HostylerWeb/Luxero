@@ -1,0 +1,154 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "@luxero/content": [
+        "./packages/content/src"
+      ],
+      "@luxero/icons": [
+        "./packages/icons/src"
+      ],
+      "@luxero/types": [
+        "./packages/types/src"
+      ],
+      "@luxero/utils": [
+        "./packages/utils/src"
+      ],
+      "@luxero/auth-admin": [
+        "./packages/auth-admin/src"
+      ],
+      "@luxero/auth-admin/*": [
+        "./packages/auth-admin/src/*"
+      ],
+      "@luxero/api-server": [
+        "./packages/api-server/src"
+      ],
+      "@luxero/api-server/*": [
+        "./packages/api-server/src/*"
+      ],
+      "@luxero/api-db": [
+        "./packages/api-db/src"
+      ],
+      "@luxero/api-db/*": [
+        "./packages/api-db/src/*"
+      ],
+      "@luxero/api-infra": [
+        "./packages/api-infra/src"
+      ],
+      "@luxero/api-infra/*": [
+        "./packages/api-infra/src/*"
+      ],
+      "@luxero/api-email": [
+        "./packages/api/email/src"
+      ],
+      "@luxero/api-email/*": [
+        "./packages/api/email/src/*"
+      ],
+      "@luxero/api-errors": [
+        "./packages/api-errors/src"
+      ],
+      "@luxero/api-errors/*": [
+        "./packages/api-errors/src/*"
+      ],
+      "@luxero/api-compliance": [
+        "./packages/api-compliance/src"
+      ],
+      "@luxero/api-compliance/*": [
+        "./packages/api-compliance/src/*"
+      ],
+      "@luxero/api-referrals": [
+        "./packages/api-referrals/src"
+      ],
+      "@luxero/api-referrals/*": [
+        "./packages/api-referrals/src/*"
+      ],
+      "@luxero/api-storage": [
+        "./packages/api-storage/src"
+      ],
+      "@luxero/api-storage/*": [
+        "./packages/api-storage/src/*"
+      ],
+      "@luxero/api-tickets": [
+        "./packages/api-tickets/src"
+      ],
+      "@luxero/api-tickets/*": [
+        "./packages/api-tickets/src/*"
+      ],
+      "@luxero/api-validation": [
+        "./packages/api-validation/src"
+      ],
+      "@luxero/api-validation/*": [
+        "./packages/api-validation/src/*"
+      ],
+      "@luxero/api-logger": [
+        "./packages/api-logger/src"
+      ],
+      "@luxero/api-logger/*": [
+        "./packages/api-logger/src/*"
+      ],
+      "@luxero/api-payment-core": [
+        "./packages/api-payment-core/src"
+      ],
+      "@luxero/api-payment-core/*": [
+        "./packages/api-payment-core/src/*"
+      ],
+      "@luxero/api-payment-local": [
+        "./packages/api-payment-local/src"
+      ],
+      "@luxero/api-payment-local/*": [
+        "./packages/api-payment-local/src/*"
+      ],
+      "@luxero/api-payment-paytriot": [
+        "./packages/api-payment-paytriot/src"
+      ],
+      "@luxero/api-payment-paytriot/*": [
+        "./packages/api-payment-paytriot/src/*"
+      ],
+      "@luxero/api-payment-stripe": [
+        "./packages/api/payment-stripe/src"
+      ],
+      "@luxero/api-payment-stripe/*": [
+        "./packages/api/payment-stripe/src/*"
+      ],
+      "@luxero/api-admin": [
+        "./packages/api-admin/src"
+      ],
+      "@luxero/api-admin/*": [
+        "./packages/api-admin/src/*"
+      ],
+      "@luxero/api-axios": [
+        "./packages/api/axios/src"
+      ],
+      "@luxero/api-axios/*": [
+        "./packages/api/axios/src/*"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".turbo",
+    "apps/*/dist",
+    "apps/*/node_modules",
+    "apps/*/.next"
+  ]
+}

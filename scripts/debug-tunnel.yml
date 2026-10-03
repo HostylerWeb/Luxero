@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  tunnel:
+    image: alpine:latest
+    network_mode: host
+    expose:
+      - 8891
+    command: /bin/sh -c "apk add --no-cache socat >/dev/null 2>&1 && exec socat TCP-LISTEN:8891,reuseaddr,fork TCP:127.0.0.1:8889"

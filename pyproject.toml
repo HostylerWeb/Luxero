@@ -1,0 +1,9 @@
+[project]
+name = "luxero-turborepo"
+version = "0.0.1"
+description = "Luxero turborepo dev tooling"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["devserver-mcp @ git+https://github.com/Uninen/devserver-mcp.git@v0.6.0"]

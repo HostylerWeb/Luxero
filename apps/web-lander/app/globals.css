@@ -1,0 +1,303 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@source "../../../packages/ui/src";
+@source "../../../packages/dashboard-ui/src";
+@source "../../../packages/api-admin/src";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ── Luxero brand tokens ── */
+  --color-bg-deep: oklch(0.1 0 0);
+  --color-gold: oklch(0.82 0.14 85);
+  --color-surface: oklch(0.11 0 0);
+  /* ── Cinematic luxury palette ── */
+  --color-gold-dim: oklch(0.7 0.1 85);
+  --color-mist: oklch(0.97 0 0 / 0.06);
+  --color-void: oklch(0.05 0 0);
+  --color-gold-glow: oklch(0.82 0.14 85 / 0.25);
+  /* ── Brand-aligned extras ── */
+  --gold-rgb: 212 175 55;
+  --gold-light: oklch(0.85 0.12 85);
+  --gold-dark: oklch(0.65 0.14 85);
+  --surface-1: oklch(0.1 0.005 250);
+  --surface-2: oklch(0.13 0.005 250);
+  --surface-3: oklch(0.17 0.005 250);
+  --border-subtle: oklch(0.22 0.01 250 / 0.5);
+  --border-active: oklch(0.82 0.14 85 / 0.45);
+  --gold-glow-strong: oklch(0.82 0.14 85 / 0.4);
+
+  /* ── Typography ── */
+  --font-display: "Cormorant Garamond", "Georgia", serif;
+  --font-body: "Outfit", "Helvetica Neue", sans-serif;
+  --font-mono: "Space Mono", "Courier New", monospace;
+
+  /* ── Glassmorphism ── */
+  --glass-bg: oklch(0.97 0 0 / 0.04);
+  --glass-border: oklch(1 0 0 / 0.08);
+  --glass-blur: blur(24px);
+
+  /* ── Animation easings ── */
+  --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-reveal: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-premium: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* ── Duration tokens ── */
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 600ms;
+  --duration-reveal: 800ms;
+
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.14 0 0);
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.14 0 0);
+  --popover-foreground: oklch(0.97 0 0);
+  --primary: oklch(0.82 0.14 85);
+  --primary-foreground: oklch(0.1 0 0);
+  --secondary: oklch(0.18 0 0);
+  --secondary-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.18 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --accent: oklch(0.82 0.14 85);
+  --accent-foreground: oklch(0.1 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.97 0 0);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.1);
+  --ring: oklch(0.82 0.14 85);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-bg-deep: var(--color-bg-deep);
+  --color-gold: var(--color-gold);
+  --color-surface: var(--color-surface);
+  --color-gold-dim: var(--color-gold-dim);
+  --color-mist: var(--color-mist);
+  --color-void: var(--color-void);
+  --color-gold-glow: var(--color-gold-glow);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-active: var(--border-active);
+  --color-gold-glow-strong: var(--gold-glow-strong);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ── Keyframes ── */
+@keyframes pulseGold {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgb(var(--gold-rgb) / 0.1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgb(var(--gold-rgb) / 0.3);
+  }
+}
+
+@keyframes fadeInStagger {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply text-foreground antialiased;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--gold-rgb) / 0.25);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--gold-rgb) / 0.45);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--gold-rgb) / 0.25) transparent;
+  }
+}
+
+/* ── Utility classes ── */
+.glass {
+  background: oklch(0.16 0.005 250 / 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.gold-glow {
+  box-shadow: 0 0 15px rgb(var(--gold-rgb) / 0.3);
+}
+
+.gold-glow-hover:hover {
+  border-color: rgb(var(--gold-rgb) / 0.4);
+}
+
+.card-bezel {
+  padding: 1.5px;
+  border-radius: 2rem;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.card-bezel-inner {
+  border-radius: calc(2rem - 0.375rem);
+  background: var(--card);
+  overflow: hidden;
+}
+
+.card-bezel-sm {
+  padding: 1.5px;
+  border-radius: 1.5rem;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.card-bezel-inner-sm {
+  border-radius: calc(1.5rem - 0.375rem);
+  background: var(--card);
+  overflow: hidden;
+}
+
+.card-lift:hover {
+  border-color: rgb(var(--gold-rgb) / 0.5);
+}
+
+.ease-premium {
+  transition-timing-function: var(--ease-premium);
+}
+
+/* ── Scene sticky (dvh with vh fallback) ── */
+.scene-sticky {
+  height: 100dvh;
+}
+
+/* ── Glass blur with webkit prefix fallback ── */
+.backdrop-blur-24 {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* ── Mount-triggered reveal keyframes ── */
+@keyframes ar-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ar-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ar-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Scrollbar-none (hide scrollbar, keep functionality) ── */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

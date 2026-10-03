@@ -1,0 +1,6 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]
+    - main [ref=e77]
+    - contentinfo [ref=e116]
+  - region "Notifications alt+T"

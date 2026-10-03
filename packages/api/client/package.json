@@ -1,0 +1,38 @@
+{
+  "name": "@luxero/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "lint": "biome check src/"
+  },
+  "dependencies": {
+    "@luxero/api-axios": "workspace:*",
+    "axios": "^1.16.0",
+    "@luxero/auth-client": "workspace:*",
+    "@luxero/env": "workspace:*",
+    "@luxero/icons": "workspace:*",
+    "@luxero/types": "workspace:*",
+    "@luxero/utils": "workspace:*",
+    "@marsidev/react-turnstile": "^1.5.3",
+    "@sentry/node": "^8.55.2",
+    "@sentry/react": "^8.55.2",
+    "@tanstack/react-query": "^5.100.6",
+    "better-auth": "^1.6.11",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "sonner": "^2.0.7",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.8"
+  }
+}

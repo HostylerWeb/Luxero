@@ -1,0 +1,8 @@
+[pkgManager]
+name = "bun"
+
+[phases.setup]
+aptPackages = ["ffmpeg", "openssl", "ca-certificates"]
+
+[phases.install]
+cmds = ["bun install --no-verify --ignore-scripts"]

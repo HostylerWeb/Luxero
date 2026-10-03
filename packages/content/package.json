@@ -1,0 +1,30 @@
+{
+  "name": "@luxero/content",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./legal": "./src/legal.ts",
+    "./faqs": "./src/faqs.ts",
+    "./how-it-works": "./src/how-it-works.ts",
+    "./home": "./src/home.ts",
+    "./about": "./src/about.ts",
+    "./contact": "./src/contact.ts",
+    "./ro": "./src/ro/index.ts",
+    "./locales": "./src/locales.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write ."
+  },
+  "peerDependencies": {
+    "react": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^7.0.2"
+  }
+}

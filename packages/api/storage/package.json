@@ -1,0 +1,25 @@
+{
+  "name": "@luxero/api-storage",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/"
+  },
+  "dependencies": {
+    "@luxero/auth-admin": "workspace:*",
+    "@luxero/api-db": "workspace:*",
+    "@luxero/env": "workspace:*",
+    "mongoose": "^9.6.0",
+    "s3mini": "^0.9.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17"
+  }
+}

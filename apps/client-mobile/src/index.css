@@ -1,0 +1,154 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: dark;
+  --background: oklch(0.12 0.005 250);
+  --foreground: oklch(0.95 0.01 85);
+  --card: oklch(0.16 0.005 250);
+  --card-foreground: oklch(0.95 0.01 85);
+  --popover: oklch(0.14 0.005 250);
+  --popover-foreground: oklch(0.95 0.01 85);
+  --primary: oklch(0.78 0.14 85);
+  --primary-foreground: oklch(0.12 0.005 250);
+  --secondary: oklch(0.224 0.01 250);
+  --secondary-foreground: oklch(0.95 0.01 85);
+  --muted: oklch(0.2 0.005 250);
+  --muted-foreground: oklch(0.65 0.02 85);
+  --accent: oklch(0.78 0.14 85);
+  --accent-foreground: oklch(0.12 0.005 250);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.95 0);
+  --border: oklch(0.28 0.01 250);
+  --input: oklch(0.22 0.005 250);
+  --ring: oklch(0.78 0.14 85);
+  --radius: 0.5rem;
+  --gold-rgb: 212 175 55;
+  --gold: oklch(0.78 0.14 85);
+  --gold-light: oklch(0.85 0.12 85);
+  --gold-dark: oklch(0.65 0.14 85);
+  --gold-glow: oklch(0.8 0.16 85 / 0.12);
+  --gold-glow-strong: oklch(0.8 0.16 85 / 0.25);
+  --surface-1: oklch(0.1 0.005 250);
+  --surface-2: oklch(0.13 0.005 250);
+  --surface-3: oklch(0.17 0.005 250);
+  --text-primary: oklch(0.95 0.01 85);
+  --text-secondary: oklch(0.7 0.015 85);
+  --text-muted: oklch(0.48 0.015 85);
+  --emerald: oklch(0.65 0.18 145);
+  --violet: oklch(0.62 0.18 285);
+  --success: oklch(0.65 0.18 145);
+  --warning: oklch(0.75 0.15 65);
+  --info: oklch(0.7 0.15 220);
+  --border-subtle: oklch(0.22 0.01 250 / 0.5);
+  --border-active: oklch(0.78 0.14 85 / 0.45);
+}
+
+@theme inline {
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-gold-glow: var(--gold-glow);
+  --color-gold-glow-strong: var(--gold-glow-strong);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-active: var(--border-active);
+  --color-emerald: var(--emerald);
+  --color-violet: var(--violet);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .luxero-container {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 2.5vw, 4rem);
+  }
+
+  .luxero-container-wide {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 2.5vw, 4rem);
+    max-width: min(100% - 2rem, 80rem);
+  }
+
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .pt-safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .h-safe-bottom {
+    height: env(safe-area-inset-bottom, 0px);
+  }
+
+  .luxero-container-auth {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 1rem;
+    max-width: 28rem;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
+}

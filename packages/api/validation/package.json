@@ -1,0 +1,27 @@
+{
+  "name": "@luxero/api-validation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "hono": "^4.12.15",
+    "typescript": "^7.0.2"
+  }
+}

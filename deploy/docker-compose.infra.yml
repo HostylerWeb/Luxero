@@ -1,0 +1,69 @@
+# Production infrastructure for Luxero on a single VPS.
+# Deploy on server: /var/www/luxero/docker-compose.infra.yml
+# Secrets: /root/luxero-secrets.env (chmod 600, not in git)
+# Network: luxero_net — attach app containers to this network.
+
+name: luxero-infra
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: luxero_mongo
+    restart: unless-stopped
+    env_file:
+      - /root/luxero-secrets.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile"]
+    volumes:
+      - /var/www/luxero/data/mongo:/data/db
+      - /var/www/luxero/data/mongo-keyfile:/etc/mongo-keyfile:ro
+    ports:
+      - "127.0.0.1:27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  mongo-init:
+    image: mongo:7
+    container_name: luxero_mongo_init
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - /var/www/luxero/scripts/mongo-init.js:/init.js:ro
+    entrypoint: >
+      /bin/sh -c "
+      sleep 2;
+      mongosh 'mongodb://mongo:27017/admin' --quiet /init.js || true;
+      exit 0;
+      "
+
+  redis:
+    image: redis:7-alpine
+    container_name: luxero_redis
+    restart: unless-stopped
+    env_file:
+      - /root/luxero-secrets.env
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: >
+      sh -c 'redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru'
+    volumes:
+      - /var/www/luxero/data/redis:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+networks:
+  default:
+    name: luxero_net

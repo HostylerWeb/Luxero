@@ -1,0 +1,1785 @@
+{
+  "head": {
+    "title": "Luxero — Win Amazing Prizes & Luxury Experiences",
+    "description": "Enter competitions on Luxero to win incredible prizes, from premium electronics and designer fashion to unforgettable luxury experiences. Play skill-based contests and try instant win games.",
+    "siteName": "Luxero"
+  },
+  "common": {
+    "loading": "Loading",
+    "error": "Error",
+    "tryAgain": "Try again",
+    "goBack": "Go back",
+    "backToHome": "Back to home",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "search": "Search",
+    "close": "Close",
+    "view": "View",
+    "viewAll": "View all",
+    "noResults": "No results found.",
+    "saving": "Saving...",
+    "processing": "Processing...",
+    "yes": "Yes",
+    "no": "No",
+    "retry": "Retry",
+    "dismiss": "Dismiss",
+    "page": "Page",
+    "firstPage": "First page",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "lastPage": "Last page",
+    "previous": "Previous",
+    "next": "Next",
+    "morePages": "More pages",
+    "noRecords": "No records to display.",
+    "noItems": "No items",
+    "selectAll": "Select all",
+    "selectRow": "Select row",
+    "clearFilters": "Clear filters",
+    "toggleColumns": "Toggle columns",
+    "searchDotDot": "Search...",
+    "selectDotDot": "Select…",
+    "back": "Back",
+    "continue": "Continue",
+    "tapToRetry": "Tap to retry"
+  },
+  "header": {
+    "nav": {
+      "home": "Home",
+      "competitions": "Competitions",
+      "winners": "Winners",
+      "entries": "Entries",
+      "howItWorks": "How It Works",
+      "responsiblePlay": "Responsible Play",
+      "faq": "FAQ",
+      "contact": "Contact"
+    },
+    "auth": {
+      "signIn": "Sign In",
+      "signUp": "Sign Up",
+      "signOut": "Sign Out",
+      "failedSignOut": "Failed to sign out"
+    },
+    "dashboard": {
+      "overview": "Overview",
+      "myTickets": "My Tickets",
+      "orders": "Orders",
+      "wins": "Wins",
+      "referrals": "Referrals",
+      "profile": "Profile",
+      "referAndEarn": "Refer & Earn",
+      "myActivity": "My activity",
+      "account": "Account"
+    },
+    "cart": {
+      "ariaLabel": "Cart",
+      "ariaLabelWithCount": "Cart, {count} item{plural}"
+    },
+    "userMenu": {
+      "anonymous": "Anonymous",
+      "notificationPreferences": "Notification preferences",
+      "disableNotifications": "Disable notifications",
+      "enableNotifications": "Enable notifications"
+    },
+    "mobile": {
+      "menuTitle": "Navigation menu",
+      "closeMenu": "Close menu",
+      "openMenu": "Open menu",
+      "navigation": "Navigation",
+      "support": "Support",
+      "dashboard": "Dashboard",
+      "storefront": "Storefront"
+    },
+    "followUs": "Follow us on:",
+    "marquee": "Enter our Telegram channel for news and discounts",
+    "language": "Language",
+    "sidebar": {
+      "expand": "Expand sidebar",
+      "collapse": "Collapse sidebar",
+      "toggle": "Toggle Sidebar",
+      "storefrontItems": {
+        "browseCompetitions": "Browse competitions",
+        "backToStorefront": "Back to storefront"
+      }
+    }
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "support": "Support",
+    "legal": "Legal",
+    "companyDescription": "Premium prize competitions. Win luxury prizes through fair, transparent competitions.",
+    "aboutUs": "About Us",
+    "faq": "FAQ",
+    "contactUs": "Contact Us",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "cookiePolicy": "Cookie Policy",
+    "freePostalEntry": "Free Postal Entry",
+    "acceptedPayments": "Accepted payment methods",
+    "copyright": "© {year} LUXERO COMPETITIONS LTD SC888260. All rights reserved.",
+    "installApp": "Install App"
+  },
+  "pwa": {
+    "installHeading": "Install {appName}",
+    "tagline": "Add to your home screen for one-tap access",
+    "dismiss": "Dismiss install prompt",
+    "installing": "Installing…",
+    "install": "Install",
+    "share": "Share",
+    "addToHomeScreen": "Add to Home Screen"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "theme": "Theme"
+  },
+  "commandMenu": {
+    "placeholder": "Search commands…",
+    "noResults": "No results found."
+  },
+  "cookieConsent": {
+    "heading": "We value your privacy",
+    "subtitle": "We use cookies to enhance your browsing experience and analyse site traffic.",
+    "acceptAll": "Accept All",
+    "acceptAllDesc": "By clicking \"Accept All\", you consent to our use of all cookie categories. You can also customise your preferences or learn more in our",
+    "customise": "Customise",
+    "cookiePolicy": "Cookie Policy",
+    "customisationDesc": "Manage your cookie preferences below. Necessary cookies cannot be disabled as they are required for the website to function.",
+    "savePreferences": "Save Preferences",
+    "back": "Back",
+    "categories": {
+      "necessary": "Necessary",
+      "necessaryDesc": "Essential for the website to function — always active",
+      "functional": "Functional",
+      "functionalDesc": "Enable social sharing and embedded content",
+      "analytics": "Analytics",
+      "analyticsDesc": "Help us understand how visitors interact with our website",
+      "performance": "Performance",
+      "performanceDesc": "Monitor page load times and site performance",
+      "advertisement": "Advertisement",
+      "advertisementDesc": "Enable targeted advertising and retargeting"
+    }
+  },
+  "appLoader": {
+    "label": "Loading"
+  },
+  "errorBoundary": {
+    "somethingWentWrong": "Something went wrong",
+    "pageNotFound": "Page not found",
+    "unexpectedError": "An unexpected error occurred. Please try again later.",
+    "pageNotFoundDesc": "The page you're looking for doesn't exist or has been moved.",
+    "errorId": "Error ID:",
+    "tryAgain": "Try again",
+    "goBack": "Go back",
+    "backToHome": "Back to home"
+  },
+  "notFound": {
+    "heading": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goBack": "Go back",
+    "backToHome": "Back to home"
+  },
+  "accessDenied": {
+    "heading": "Access Denied",
+    "description": "You do not have permission to access this page. If you believe this is an error, please contact support.",
+    "backToHome": "Back to home"
+  },
+  "pageError": {
+    "heading": "Something went wrong",
+    "description": "We encountered an unexpected error. Please try again or come back later.",
+    "tryAgain": "Try again"
+  },
+  "auth": {
+    "login": {
+      "heading": "Welcome back",
+      "subtitle": "Sign in to your Luxero account"
+    },
+    "signUp": {
+      "heading": "Create your account",
+      "subtitle": "Join Luxero and start winning",
+      "dobPlaceholder": "Select your date of birth"
+    },
+    "verify": {
+      "heading": "Verify your email",
+      "successHeading": "Email verified!",
+      "redirecting": "Redirecting to dashboard…",
+      "instructions": "Enter the verification code for \"{email}\".",
+      "verifyingFromLink": "Verifying from your email link…",
+      "otpInstructions": "Use the code from your inbox to activate your account. If you need a new code, click Resend below.",
+      "linkExpired": "The link has expired. We've sent a fresh code — enter it below.",
+      "linkExpiredAlt": "That link expired. We've sent a fresh code — enter it below.",
+      "missingEmail": "Missing email.",
+      "signUpAgain": "Sign up again"
+    },
+    "forgotPassword": {
+      "heading": "Forgot password",
+      "subtitle": "We'll email you a reset code"
+    },
+    "resetPassword": {
+      "heading": "Reset password",
+      "subtitle": "Enter the code from your email and choose a new password"
+    },
+    "magicLink": {
+      "verifying": "Verifying your sign-in link..."
+    },
+    "form": {
+      "email": "Email",
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "signIn": "Sign In",
+      "signingIn": "Signing in…",
+      "forgotPassword": "Forgot password?",
+      "createAccount": "Create account",
+      "passwordMode": "Password",
+      "magicLinkMode": "Magic link",
+      "magicLink": "Magic link",
+      "or": "or",
+      "signInMethod": "Sign-in method",
+      "emailMeLink": "Email me a sign-in link",
+      "sending": "Sending…",
+      "magicLinkSent": "Magic link sent!",
+      "resendIn": "Resend in {seconds}s…",
+      "continueWithGoogle": "Continue with Google",
+      "signUpWithGoogle": "Sign up with Google",
+      "redirecting": "Redirecting...",
+      "createAccount_submit": "Create account",
+      "creatingAccount": "Creating account…",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "referralCode": "Referral code",
+      "dateOfBirth": "Date of birth",
+      "termsAgreement": "I agree to the",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "alreadyHaveAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "sendResetCode": "Send reset code",
+      "backToSignIn": "Back to sign in",
+      "emailSent": "Email sent!",
+      "checkInbox": "Check your inbox for the reset code.",
+      "redirectingToReset": "Redirecting to reset page…",
+      "resetCode": "Reset code",
+      "newPassword": "New password",
+      "resetPassword": "Reset password",
+      "resetting": "Resetting…",
+      "passwordUpdated": "Password updated!",
+      "redirectingToSignIn": "Redirecting to sign in in {seconds}s…",
+      "verificationCode": "Verification code",
+      "verifyEmail": "Verify email",
+      "verifying": "Verifying…",
+      "codeResent": "Code resent!",
+      "resendVerification": "Resend verification code",
+      "resendCooldown": "Resend in {seconds}s…",
+      "codeSent": "A new verification code was sent to {email}. Check your inbox and spam folder.",
+      "verifyingEmail": "Verifying your email…",
+      "mustAcceptTerms": "You must accept the Terms of Service and Privacy Policy to register.",
+      "dobRequired": "Date of birth is required.",
+      "minAgeRequired": "You must be at least {minAge} years old to register.",
+      "dobHint": "You must be {minAge} or older. This is saved to your profile for checkout.",
+      "referralDiscount": "{percent}% off your first order will be applied at checkout.",
+      "referredBy": "Referred by {name}",
+      "googleSignUpNotice": "We noticed you tried signing in with Google, but no account was found. Create one below to get started.",
+      "currentPassword": "Current password",
+      "confirmPassword": "Confirm password",
+      "changePassword": "Change password",
+      "changing": "Changing…",
+      "minLength": "New password must be at least {minLength} characters.",
+      "passwordsDontMatch": "New passwords do not match.",
+      "loading": "Loading…",
+      "googleSignInMessage": "We noticed you tried signing in with Google, but no account was found. Create one below to get started.",
+      "resetPasswordViaEmail": "Reset password via email"
+    },
+    "error": {
+      "returnToHint": "After signing in, you'll return to where you left off.",
+      "referenceCode": "Reference: {errorCode}",
+      "hints": {
+        "emailVerification": "Open the latest email from Luxero and enter your verification code on the sign-in page.",
+        "passwordReset": "Request a new reset link from the forgot-password page if yours has expired.",
+        "rateLimited": "Wait a minute before trying again so we can keep your account secure.",
+        "oauthRetry": "Start sign-in from the Luxero website rather than a saved or shared link."
+      }
+    },
+    "errorActions": {
+      "goBack": "Go back",
+      "signIn": "Sign in",
+      "createAccount": "Create account",
+      "accountSettings": "Account settings",
+      "resetPassword": "Reset password",
+      "contactSupport": "Contact support",
+      "home": "Home"
+    }
+  },
+  "authErrors": {
+    "default": {
+      "title": "Authentication error",
+      "message": "Something went wrong during sign-in. Please try again or contact support if it keeps happening."
+    },
+    "USER_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "We couldn't find an account with those details. Check your email or create a new account."
+    },
+    "FAILED_TO_CREATE_USER": {
+      "title": "Couldn't create account",
+      "message": "We couldn't finish creating your account. Please try again in a moment."
+    },
+    "FAILED_TO_CREATE_SESSION": {
+      "title": "Couldn't sign you in",
+      "message": "We couldn't start your session. Please sign in again."
+    },
+    "FAILED_TO_UPDATE_USER": {
+      "title": "Couldn't update account",
+      "message": "We couldn't save your account changes. Please try again."
+    },
+    "FAILED_TO_GET_SESSION": {
+      "title": "Session problem",
+      "message": "We couldn't load your session. Sign in again to continue."
+    },
+    "INVALID_PASSWORD": {
+      "title": "Incorrect password",
+      "message": "That password isn't correct. Try again or reset your password."
+    },
+    "INVALID_EMAIL": {
+      "title": "Invalid email",
+      "message": "That email address doesn't look valid. Check it and try again."
+    },
+    "INVALID_EMAIL_OR_PASSWORD": {
+      "title": "Sign-in failed",
+      "message": "That email or password isn't correct. Check your details and try again."
+    },
+    "INVALID_USER": {
+      "title": "Sign-in failed",
+      "message": "We couldn't verify your account for this action. Sign in again and retry."
+    },
+    "SOCIAL_ACCOUNT_ALREADY_LINKED": {
+      "title": "Account already linked",
+      "message": "This social account is already linked to another Luxero account."
+    },
+    "PROVIDER_NOT_FOUND": {
+      "title": "Sign-in provider unavailable",
+      "message": "That sign-in provider isn't available right now. Try email sign-in or another method."
+    },
+    "INVALID_TOKEN": {
+      "title": "Link expired",
+      "message": "This link is invalid or has expired. Request a new password reset or verification email."
+    },
+    "TOKEN_EXPIRED": {
+      "title": "Link expired",
+      "message": "This link has expired. Request a new one and try again."
+    },
+    "ID_TOKEN_NOT_SUPPORTED": {
+      "title": "Sign-in not supported",
+      "message": "This sign-in method isn't supported. Try signing in with email or Google."
+    },
+    "FAILED_TO_GET_USER_INFO": {
+      "title": "Couldn't load profile",
+      "message": "We couldn't get your details from the sign-in provider. Try again or use email sign-in."
+    },
+    "USER_EMAIL_NOT_FOUND": {
+      "title": "Email required",
+      "message": "We need an email address from your sign-in provider. Try another account or sign up with email."
+    },
+    "EMAIL_NOT_VERIFIED": {
+      "title": "Verify your email",
+      "message": "Please verify your email before signing in. Check your inbox for a verification code or link."
+    },
+    "PASSWORD_TOO_SHORT": {
+      "title": "Password too short",
+      "message": "Choose a longer password that meets our security requirements."
+    },
+    "PASSWORD_TOO_LONG": {
+      "title": "Password too long",
+      "message": "Your password exceeds the maximum length. Shorten it and try again."
+    },
+    "USER_ALREADY_EXISTS": {
+      "title": "Account already exists",
+      "message": "An account with this email already exists. Sign in to continue."
+    },
+    "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL": {
+      "title": "Account already exists",
+      "message": "An account with this email already exists. Sign in to continue."
+    },
+    "EMAIL_CAN_NOT_BE_UPDATED": {
+      "title": "Email can't be changed",
+      "message": "Your email address can't be updated this way. Contact support if you need help."
+    },
+    "CHANGE_EMAIL_DISABLED": {
+      "title": "Email change disabled",
+      "message": "Changing your email isn't available right now. Contact support if you need assistance."
+    },
+    "CREDENTIAL_ACCOUNT_NOT_FOUND": {
+      "title": "No password set",
+      "message": "This account doesn't have a password yet. Sign in with Google or set a password from your profile."
+    },
+    "SESSION_EXPIRED": {
+      "title": "Session expired",
+      "message": "Your session has expired. Sign in again to continue."
+    },
+    "FAILED_TO_UNLINK_LAST_ACCOUNT": {
+      "title": "Can't unlink account",
+      "message": "You must keep at least one way to sign in. Add another method before unlinking this one."
+    },
+    "ACCOUNT_NOT_FOUND": {
+      "title": "Account not found",
+      "message": "We couldn't find that linked account. Try connecting it again from your profile."
+    },
+    "USER_ALREADY_HAS_PASSWORD": {
+      "title": "Password already set",
+      "message": "This account already has a password. Sign in with your password to continue."
+    },
+    "CROSS_SITE_NAVIGATION_LOGIN_BLOCKED": {
+      "title": "Sign-in blocked",
+      "message": "This sign-in request was blocked for security reasons. Open Luxero in your browser and try again."
+    },
+    "VERIFICATION_EMAIL_NOT_ENABLED": {
+      "title": "Verification unavailable",
+      "message": "Email verification isn't enabled. Contact support if you need help accessing your account."
+    },
+    "EMAIL_ALREADY_VERIFIED": {
+      "title": "Email already verified",
+      "message": "This email is already verified. You can sign in now."
+    },
+    "EMAIL_MISMATCH": {
+      "title": "Email doesn't match",
+      "message": "The email from your sign-in provider doesn't match your Luxero account email."
+    },
+    "SESSION_NOT_FRESH": {
+      "title": "Please sign in again",
+      "message": "This action needs a fresh sign-in. Sign out and sign in again, then retry."
+    },
+    "LINKED_ACCOUNT_ALREADY_EXISTS": {
+      "title": "Account already linked",
+      "message": "This provider is already linked to your account or another user."
+    },
+    "INVALID_ORIGIN": {
+      "title": "Invalid request",
+      "message": "This sign-in request came from an unrecognised source. Open the site directly and try again."
+    },
+    "INVALID_CALLBACK_URL": {
+      "title": "Sign-in interrupted",
+      "message": "The return address for sign-in wasn't valid. Start again from the Luxero website."
+    },
+    "INVALID_REDIRECT_URL": {
+      "title": "Sign-in interrupted",
+      "message": "The redirect after sign-in wasn't valid. Start again from the Luxero website."
+    },
+    "INVALID_ERROR_CALLBACK_URL": {
+      "title": "Sign-in interrupted",
+      "message": "Something went wrong configuring sign-in. Start again from the home page."
+    },
+    "INVALID_NEW_USER_CALLBACK_URL": {
+      "title": "Sign-in interrupted",
+      "message": "We couldn't complete your new account setup. Try signing up again."
+    },
+    "MISSING_OR_NULL_ORIGIN": {
+      "title": "Invalid request",
+      "message": "This sign-in request was incomplete. Open Luxero in your browser and try again."
+    },
+    "CALLBACK_URL_REQUIRED": {
+      "title": "Sign-in interrupted",
+      "message": "Sign-in couldn't continue. Go back to the site and try again."
+    },
+    "FAILED_TO_CREATE_VERIFICATION": {
+      "title": "Couldn't send verification",
+      "message": "We couldn't create a verification code. Wait a moment and try again."
+    },
+    "FIELD_NOT_ALLOWED": {
+      "title": "Invalid details",
+      "message": "Some of the information provided isn't allowed. Check your entries and try again."
+    },
+    "ASYNC_VALIDATION_NOT_SUPPORTED": {
+      "title": "Validation error",
+      "message": "We couldn't validate your details. Please try again."
+    },
+    "VALIDATION_ERROR": {
+      "title": "Check your details",
+      "message": "Some information wasn't valid. Review the form and try again."
+    },
+    "MISSING_FIELD": {
+      "title": "Missing information",
+      "message": "Please fill in all required fields and try again."
+    },
+    "METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED": {
+      "title": "Session configuration",
+      "message": "This action isn't available with the current session setup. Contact support if this persists."
+    },
+    "BODY_MUST_BE_AN_OBJECT": {
+      "title": "Invalid request",
+      "message": "The sign-in request wasn't valid. Refresh the page and try again."
+    },
+    "PASSWORD_ALREADY_SET": {
+      "title": "Password already set",
+      "message": "You already have a password on this account. Sign in with your password."
+    },
+    "OTP_EXPIRED": {
+      "title": "Code expired",
+      "message": "That verification code has expired. Request a new code from the sign-in or verify page."
+    },
+    "INVALID_OTP": {
+      "title": "Invalid code",
+      "message": "That verification code isn't valid. Check your latest email or request a new code."
+    },
+    "TOO_MANY_ATTEMPTS": {
+      "title": "Too many attempts",
+      "message": "Too many tries with that code. Wait a moment, then request a new code."
+    },
+    "RATE_LIMIT_EXCEEDED": {
+      "title": "Too many attempts",
+      "message": "Too many requests. Wait a moment, then try again."
+    },
+    "banned": {
+      "title": "Account restricted",
+      "message": "This account can't sign in right now. Contact support if you believe this is a mistake."
+    },
+    "access_denied": {
+      "title": "Access denied",
+      "message": "You don't have permission to complete this action."
+    },
+    "signup_disabled": {
+      "title": "Account not found",
+      "message": "This Google account isn't registered with Luxero. Create a new account to get started."
+    }
+  },
+  "cart": {
+    "heading": "Your Cart",
+    "emptyTitle": "Your cart is empty",
+    "emptyDescription": "Start browsing competitions to add tickets to your cart.",
+    "orderSummary": "Order Summary",
+    "proceedToCheckout": "Proceed to Checkout",
+    "guestCheckout": "Guest Checkout",
+    "loginToCheckout": "Login to Checkout",
+    "continueShopping": "Continue Shopping",
+    "browseAllCompetitions": "Browse all competitions",
+    "remove": "Remove",
+    "removeFromCart": "Remove from cart",
+    "discountCode": "Discount code",
+    "apply": "Apply",
+    "applying": "Applying",
+    "referralDiscountApplied": "Referral discount applied",
+    "referralDiscountDesc": "{percent}% off your first order — this discount is locked and cannot be removed.",
+    "promoApplied": "Promo Applied",
+    "referralApplied": "Referral Applied",
+    "unavailable": "Unavailable",
+    "maxReached": "Max reached",
+    "limitLabel": "Limit {n}",
+    "limitNowLabel": "Limit is now {n}",
+    "soldOutDesc": "Sold out — tickets were purchased by others",
+    "signInForDiscount": "Sign in to use this discount",
+    "guestDiscountHint": "Have a code? Sign in to use discount codes.",
+    "youWereReferred": "You were referred! Sign in to claim your discount.",
+    "unavailableItems": "Unavailable Items",
+    "reducedAvailability": "Reduced availability",
+    "adjustQuantities": "Adjust quantities before checking out",
+    "removeUnavailable": "Remove unavailable items before checking out",
+    "onlyAvailable": "Only {n} tickets available now",
+    "maxTicketsReached": "Maximum tickets reached",
+    "perTicket": "{n} / Ticket",
+    "itemsChangedTitle": "{n} item{plural} updated while you were away",
+    "adjustmentReasons": {
+      "availability": "Only {n} ticket{plural} available — your quantity was adjusted from {prev}",
+      "maxPerUser": "You've reached your ticket limit for this competition",
+      "walletReclamp": "Referral wallet adjusted: {title} reduced to {n}",
+      "competitionEnded": "{title} ended — removed from cart"
+    },
+    "unavailableAlert": {
+      "single": "\"{name}\" is no longer available",
+      "multiple": "{n} items are no longer available",
+      "description": "Tickets were purchased by others.",
+      "removeSingle": "Remove unavailable items to proceed.",
+      "removeMultiple": "Remove {n} unavailable items to proceed."
+    },
+    "reducedAlert": {
+      "single": "\"{title}\" has reduced availability",
+      "multiple": "{n} items have reduced availability",
+      "itemDesc": "{title}: only {n} of {m} available. Adjust quantity to continue."
+    },
+    "toasts": {
+      "referralApplied": "Referral code applied! You save {amount}",
+      "promoApplied": "Promo code applied! You save {amount}",
+      "invalidCode": "Invalid discount code",
+      "failedToApply": "Failed to apply discount code",
+      "failedToRemove": "Failed to remove discount",
+      "removeUnavailable": "Remove unavailable items before checking out"
+    }
+  },
+  "checkout": {
+    "meta": {
+      "title": "Checkout — Luxero",
+      "description": "Complete your purchase securely on Luxero. Review your cart, enter shipping details, and choose a payment method. Win amazing prizes with every entry.",
+      "ogDescription": "Complete your purchase securely on Luxero. Review your cart, enter shipping details, and choose a payment method."
+    },
+    "heading": "Secure Checkout",
+    "subtitle": "Complete your purchase in just a few steps",
+    "reviewOrder": "Review Your Order",
+    "reviewOrderDesc": "Verify your details before completing your purchase",
+    "contactInformation": "Contact Information",
+    "dateOfBirth": "Date of Birth",
+    "shipping": "Shipping",
+    "contact": {
+      "emailLabel": "Email address",
+      "phoneLabel": "Phone number (optional)",
+      "emailPlaceholder": "john@example.com",
+      "phonePlaceholder": "+44 7123 456789",
+      "description": "We'll use this to send you order updates.",
+      "back": "Back",
+      "continue": "Continue"
+    },
+    "firstName": "First name",
+    "firstNamePlaceholder": "John",
+    "lastName": "Last name",
+    "lastNamePlaceholder": "Doe",
+    "emailAddress": "Email address",
+    "emailPlaceholder": "john@example.com",
+    "phoneNumber": "Phone number (optional)",
+    "phonePlaceholder": "+44 7123 456789",
+    "dobPlaceholder": "Select your date of birth",
+    "dobRequired": "Date of birth is required.",
+    "dobDescription": "Required for age verification. Must be at least 18 years old.",
+    "emailAlreadyRegistered": "This email is already registered.",
+    "signIn": "Sign in",
+    "toAccessAccount": "to access your account.",
+    "fillingFromProfile": "Filling from profile...",
+    "emailValidation": "Enter a valid email address.",
+    "addressValidation": "Fill in address line, city, and postcode.",
+    "addressSaveError": "Failed to save your address. Please try again.",
+    "cartEmptyError": "Your cart is empty — items may have been purchased by others.",
+    "soldOutError": "\"{title}\" is sold out. Please remove it from your cart.",
+    "orderFailed": "Order failed. Please try again.",
+    "shippingAddress": {
+      "heading": "Shipping Address",
+      "description": "Where should we send your prize?",
+      "addressLine1": "Address Line 1",
+      "addressLine2": "Address Line 2 (optional)",
+      "address1Placeholder": "123 Main Street",
+      "address2Placeholder": "Apartment, Floor",
+      "city": "City",
+      "cityPlaceholder": "London",
+      "postcode": "Postcode",
+      "postcodePlaceholder": "SW1A 1AA",
+      "back": "Back",
+      "continueToPayment": "Continue to Payment"
+    },
+    "guestDisabled": "Guest checkout is disabled",
+    "guestDisabledDesc": "Please sign in or create an account to continue with your purchase.",
+    "sslCheckout": "256-bit SSL encrypted checkout",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "free": "Free",
+    "total": "Total",
+    "securePayment": "Secure Payment",
+    "securePaymentDesc": "Your payment information is never stored on our servers.",
+    "encryptedProtected": "Encrypted & Protected",
+    "encryptedProtectedDesc": "All data is protected with 256-bit SSL encryption.",
+    "skillBased": "Skill-based competition — not a game of chance",
+    "age18plus": "Participants must be 18 or over. If you have concerns about your participation, contact GamCare:",
+    "gamCarePhone": "0808 8020 133",
+    "beGambleAware": "begambleaware.org",
+    "orVisit": "or visit",
+    "choosePayment": "Choose how to pay",
+    "choosePaymentDesc": "We support the following payment methods. Pick the one that suits you.",
+    "choosePaymentAria": "Choose a payment method",
+    "environment": "Environment: {env}",
+    "defaultBadge": "Default",
+    "acceptedCardBrands": "Accepted card brands",
+    "referralTicketsWallet": "Referral tickets wallet",
+    "walletRemaining": "Remaining",
+    "walletAppliedHere": "Applied here",
+    "walletOf": "of {n}",
+    "walletDescription": "Apply free referral tickets to individual cart lines before checkout.",
+    "walletHint": "Up to {n} referral ticket{plural} on this line",
+    "walletLocked": "Locked during payment",
+    "walletAvailable": "{n} available",
+    "walletUpdateError": "Failed to update wallet tickets. Please try again.",
+    "walletTicketsFor": "Wallet tickets for {title}",
+    "removeOneWalletTicket": "Remove one wallet ticket",
+    "addOneWalletTicket": "Add one wallet ticket",
+    "continueToPayment": "Continue to Payment",
+    "loadingPayment": "Loading payment...",
+    "preparingCheckout": "Preparing checkout",
+    "processingPayment": "Processing payment",
+    "loadingPaymentForm": "Loading payment form",
+    "payWithCard": "Pay {amount} with Card",
+    "payDetailsRequired": "Complete your details to continue",
+    "redirectingSecure": "Redirecting to secure page…",
+    "openingPopup": "Opening secure payment…",
+    "cardPaymentInfo": "Pay securely by debit or credit card. You'll be redirected to a secure payment page to complete your transaction.",
+    "ticketConfirmNote": "Your tickets are issued as soon as your payment is confirmed. No card details are stored by Luxero.",
+    "popupAlert": "A secure popup window will open to complete your payment. Please ensure popups are allowed for this site.",
+    "redirectAlert": "By continuing, you will be redirected to our secure payment page to complete your transaction. Payments are processed in accordance with PSD2 strong customer authentication requirements.",
+    "cardUnavailable": "Card payment is currently unavailable. Please contact support or try again later.",
+    "cardPaymentStartError": "Card payment could not be started. Please try again.",
+    "cardPaymentFormMissing": "Paytriot did not return a payment form. Please try again.",
+    "cardPaymentFieldsMissing": "Paytriot did not return payment fields. Please try again.",
+    "cardPaymentSystemNotReady": "Payment system is not ready. Please refresh and try again.",
+    "cardPaymentPopupNotOpened": "Payment window could not be opened. Please refresh and try again.",
+    "configLoadError": "Unable to load payment configuration right now. Please refresh and try again.",
+    "paymentCancelled": "Payment was cancelled. You can try again.",
+    "paymentError": "Payment could not be completed. Please try again.",
+    "tryAgain": "Try again",
+    "paymentFormLoadError": "The payment form could not be loaded. Start a new payment session to try again.",
+    "startNewPaymentSession": "Start a new payment session",
+    "stripeSessionErrors": {
+      "AUTH_FAILED": "Stripe payment is misconfigured. Please contact support.",
+      "RATE_LIMITED": "Stripe is busy right now. Please try again in a moment.",
+      "INVALID_REQUEST": "Stripe could not process this payment. Please try again.",
+      "INVALID_INTENT": "This payment session is no longer valid. Please try again.",
+      "TIMEOUT": "Stripe took too long to respond. Please try again.",
+      "NETWORK": "Could not reach the payment provider. Please check your connection and try again."
+    },
+    "cardBrands": {
+      "testMode": "Test mode (Local Bypass)",
+      "testModeDesc": "Skip the payment step entirely. Only available in non-production environments.",
+      "devOnly": "Dev only",
+      "cardPayment": "Card Payment",
+      "cardPaymentDesc": "Pay securely by debit/credit card via Paytriot.",
+      "stripeCard": "Card",
+      "stripeCardDesc": "Pay securely by credit/debit card, Apple Pay, Google Pay or more via Stripe.",
+      "fastSecure": "Fast & secure"
+    },
+    "localBypass": {
+      "testMode": "Test mode",
+      "fillFieldsFirst": "Complete required fields first",
+      "infoAlert": "Local bypass skips payment processing. Orders complete immediately — for development and staging only.",
+      "formInvalidAlert": "Please complete your contact email and shipping address before completing the order.",
+      "completeOrder": "Complete Order {amount}",
+      "processing": "Processing…"
+    },
+    "freeEntry": {
+      "badge": "Free entry",
+      "fillFieldsFirst": "Complete required fields first",
+      "description": "No payment is required for this order. Confirm your details to complete your free entry.",
+      "complete": "Confirm free entry",
+      "processing": "Processing…"
+    },
+    "zeroTotalError": "Your order total is £0.00. Add at least one paid ticket to continue.",
+    "minimumOrderError": "This order is below the minimum order value of {min}. Add more tickets to continue.",
+    "success": {
+      "purchaseComplete": "Purchase Complete!",
+      "orderConfirmed": "Order confirmed",
+      "yourTickets": "Your Tickets",
+      "whatsNext": "What's Next?",
+      "claimYourAccount": "Claim Your Account",
+      "processingOrder": "Processing Your Order...",
+      "confirmingOrder": "Confirming your order...",
+      "paymentError": "An error occurred",
+      "invalidLink": "Invalid checkout link",
+      "weHitASnag": "We hit a snag",
+      "doNotRetry": "Important: do not retry",
+      "errorDesc": "Something went wrong with your payment. Please contact support if you think there was an issue.",
+      "invalidLinkDesc": "This confirmation link is missing required payment details. Check your email or orders dashboard for your receipt.",
+      "completedDesc": "Your order has been confirmed and your tickets are now active.",
+      "processingDesc": "We're confirming your payment. This usually takes a few seconds.",
+      "processingDetail": "Your payment is being verified. You'll receive a confirmation email shortly.",
+      "whatsNextSteps": {
+        "step1Title": "Your tickets are confirmed",
+        "step1Desc": "Check your dashboard to see your ticket numbers",
+        "step2Title": "Wait for the draw",
+        "step2Desc": "The winner will be selected randomly when the competition ends",
+        "step3Title": "Win and celebrate!",
+        "step3Desc": "If you're lucky, we'll notify you and arrange prize delivery"
+      },
+      "claimAccountDesc": "Create an account to track your orders, view your tickets, and enter more competitions. Your tickets are safe and will be linked when you sign up.",
+      "createAccount": "Create Account",
+      "signIn": "Sign In",
+      "tryAgain": "Try Again",
+      "contactSupport": "Contact Support",
+      "viewMyOrders": "View My Orders",
+      "backToCart": "Back to Cart",
+      "viewMyTickets": "View My Tickets",
+      "browseMoreCompetitions": "Browse More Competitions",
+      "browseCompetitions": "Browse Competitions",
+      "reviewWins": "Review wins",
+      "youWonInstant": "You won {count} instant prize{plural}",
+      "viewInDashboard": "View in your dashboard to claim",
+      "cartClearWarning": "Your order is confirmed, but we couldn't clear your cart automatically. You can empty it from the cart page.",
+      "orderFetchError": "We couldn't load your order details. Your tickets are confirmed — check your dashboard for full details.",
+      "competition": "Competition",
+      "ticketsPurchased": "{count} ticket{plural} purchased",
+      "winningTicket": "Winning ticket",
+      "winningTicketAria": "{title}, winning ticket #{ticket}",
+      "congratulations": "Congratulations!",
+      "congratulationsYouWon": "Congratulations, you won!",
+      "youWonInstantDesc": "You won {count} instant prize{plural}. View them in your dashboard.",
+      "totalTickets": "Total tickets: {count}",
+      "winCount": "{count} win{plural}",
+      "ticketsToCompetition": "{count} Ticket{plural} to {title}",
+      "thisCompetition": "this competition",
+      "prizeValue": "{value} value",
+      "ticketsAwarded": "Tickets awarded",
+      "awaitingProcessing": "Awaiting processing",
+      "wasChargedMessage": "Your payment was received but we encountered an issue processing your order. Our team has been notified and will resolve this soon — your card has been charged.",
+      "notChargedMessage": "Something went wrong with your payment. Your card has not been charged. Please try again or contact support.",
+      "doNotRetryDesc": "Your card has been charged. Our support team is reviewing this order and will be in touch. Retrying could result in a duplicate charge.",
+      "timedOutTitle": "Payment is still being processed",
+      "timedOutDesc": "Your payment hasn't been confirmed yet — it may still be completing. Check your orders for updates before placing another order.",
+      "timedOutNote": "Do not retry this payment. If your order doesn't appear within a few minutes, contact support.",
+      "cancelled": "Payment cancelled",
+      "cancelledDesc": "Your payment was cancelled and was not completed. You can try again whenever you're ready."
+    }
+  },
+  "competitions": {
+    "listing": {
+      "heading": "Competitions",
+      "description": "Browse our luxury prize competitions and enter for your chance to win amazing prizes.",
+      "failedToLoad": "Failed to load competitions",
+      "failedToLoadDesc": "Something went wrong. Please try again.",
+      "tryAgain": "Try again",
+      "noCompetitions": "No competitions available",
+      "noCompetitionsDesc": "Check back soon for new competitions."
+    },
+    "detail": {
+      "breadcrumbHome": "Home",
+      "breadcrumbCompetitions": "Competitions",
+      "liveNow": "Live Now",
+      "ended": "Ended",
+      "drawComplete": "Draw Complete",
+      "comingSoon": "Coming Soon",
+      "soldOut": "Sold Out",
+      "active": "Active",
+      "taxFree": "Tax Free",
+      "cashAlternative": "Cash Alternative",
+      "bonusDrawsPill": "+{count} bonus draw{plural}",
+      "instantWinsPill": "+{count} instant win{plural}",
+      "perTicket": "/ Ticket",
+      "addToCart": "Add to Cart",
+      "updateCart": "Update Cart",
+      "share": "Share",
+      "aboutThisPrize": "About This Prize",
+      "skillBasedCompetition": "Skill-Based Competition",
+      "answerCorrectly": "Answer correctly to unlock your entry",
+      "skillQuestion": "Skill Question",
+      "required": "Required",
+      "total": "Total",
+      "quickAdd": "Quick add:",
+      "max": "Max",
+      "saving": "Saving...",
+      "cartUpdated": "Cart updated!",
+      "couldNotAddToCart": "Could not add to cart",
+      "youAlreadyOwn": "You already own {count} ticket{plural}",
+      "inCart": "in cart (your maximum)",
+      "limitReached": "limit reached",
+      "upToPerPerson": "Up to {max} tickets per person",
+      "ticketsAvailable": "{max} tickets available",
+      "alreadyInCart": "{count} already in cart",
+      "soldOutBanner": "This competition is sold out",
+      "ticketLimitReached": "You've reached your ticket limit for this competition",
+      "maxPerPersonReached": "You've reached the maximum of {max} tickets per person for this competition.",
+      "maxPerPersonShort": "Maximum {max} tickets per person for this competition",
+      "onlyXAvailable": "Only {count} tickets available",
+      "noMoreTickets": "No more tickets available.",
+      "canPurchaseMore": "You already own {owned} ticket{plural} you can purchase {more} more",
+      "cartUpdateInfo": "Cart will update from {from} to {to} ticket{plural}",
+      "securePayment": "Secure Payment",
+      "verifiedDraw": "Verified Draw",
+      "instantPrizeInfo": "You could win an instant prize with this ticket!",
+      "referFriend": "Refer a Friend",
+      "referFriendDesc": "Share this competition and earn FREE bonus tickets",
+      "ageNotice": "Participants must be 18 years or over. Skill-based competition — not a game of chance.",
+      "freePostalAvailable": "Free postal entry available",
+      "freePostalDesc": "No purchase necessary — see terms",
+      "ticketSales": "Ticket Sales",
+      "drawOn": "Draw on {date}",
+      "drawCountdown": "Draw Countdown",
+      "drawEnded": "Draw ended",
+      "timeUntilDraw": "Time until draw: {summary}",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds",
+      "notFoundTitle": "Competition Not Found",
+      "notFoundDesc": "This competition doesn't exist or has been removed.",
+      "browseCompetitions": "Browse Competitions",
+      "loadingCompetition": "Loading competition details...",
+      "signInRequired": "Sign in required",
+      "signInToEnter": "Sign in to enter",
+      "free": "Free Entry"
+    },
+    "faq": {
+      "heading": "Frequently Asked Questions",
+      "questions": {
+        "howToEnter": "How do I enter this competition?",
+        "howWinnerSelected": "How is the winner selected?",
+        "whenDraw": "When will the draw take place?",
+        "howKnowIfWon": "How will I know if I've won?",
+        "deliveryTime": "How long does prize delivery take?",
+        "howToEnterAnswerQuiz": "Select the number of tickets you wish to purchase, answer the qualifying question, then click 'Add to Cart' to proceed to checkout.",
+        "howToEnterAnswerNoQuiz": "Select the number of tickets you wish to purchase, then click 'Add to Cart' to proceed to checkout.",
+        "howWinnerSelectedAnswer": "When all tickets are sold or the countdown ends, a winner is selected using a verified random number generator (RNG).",
+        "drawScheduled": "The draw is scheduled for {date}.",
+        "drawToBeAnnounced": "The draw date will be announced once all tickets are sold.",
+        "howKnowIfWonAnswer": "The winner will be notified by email at the address used during purchase. Winner's names are also published on our Winners page.",
+        "deliveryTimeAnswer": "Once the winner has been verified, prizes are typically dispatched within 14 working days."
+      }
+    },
+    "related": {
+      "heading": "You Might Also Like"
+    },
+    "bonusAwards": {
+      "heading": "Bonus Draws",
+      "milestoneReached": "{count} milestone{plural} reached",
+      "awardedSoFar": "{count} bonus prize{plural} awarded so far",
+      "configured": "{count} bonus milestone{plural} configured",
+      "noBonusDraws": "No bonus draws configured for this competition.",
+      "autoAwarded": "Auto awarded",
+      "cashPrize": "{value} cash",
+      "winner": "Winner",
+      "reached": "REACHED",
+      "milestonePct": "{percent}% MILESTONE",
+      "pctToGo": "{percent}% to go"
+    },
+    "instantWins": {
+      "heading": "Instant Wins",
+      "activeCount": "{count} active",
+      "stillUpForGrabs": "{count} instant prize{plural} still up for grabs",
+      "allClaimed": "All instant prizes from this competition have been claimed",
+      "noInstantWins": "Instant prizes will appear here when available",
+      "bonusPrizes": "Bonus prizes",
+      "instantWin": "Instant win",
+      "ended": "Ended",
+      "gone": "Gone",
+      "won": "{won} / {total} won",
+      "totalTickets": "{count} total tickets",
+      "invalid": "{count} invalid",
+      "available": "{count} available",
+      "prizeWon": "{count} won",
+      "legendWon": "won",
+      "legendAvailable": "available",
+      "legendInvalid": "invalid"
+    }
+  },
+  "share": {
+    "title": "Share",
+    "description": "Choose a platform or copy the link to share",
+    "telegram": "Telegram",
+    "whatsApp": "WhatsApp",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "openInstagram": "Open Instagram app to share",
+    "tiktok": "TikTok",
+    "email": "Email",
+    "emailSubject": "Check out this competition!",
+    "shareLink": "Share link",
+    "linkCopied": "Link copied",
+    "copyShareLink": "Copy share link",
+    "yourReferralCode": "Your referral code",
+    "referralCode": "Referral code",
+    "codeCopied": "Code copied",
+    "copyReferralCode": "Copy referral code",
+    "referralHint": "Friends can enter this code when they sign up.",
+    "referralCodeIncluded": " — your referral code is included in the link.",
+    "shareCompetition": "Share Competition",
+    "shareReferral": "Share your referral",
+    "shareText": "Check out this competition: {title}"
+  },
+  "dateFormat": {
+    "default": "EEE, d MMM yyyy",
+    "justNow": "just now",
+    "minutesAgo": "{minutes} min ago",
+    "oneHourAgo": "1 hour ago",
+    "hoursAgo": "{hours} hours ago",
+    "yesterday": "yesterday",
+    "daysAgo": "{days} days ago",
+    "inLessThanMinute": "in less than a minute",
+    "inMinutes": "in {minutes} min",
+    "inOneHour": "in 1 hour",
+    "inHours": "in {hours} hours",
+    "tomorrow": "tomorrow",
+    "inDays": "in {days} days",
+    "fallback": "--"
+  },
+  "imagePreview": {
+    "notAvailable": "Image not available",
+    "noImage": "No image",
+    "imagePreview": "Image preview",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "resetZoom": "Reset zoom",
+    "close": "Close",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "goToImage": "Go to image {index}",
+    "galleryItem": "Gallery item {current} of {total}"
+  },
+  "avatar": {
+    "changePicture": "Change profile picture",
+    "addPicture": "Add profile picture",
+    "chooseImage": "Please choose an image file (JPEG, PNG, or WebP).",
+    "imageTooLarge": "Image must be 2MB or smaller.",
+    "uploadDialogTitle": "Change profile picture",
+    "uploadDialogDesc": "Choose a new photo for your profile. PNG, JPG, or WebP · max 2MB.",
+    "dropHere": "Drop image here",
+    "uploadPhoto": "Upload a photo",
+    "dragAndDrop": "Drag and drop or click to browse",
+    "removing": "Removing…",
+    "removePhoto": "Remove photo",
+    "importing": "Importing…",
+    "importFromGoogle": "Import from Google"
+  },
+  "gallery": {
+    "title": "Image gallery"
+  },
+  "dialog": {
+    "close": "Close",
+    "closeSheet": "Close sheet",
+    "panel": "Panel",
+    "dialogLabel": "Dialog"
+  },
+  "profile": {
+    "tabs": {
+      "personal": "Personal",
+      "address": "Address",
+      "social": "Social",
+      "privacy": "Privacy",
+      "security": "Security"
+    },
+    "verified": "Verified",
+    "publicPreview": "Public profile preview",
+    "livePreview": "Live preview",
+    "entryListAppearance": "Entry list appearance",
+    "locationHidden": "Location hidden",
+    "ticketLabel": "Ticket",
+    "lastName": "Last name",
+    "location": "Location",
+    "socialLinks": "Social links",
+    "socials": "Socials",
+    "xAbbr": "X",
+    "ytAbbr": "YT",
+    "webAbbr": "Web",
+    "competitionWins": "Competition wins",
+    "socialLabels": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "twitter": "Twitter / X",
+      "tiktok": "TikTok",
+      "youtube": "YouTube",
+      "website": "Website"
+    },
+    "socialPlaceholders": {
+      "instagram": "@username",
+      "facebook": "@username",
+      "twitter": "@username",
+      "tiktok": "@username",
+      "youtube": "channel URL",
+      "website": "https://yoursite.com"
+    },
+    "privacySettings": {
+      "showLastName": "Show last name",
+      "showLastNameDesc": "Your full name appears on public entries by default",
+      "showLocation": "Show location",
+      "showLocationDesc": "Your country appears on public entries by default"
+    },
+    "connectedAccounts": {
+      "google": "Google",
+      "connected": "Connected — sign in faster and sync your photo",
+      "connect": "Link for one-tap sign in and photo import",
+      "connectedBadge": "Connected",
+      "importing": "Importing...",
+      "importPicture": "Import profile picture",
+      "connectGoogle": "Connect Google",
+      "pictureImported": "Profile picture imported from Google.",
+      "pictureImportFailed": "Failed to import profile picture",
+      "loadingAccounts": "Loading connected accounts..."
+    }
+  },
+  "dashboard": {
+    "home": {
+      "welcomeBack": "Welcome back, {name}",
+      "subtitle": "Track entries, orders, and wins in one place.",
+      "youHaveWins": "You've won {count} prize{plural}",
+      "viewWins": "View wins",
+      "activeEntries": "Active Entries",
+      "competitionWins": "Competition Wins",
+      "instantWins": "Instant Wins",
+      "bonusAwards": "Bonus Awards",
+      "totalEntries": "Total Entries",
+      "ticketWallet": "Ticket Wallet",
+      "spendAtCheckout": "Spend at checkout",
+      "activeReferrals": "Active Referrals",
+      "pendingReferrals": "Pending Referrals",
+      "totalReferrals": "Total Referrals",
+      "quickLinks": "Quick links",
+      "recentActivity": "Recent activity",
+      "ordersTab": "Orders",
+      "entriesTab": "Entries",
+      "recentOrders": "Recent Orders",
+      "noOrdersYet": "No orders yet",
+      "recentEntries": "Recent Entries",
+      "noEntriesYet": "No entries yet",
+      "hotRightNow": "Hot right now",
+      "hotDescription": "Competitions you haven't entered yet",
+      "hotLayoutAria": "Hot competitions layout",
+      "readyToPlay": "Ready to Play?",
+      "readyToPlayDesc": "Browse our active competitions and get your tickets for a chance to win incredible prizes.",
+      "browseCompetitions": "Browse Competitions",
+      "referFriends": "Refer friends, earn tickets",
+      "yourCode": "Your code:",
+      "learnMore": "Learn more",
+      "referFooter": "Share your link from the referrals page to earn bonus entries."
+    },
+    "orders": {
+      "heading": "My Orders",
+      "subtitle": "Track your purchase history",
+      "layoutAria": "Orders layout",
+      "all": "All",
+      "paid": "Paid",
+      "pending": "Pending",
+      "failed": "Failed",
+      "refunded": "Refunded",
+      "failedToLoad": "Failed to load orders",
+      "failedToLoadDesc": "Please try again.",
+      "retry": "Retry",
+      "noOrders": "No orders yet",
+      "noOrdersFiltered": "No {filter} orders",
+      "noOrdersDesc": "Purchase entries to win exciting prizes.",
+      "browseCompetitions": "Browse Competitions",
+      "orderPrefix": "Order ",
+      "viewOrder": "View order",
+      "view": "View",
+      "competitionEntries": "Competition entries",
+      "competition": "Competition",
+      "moreItems": "+{count} more item{plural}",
+      "statusLabels": {
+        "paid": "Paid",
+        "processing": "Processing",
+        "pending": "Pending",
+        "failed": "Failed",
+        "refunded": "Refunded"
+      }
+    },
+    "tickets": {
+      "heading": "My Tickets",
+      "subtitle": "All your competition entries",
+      "failedToLoadStats": "Failed to load ticket stats",
+      "statsUnavailable": "Ticket counts may be unavailable.",
+      "failedToLoadTickets": "Failed to load tickets",
+      "failedToLoadTicketsDesc": "Please try again.",
+      "totalTickets": "Total Tickets",
+      "active": "Active",
+      "competitions": "Competitions",
+      "prizeWins": "Prize Wins",
+      "noTickets": "No tickets yet",
+      "noTicketsDesc": "Purchase entries to win exciting prizes.",
+      "browseCompetitions": "Browse Competitions",
+      "unknownCompetition": "Unknown Competition",
+      "viewCompetition": "View competition →",
+      "loadingMore": "Loading more...",
+      "competitionStatuses": {
+        "active": "Active",
+        "ended": "Ended",
+        "drawn": "Drawn"
+      },
+      "outcomes": {
+        "pending": "Pending",
+        "winner": "Winner",
+        "noWin": "No win"
+      }
+    },
+    "wins": {
+      "heading": "My Wins",
+      "subtitle": "Your instant and competition prizes",
+      "all": "All",
+      "pending": "Pending",
+      "claimed": "Claimed",
+      "instantWinsAria": "Instant wins layout",
+      "compWinsAria": "Competition wins layout",
+      "bonusAwardsAria": "Bonus awards layout",
+      "instantPrizeWins": "Instant Prize Wins",
+      "failedToLoadInstant": "Failed to load instant prize wins",
+      "failedToLoadInstantDesc": "Please try again.",
+      "noInstantWins": "No instant prize wins yet",
+      "noInstantWinsFiltered": "No {filter} instant prize wins",
+      "noInstantWinsDesc": "Instant prize wins will appear here when available.",
+      "competitionWins": "Competition Wins",
+      "failedToLoadWins": "Failed to load wins",
+      "failedToLoadWinsDesc": "Please try again later.",
+      "noWins": "No wins yet",
+      "noWinsDesc": "Keep entering competitions — your win could be next!",
+      "browseCompetitions": "Browse Competitions",
+      "noCompWins": "No competition wins yet",
+      "noCompWinsFiltered": "No {filter} competition wins",
+      "noCompWinsDesc": "Competition wins will appear here when available.",
+      "bonusAwards": "Bonus Awards",
+      "failedToLoadBonus": "Failed to load bonus awards",
+      "failedToLoadBonusDesc": "Please try again.",
+      "noBonusAwards": "No bonus awards yet",
+      "noBonusAwardsFiltered": "No {filter} bonus awards",
+      "noBonusAwardsDesc": "Bonus awards will appear here when available.",
+      "instantPrize": "Instant Prize",
+      "prize": "Prize",
+      "bonusAward": "Bonus Award",
+      "ticketPrefix": "Ticket #",
+      "statuses": {
+        "claimed": "Claimed",
+        "pending": "Pending"
+      }
+    },
+    "referrals": {
+      "heading": "Referrals",
+      "subtitle": "Share your code — Friends get discount , you get free tickets !",
+      "ticketsWallet": "Tickets wallet",
+      "walletDesc": "Earned when friends make qualifying purchases; credited after processing. Spend at checkout or redeem below.",
+      "available": "Available",
+      "lifetimeEarned": "Lifetime earned",
+      "shareYourCode": "Share your code",
+      "referralCode": "Referral code / Checkout Code",
+      "yourCodeAria": "Your referral code",
+      "generatingCode": "Generating your code...",
+      "signUpLink": "Sign-up link",
+      "signUpLinkAria": "Referral sign-up link",
+      "shareLink": "Share link",
+      "shareReferral": "Share your referral",
+      "shareText": "Check out these competitions! Use my referral code {code} when you sign up.",
+      "yourReferrals": "Your referrals",
+      "shareBadge": "Invite your friends",
+      "qualifyingPurchase": "Qualifying purchase minimum of £{minSpend}",
+      "renewsMonthly": "Renews every month",
+      "ticketsCredited": "Tickets credited after processing",
+      "tierProgress": "Tier progress",
+      "tickets": "free tickets",
+      "active": "Active referrals",
+      "base": "Base:",
+      "current": "Current",
+      "untilNextTier": "until next tier",
+      "autoDistributeNote": "Tickets are auto-distributed to every active competition",
+      "maxTierReached": "Max tier reached.",
+      "noReferrals": "No referrals yet",
+      "noReferralsDesc": "Friends appear here after sign-up. They become active after a qualifying purchase.",
+      "activeSection": "Active",
+      "inactiveSection": "Inactive",
+      "nameHeader": "Name",
+      "joinedHeader": "Joined",
+      "statusHeader": "Status",
+      "activeBadge": "Active",
+      "pendingBadge": "Pending",
+      "inactiveBadge": "Inactive",
+      "topReferrers": "Top referrers",
+      "rankHeader": "Rank",
+      "referralsHeader": "Referrals",
+      "failedToLoad": "Failed to load referrals",
+      "failedToLoadDesc": "Please try again.",
+      "redeem": {
+        "heading": "Redeem tickets",
+        "description": "{count} available ticket{plural} — pick a competition below, or use them at checkout.",
+        "chooseCompetition": "Choose competition",
+        "searchPlaceholder": "Search competitions...",
+        "searchAria": "Search competitions by title",
+        "noActiveCompetitions": "No active competitions",
+        "noActiveCompsDesc": "There are no active draws right now. Check back soon or use your tickets at checkout when a draw opens.",
+        "browseCompetitions": "Browse competitions",
+        "noSearchResults": "No competitions match your search",
+        "noSearchResultsDesc": "Try a different title or clear the search to see all active draws.",
+        "clearSearch": "Clear search",
+        "activeCompsAria": "Active competitions",
+        "howManyTickets": "How many tickets?",
+        "upToDraw": "Up to {count} for this draw",
+        "walletInfo": "· {count} in your wallet",
+        "userTickets": "· you have {count} in this draw",
+        "noSelectableComps": "None of the active competitions can accept your tickets right now.",
+        "selectCompToChoose": "Select a competition above to choose quantity",
+        "useOneLess": "Use one fewer ticket",
+        "useOneMore": "Use one more ticket",
+        "redeeming": "Redeeming...",
+        "redeemTickets": "Redeem tickets",
+        "compEnded": "Competition has ended",
+        "noTicketsLeft": "No tickets left",
+        "alreadyHaveMax": "You already have {count} ticket{plural}. Maximum allowed: {max}",
+        "cannotRedeem": "Cannot redeem into this competition",
+        "failedToRedeem": "Failed to redeem tickets.",
+        "selectCompError": "Select a competition to redeem tickets into.",
+        "validQuantityError": "Enter a valid ticket quantity.",
+        "onlyHaveTickets": "You only have {count} redeemable ticket{plural}.",
+        "viewYourTickets": "View your tickets",
+        "onlyAvailableForComp": "Only {count} ticket{plural} available for this competition.",
+        "canRedeemUpTo": "You can redeem up to {count} ticket{plural}.",
+        "redeemedSuccess": "Redeemed {count} ticket{plural} ({ids}).",
+        "ticketsLeft": "tickets left"
+      }
+    },
+    "profile": {
+      "heading": "My Profile",
+      "subtitle": "Manage your account and preferences",
+      "entries": "Entries",
+      "spent": "Spent",
+      "competitionWins": "Competition Wins",
+      "personalInfo": "Personal information",
+      "personalInfoDesc": "Your name and contact details used for orders and prize delivery",
+      "firstName": "First name",
+      "firstNamePlaceholder": "First name",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Last name",
+      "phone": "Phone",
+      "phonePlaceholder": "+44 7123 456 789",
+      "email": "Email",
+      "emailNotChangable": "Email cannot be changed here",
+      "dateOfBirth": "Date of birth",
+      "dobVerified": "Verified at sign-up — no need to enter this again.",
+      "dobPlaceholder": "Select your date of birth",
+      "dobRequired": "Required for checkout. Must be {age}+.",
+      "deliveryAddress": "Delivery address",
+      "deliveryAddressDesc": "Where we send physical prizes and order confirmations",
+      "socialLinks": "Social links",
+      "socialLinksDesc": "Optional links shown on your public profile when enabled",
+      "showOnPublic": "Show on public profile",
+      "showOnPublicDesc": "Social links appear on your public profile by default",
+      "privacy": "Privacy",
+      "privacyDesc": "Control what others see when you enter competitions",
+      "marketing": "Marketing",
+      "marketingDesc": "Stay in the loop with offers and new competitions",
+      "marketingEmails": "Marketing emails",
+      "marketingEmailsDesc": "Receive exclusive offers and competition updates",
+      "connectedAccounts": "Connected accounts",
+      "connectedAccountsDesc": "Link third-party accounts for faster sign-in",
+      "password": "Password",
+      "passwordDesc": "Update your account password",
+      "failedToLoad": "Failed to load profile",
+      "pictureUpdated": "Profile picture updated.",
+      "pictureUploadFailed": "Failed to upload profile picture",
+      "pictureRemoved": "Profile picture removed.",
+      "pictureRemoveFailed": "Failed to remove profile picture",
+      "profileUpdated": "Profile updated successfully!",
+      "profileUpdateFailed": "Failed to update profile",
+      "savingChanges": "Saving changes...",
+      "saveChanges": "Save changes"
+    },
+    "responsiblePlay": {
+      "heading": "Responsible Play",
+      "saferPlayTools": "Safer play tools",
+      "toolsNotEnabled": "Responsible play tools are not currently enabled.",
+      "seeOur": "See our",
+      "pageForGuidance": "page for general guidance.",
+      "contactSupport": "Contact support if you need help.",
+      "headingWithTools": "Responsible Play",
+      "subtitle": "Set limits and access support if you need a break",
+      "spendLimitRequired": "Spend limit required",
+      "spendLimitRequiredDesc": "Please set a monthly spend limit before making another purchase.",
+      "creditCardSpend": "Credit card spend this month",
+      "creditCardSpendDesc": "Credit card payments are capped monthly. Debit cards and digital wallets are not limited.",
+      "spent": "Spent:",
+      "limit": "· Limit:",
+      "remainingAllowance": "Remaining allowance: ",
+      "debitAdvice": "To complete checkout, use a debit card, Apple Pay, Google Pay, PayPal, or Direct Debit.",
+      "monthlySpendLimit": "Monthly spend limit",
+      "spentThisMonth": "Spent this month: ",
+      "noLimitSet": "· No limit set",
+      "increaseTo": "Increase to ",
+      "effective": "effective ",
+      "newMonthlyLimit": "New monthly limit (£)",
+      "coolingOff": "Decreases apply immediately. Increases have a cooling-off period.",
+      "saveLimit": "Save limit",
+      "requestManualReview": "Request Manual Review",
+      "requestManualReviewDesc": "If you believe there has been an error, you can request a manual review of your self-exclusion. An admin will review your request.",
+      "pendingOverride": "You already have a pending override request. Please wait for an admin to review it.",
+      "explainReason": "Explain why you'd like to request a review...",
+      "submitReview": "Submit review request",
+      "selfExclusion": "Self-exclusion",
+      "selfExclusionDesc": "Suspend your account and stop marketing emails. Minimum period: ",
+      "months": " months.",
+      "understandCheckbox": "I understand I will be unable to place orders and will be logged out.",
+      "confirmSelfExclusion": "Confirm self-exclusion",
+      "support": "Support",
+      "readPolicy": "Read our full Responsible Play policy",
+      "accountExcluded": "Account self-excluded",
+      "excludedUntil": "You are excluded from placing orders until {date}.",
+      "excludedPermanent": "Your account is permanently self-excluded from placing orders.",
+      "enterValidAmount": "Enter a valid amount (0 or higher)",
+      "spendLimitUpdated": "Spend limit updated.",
+      "failedToUpdateLimit": "Failed to update limit",
+      "selfExclusionFailed": "Self-exclusion failed",
+      "provideReason": "Please provide a reason (at least 10 characters)",
+      "reviewSubmitted": "Your review request has been submitted.",
+      "failedToSubmit": "Failed to submit request",
+      "exclusionOptions": {
+        "sixMonths": "6 months",
+        "oneYear": "1 year",
+        "fiveYears": "5 years",
+        "permanent": "Permanent"
+      }
+    },
+    "sidebar": {
+      "menu": "Menu",
+      "dashboardNav": "Dashboard navigation"
+    },
+    "liveBadge": "Live",
+    "statFallback": "—",
+    "quickLinks": {
+      "browse": "Browse",
+      "orders": "Orders",
+      "tickets": "Tickets",
+      "wins": "Wins",
+      "referrals": "Referrals",
+      "profile": "Profile"
+    },
+    "activityTable": {
+      "order": "Order",
+      "date": "Date",
+      "status": "Status",
+      "total": "Total",
+      "competition": "Competition",
+      "ticket": "Ticket",
+      "qty": "Qty"
+    }
+  },
+  "home": {
+    "hero": {
+      "fallbackHeading": "Win Big",
+      "fallbackSubheading": "with Premium Prizes",
+      "fallbackDescription": "Enter our luxury prize competitions and win amazing prizes. Fair, transparent, and exciting competitions every day.",
+      "enterNow": "Enter Now",
+      "viewAll": "View All",
+      "featured": "Featured",
+      "previousSlide": "Previous slide",
+      "nextSlide": "Next slide",
+      "carouselNav": "Carousel navigation",
+      "goToSlide": "Go to slide {current} of {total}",
+      "featuredCarousel": "Featured competitions carousel",
+      "slideOf": "Slide {current} of {total}"
+    },
+    "winners": {
+      "heading": "Winners",
+      "subtitle": "Real winners, real prizes. See who's been lucky recently.",
+      "anonymousWinner": "Anonymous Winner",
+      "luxuryPrize": "Luxury Prize",
+      "featuredWinner": "Featured Winner",
+      "viewAll": "View All Winners",
+      "viewImage": "View {name} image"
+    },
+    "cta": {
+      "browseCompetitions": "Browse Competitions",
+      "createAccount": "Create Account"
+    },
+    "search": {
+      "placeholder": "Search competitions...",
+      "filterAria": "Filter competitions by category",
+      "all": "All"
+    },
+    "competitions": {
+      "endingSoon": "Ending Soon",
+      "endingSoonDesc": "Don't miss out on these competitions ending soon",
+      "viewAll": "View All"
+    },
+    "youMightAlsoLike": "You might also like",
+    "browseAllCompetitions": "Browse all competitions",
+    "notAvailable": "Not Available",
+    "soldOut": "Sold out",
+    "enterNow": "Enter Now",
+    "perTicket": "/ Ticket",
+    "perTicketText": " / Ticket ",
+    "free": "Free Entry",
+    "drawDate": "Draw · {date}",
+    "endsIn": "Ends In",
+    "pctSold": "{percent}% sold",
+    "soldOutLabel": "Sold out",
+    "endingSoonNav": "Ending Soon"
+  },
+  "staticPages": {
+    "about": {
+      "heading": "About",
+      "subtitle": "We're on a mission to make luxury accessible to everyone through fair, transparent prize competitions.",
+      "ctaHeading": "Ready to Enter?",
+      "ctaSubtitle": "Join thousands of players already trying their luck on premium prizes.",
+      "browseCompetitions": "Browse Competitions",
+      "howItWorks": "How It Works"
+    },
+    "faq": {
+      "heading": "Frequently Asked",
+      "subtitle": "Find answers to common questions about our competitions",
+      "ctaHeading": "Didn't find your answer?",
+      "ctaBody": "Contact our support team at {email} or use the contact form.",
+      "contactEmail": "contact@luxero.win",
+      "getInTouch": "Get in touch",
+      "howItWorks": "How It Works",
+      "noFaqs": "No FAQs in this category yet.",
+      "categories": {
+        "general": "General",
+        "payment": "Payment",
+        "shipping": "Shipping & Delivery"
+      }
+    },
+    "howItWorks": {
+      "heading": "How It Works",
+      "subtitle": "Getting started is easy. Follow these steps to enter our luxury prize competitions.",
+      "whyLuxero": "Why Luxero",
+      "whyChooseLuxero": "Why Choose",
+      "yourJourney": "Your journey",
+      "fromBrowseToWin": "From browse to win",
+      "stepDescription": "Seven simple steps — online checkout or free postal entry.",
+      "haveQuestions": "Have Questions?",
+      "haveQuestionsDesc": "Check our frequently asked questions for more details about how competitions work.",
+      "viewFaq": "View FAQ",
+      "contactUs": "Contact Us",
+      "readyToStart": "Ready to Get Started?",
+      "readyToStartDesc": "Browse our active competitions and get your tickets today.",
+      "browseCompetitions": "Browse Competitions",
+      "createAccount": "Create Account",
+      "trustBadges": {
+        "verifiedDraws": "Verified draws",
+        "freePostalEntry": "Free postal entry",
+        "secureCheckout": "Secure checkout"
+      }
+    },
+    "contact": {
+      "heading": "Get in Touch",
+      "subtitle": "Have a question or need help? We'd love to hear from you.",
+      "fullName": "Full Name",
+      "namePlaceholder": "John Doe",
+      "emailAddress": "Email Address",
+      "emailPlaceholder": "john@example.com",
+      "subject": "Subject",
+      "subjectPlaceholder": "What can we help you with?",
+      "message": "Message",
+      "messagePlaceholder": "Tell us how we can help...",
+      "sendMessage": "Send Message",
+      "sending": "Sending...",
+      "messageSent": "Message sent! We'll get back to you within 24 hours.",
+      "sendError": "Something went wrong. Please try again.",
+      "followUs": "Follow Us",
+      "followUsSubtitle": "Stay up to date with Luxero",
+      "preferSelfHelp": "Prefer to help yourself?",
+      "browseFaq": "Browse our FAQ →",
+      "infoCards": {
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "registered": "Registered"
+      },
+      "companyInfo": {
+        "email": "contact@luxero.win",
+        "phone": "+44 744 328 9228",
+        "hours": "Mon–Fri, 9am–5pm GMT",
+        "address": "107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland",
+        "companyName": "LUXERO COMPETITIONS LTD",
+        "companyNumber": "Company No. SC888260 (Scotland)"
+      },
+      "footerNote": "We respond within 24 hours on business days (Mon–Fri, 9am–5pm GMT)."
+    },
+    "privacy": {
+      "heading": "Privacy Policy",
+      "lastUpdated": "Last updated: {date}",
+      "contents": "Contents",
+      "haveQuestions": "Have more questions?",
+      "contactUs": "Contact Us"
+    },
+    "terms": {
+      "heading": "Terms and Conditions",
+      "contents": "Contents",
+      "haveQuestions": "Questions about these terms?",
+      "contactUs": "Contact Us"
+    },
+    "cookiePolicy": {
+      "heading": "Cookie Policy",
+      "lastUpdated": "Last updated: {date}",
+      "contents": "Contents",
+      "haveQuestions": "Questions about cookies?",
+      "contactUs": "Contact Us"
+    },
+    "responsiblePlay": {
+      "heading": "Responsible Play",
+      "subtitle": "How Luxero meets the UK Voluntary Code on player protections — and tools to stay in control.",
+      "supportOrgs": "Support organisations"
+    },
+    "entries": {
+      "heading": "Competition Entries",
+      "subtitle": "Every ticket. Every participant. Every draw — fully transparent.",
+      "fullTransparency": "Full Transparency",
+      "failedToLoad": "Failed to load entries",
+      "failedToLoadDesc": "Something went wrong. Please try again.",
+      "retry": "Retry",
+      "noEntries": "No entries yet",
+      "noEntriesDesc": "Be the first to enter a competition!",
+      "browseCompetitions": "Browse Competitions",
+      "footerDisclaimer": "Entrant names show first names; last names appear in full or as an initial depending on each entrant's privacy settings.",
+      "backToAll": "Back to all entries",
+      "searchPlaceholder": "Search by name, location, or ticket number...",
+      "noSearchResults": "No entries match your search.",
+      "failedToLoadEntries": "Failed to load entries. Please try again.",
+      "noEntriesForComp": "No entries yet for this competition.",
+      "orderHeader": "Order",
+      "nameHeader": "Name",
+      "ticketHeader": "Ticket",
+      "searching": "searching",
+      "totalEntries": "total entries",
+      "matchingSearch": "matching search"
+    },
+    "freePostalEntry": {
+      "heading": "Free Postal Entry",
+      "subtitle": "Enter any competition by post — completely free of charge",
+      "intro": "You may enter the competition using the Postal Entry Route by complying with the following conditions.",
+      "sendTo": "Send your entry to",
+      "companyName": "Luxero Competitions",
+      "address": "107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland",
+      "companyRegistration": "LUXERO COMPETITIONS LTD — Company No. SC888260 (Scotland)",
+      "includeHeading": "Include with your entry",
+      "includeItems": [
+        "your full name;",
+        "your address;",
+        "a contact telephone number and email address;",
+        "your chosen competition;",
+        "your answer to the Competition Question."
+      ],
+      "warning": "Incomplete or illegible entries will be disqualified.",
+      "terms": [
+        "You may make multiple free entries for any competition (up to any limit placed on entries by the Promoter) but each free entry must be submitted and posted to the Promoter separately.",
+        "Bulk entries will not be accepted as multiple entries and if a bulk entry is received, it will be counted as one single entry.",
+        "By entering the competition, you are confirming that you are eligible to enter and accept these terms and conditions.",
+        "Your entry must be received by the Promoter prior to the Closing Date. Entries received after the Closing Date will not be entered into the random draw. If an entry is received by the Postal Entry Route within 72 hours after the Closing Date, the Entrant will receive a credit equal to the cost of entry via the Online Entry Route to the draw, which will enable the Entrant to enter an alternative draw(s) of their choice on the Website/App using the Online Entry Route.",
+        "The Promoter will email each Entrant who has submitted a valid entry via the Postal Entry Route to confirm their ticket number.",
+        "Entrants must have created an account on the Website/App for the free entry to be processed. All details on the postcard must correspond to the details on the account to receive the order confirmation and ticket number. Postal entries received without a registered account cannot be processed. Entrants must add an address to the related account for entries to be processed."
+      ],
+      "browseCompetitions": "Browse Active Competitions"
+    },
+    "winners": {
+      "heading": "Real winners.",
+      "subheading": "Real prizes.",
+      "heroDesc": "Every draw is transparent and every winner is celebrated here. Browse recent results and see what Luxero members have taken home.",
+      "publicGallery": "Public winner gallery",
+      "totalPrizesAwarded": "Total prizes awarded",
+      "happyWinners": "Happy winners",
+      "happyWinner": "Happy winner",
+      "unableToLoad": "Unable to load winners right now",
+      "anonymousWinner": "Anonymous Winner",
+      "prizeWon": "Prize won",
+      "prize": "Prize",
+      "luxuryPrize": "Luxury Prize",
+      "latestWinner": "Latest winner",
+      "openPreview": "Open image preview",
+      "viewPrizeImage": "View {prize} image",
+      "ticketNumber": "Ticket #",
+      "winnersComing": "Winners are on their way",
+      "winnersComingDesc": "Our first draws are coming soon. Enter a live competition today and you could be the first name featured on this page.",
+      "browseLiveComps": "Browse live competitions",
+      "createFreeAccount": "Create free account",
+      "couldYouBeNext": "Could you be next?",
+      "couldYouBeNextDesc": "Join members entering premium prize competitions every week. Your name could be on this page after the next draw.",
+      "viewLiveComps": "View live competitions",
+      "signUpFree": "Sign up free",
+      "prizePreview": "Prize preview"
+    }
+  },
+  "notifications": {
+    "preferencesTitle": "Notification Preferences",
+    "preferencesDesc": "Choose which types of push notifications you want to receive."
+  },
+  "addressForm": {
+    "addressLine1": "Address Line 1",
+    "addressLine2": "Address Line 2 (optional)",
+    "city": "City",
+    "postcode": "Postcode",
+    "country": "Country",
+    "required": " *",
+    "address1Placeholder": "123 Main Street",
+    "address2Placeholder": "Apt, Suite, Floor",
+    "cityPlaceholder": "London",
+    "postcodePlaceholder": "SW1A 1AA",
+    "countryPlaceholder": "Select country",
+    "countrySearchPlaceholder": "Search country..."
+  },
+  "ticketCard": {
+    "error": "ERROR",
+    "noWin": "No win",
+    "winNow": "WIN NOW",
+    "winBadge": "WIN",
+    "wonBadge": "WON",
+    "slotLabel": "Slot {position}",
+    "viewCompetition": "View competition",
+    "viewTitle": "View {title}"
+  },
+  "countries": {
+    "GB": "United Kingdom",
+    "US": "United States",
+    "DE": "Germany",
+    "FR": "France",
+    "ES": "Spain",
+    "IT": "Italy",
+    "NL": "Netherlands",
+    "BE": "Belgium",
+    "AT": "Austria",
+    "CH": "Switzerland",
+    "SE": "Sweden",
+    "NO": "Norway",
+    "DK": "Denmark",
+    "FI": "Finland",
+    "IE": "Ireland",
+    "PT": "Portugal",
+    "GR": "Greece",
+    "PL": "Poland",
+    "HU": "Hungary",
+    "RO": "Romania",
+    "BG": "Bulgaria",
+    "HR": "Croatia",
+    "SK": "Slovakia",
+    "SI": "Slovenia",
+    "EE": "Estonia",
+    "LV": "Latvia",
+    "LT": "Lithuania",
+    "CY": "Cyprus",
+    "LU": "Luxembourg",
+    "MT": "Malta",
+    "AU": "Australia",
+    "NZ": "New Zealand",
+    "CA": "Canada",
+    "MX": "Mexico",
+    "BR": "Brazil",
+    "AR": "Argentina",
+    "CL": "Chile",
+    "CO": "Colombia",
+    "PE": "Peru",
+    "VE": "Venezuela",
+    "ZA": "South Africa",
+    "NG": "Nigeria",
+    "KE": "Kenya",
+    "EG": "Egypt",
+    "IL": "Israel",
+    "AE": "United Arab Emirates",
+    "SA": "Saudi Arabia",
+    "IN": "India",
+    "PK": "Pakistan",
+    "BD": "Bangladesh",
+    "ID": "Indonesia",
+    "MY": "Malaysia",
+    "TH": "Thailand",
+    "SG": "Singapore",
+    "PH": "Philippines",
+    "VN": "Vietnam",
+    "KR": "South Korea",
+    "JP": "Japan",
+    "CN": "China",
+    "TW": "Taiwan",
+    "HK": "Hong Kong"
+  },
+  "comboBox": {
+    "noResults": "No results found.",
+    "searchPlaceholder": "Search..."
+  },
+  "pagination": {
+    "ariaLabel": "pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "goToPrevious": "Go to previous page",
+    "goToNext": "Go to next page",
+    "morePages": "More pages"
+  },
+  "progressBar": {
+    "pctMilestone": "{pct}% Milestone",
+    "prizeAmount": "£{value} prize",
+    "wonCount": "Won — {won} of {total} awarded",
+    "ticketsToGo": "{count} ticket{plural} to go",
+    "activatingNow": "Activating now",
+    "activatesAt": "Activates at {pct}% sold",
+    "soldOut": "Sold Out",
+    "pctSold": "{pct}% sold",
+    "ticketsSold": "Tickets sold",
+    "remaining": "{count} remaining"
+  },
+  "AuthShell": {
+    "providers": {
+      "testmode": {
+        "title": "Test mode (Local Bypass)",
+        "description": "Skip the payment step entirely. Only available in non-production environments."
+      }
+    }
+  }
+}

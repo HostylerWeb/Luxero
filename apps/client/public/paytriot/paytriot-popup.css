@@ -1,0 +1,351 @@
+/* Paytriot Hosted Payment Popup Overlay Stylesheet */
+
+:root {
+    --paytriot-primary: #2B2878;
+    --paytriot-accent: #f28714;
+    --paytriot-accent-hover: #d7730d;
+    --paytriot-bg-light: #f5f7fb;
+    --paytriot-border: #e8ecf2;
+    --paytriot-text-muted: #8a94a6;
+    --paytriot-radius: 14px;
+    --paytriot-shadow: 0 40px 100px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Modal Overlay covering the whole screen */
+.paytriot-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 15, 25, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.paytriot-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Modal Box Container */
+.paytriot-modal-container {
+    background: #ffffff;
+    border-radius: var(--paytriot-radius);
+    width: 100%;
+    max-width: 680px;
+    height: 95vh;
+    max-height: 850px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--paytriot-shadow);
+    transform: translateY(30px) scale(0.96);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.3s ease;
+}
+
+.paytriot-modal-overlay.active .paytriot-modal-container {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* Header with Logo and Close Button */
+.paytriot-modal-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 3px solid var(--paytriot-accent);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.paytriot-modal-logo {
+    height: 30px;
+    width: auto;
+    object-fit: contain;
+}
+
+.paytriot-modal-right-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+}
+
+/* Secure Connection Indicator */
+.paytriot-modal-secure-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--paytriot-primary);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0.8;
+}
+
+/* Interactive Close Button */
+.paytriot-modal-close-btn {
+    background: var(--paytriot-bg-light);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a5568;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    padding: 0;
+}
+
+.paytriot-modal-close-btn:hover {
+    background-color: #e2e8f0;
+    color: #1a202c;
+    transform: scale(1.05);
+}
+
+.paytriot-modal-close-btn:active {
+    transform: scale(0.95);
+}
+
+.paytriot-modal-close-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Main Container Body holding the iframe */
+.paytriot-modal-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    min-height: 0;
+    background: #ffffff;
+}
+
+/* The Hosted Gateway Iframe */
+.paytriot-payment-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: transparent;
+    z-index: 2;
+}
+
+/* Centered loading spinner container */
+.paytriot-spinner-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--paytriot-text-muted);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+
+.paytriot-spinner-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Animated Circular Spinner */
+.paytriot-spinner {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--paytriot-accent);
+    animation: paytriot-rotate 1s linear infinite;
+}
+
+@keyframes paytriot-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Footer Section */
+.paytriot-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--paytriot-bg-light);
+    border-top: 1px solid var(--paytriot-border);
+    flex-shrink: 0;
+}
+
+.paytriot-modal-footer-text {
+    font-size: 11px;
+    color: var(--paytriot-text-muted);
+    letter-spacing: 0.3px;
+    font-family: inherit;
+}
+
+/* Prevent body scrolling when modal is active */
+body.paytriot-modal-open {
+    overflow: hidden !important;
+}
+
+/* Responsive Styles for Mobile Screens (renders as premium bottom-sheet) */
+@media (max-width: 600px) {
+    .paytriot-modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .paytriot-modal-container {
+        height: 94vh;
+        max-height: none;
+        max-width: none;
+        border-radius: var(--paytriot-radius) var(--paytriot-radius) 0 0;
+        transform: translateY(100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+
+    .paytriot-modal-overlay.active .paytriot-modal-container {
+        transform: translateY(0);
+    }
+
+    .paytriot-modal-secure-badge {
+        display: none;
+    }
+}
+
+/* Popup mode container and states */
+.paytriot-popup-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+    height: 100%;
+    min-height: 380px;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.paytriot-popup-content.hidden {
+    display: none !important;
+}
+
+/* Status Icon with pulsing micro-animations */
+.paytriot-popup-status-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.paytriot-popup-status-icon.processing {
+    background: rgba(43, 40, 120, 0.08);
+    color: var(--paytriot-primary);
+}
+
+.paytriot-popup-status-icon.processing::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px dashed rgba(43, 40, 120, 0.2);
+    animation: paytriot-pulse 2.5s linear infinite;
+}
+
+.paytriot-popup-status-icon.blocked {
+    background: rgba(242, 135, 20, 0.08);
+    color: var(--paytriot-accent);
+}
+
+.paytriot-popup-status-icon.blocked::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px dashed rgba(242, 135, 20, 0.25);
+    animation: paytriot-pulse 2.5s linear infinite;
+}
+
+@keyframes paytriot-pulse {
+    0% { transform: rotate(0deg); opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { transform: rotate(360deg); opacity: 0.8; }
+}
+
+.paytriot-popup-content h3 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a202c;
+    letter-spacing: -0.3px;
+}
+
+.paytriot-popup-content p {
+    margin: 0 0 28px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #4a5568;
+    max-width: 340px;
+}
+
+/* Premium styled Action buttons */
+.paytriot-popup-btn {
+    background: linear-gradient(135deg, var(--paytriot-accent) 0%, var(--paytriot-accent-hover) 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(242, 135, 20, 0.25);
+    transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.paytriot-popup-btn:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 8px 24px rgba(242, 135, 20, 0.35);
+}
+
+.paytriot-popup-btn:active {
+    transform: scale(0.97);
+}
+
+.paytriot-payment-frame.hidden {
+    display: none !important;
+}
+
