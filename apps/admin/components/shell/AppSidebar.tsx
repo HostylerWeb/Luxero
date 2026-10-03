@@ -30,12 +30,40 @@ function navSlug(href: string): string {
   return href.replace(/^\//, "").replace(/\//g, "-");
 }
 
-function NavLinkRow({ item }: { item: NavItem }) {
+function isNavItemActive(pathname: string, href: string, allHrefs: string[]): boolean {
+  const path = pathname.replace(/\/$/, "") || "/";
+  const target = href.replace(/\/$/, "") || "/";
+
+  if (target === "/") {
+    return path === "/";
+  }
+
+  if (path === target) {
+    return true;
+  }
+
+  if (!path.startsWith(`${target}/`)) {
+    return false;
+  }
+
+  // Prefer the longest matching nav href (e.g. /referrals/network over /referrals).
+  const bestMatch = allHrefs.reduce<string | null>((best, candidate) => {
+    const c = candidate.replace(/\/$/, "") || "/";
+    if (c === "/") return best;
+    if (path === c || path.startsWith(`${c}/`)) {
+      if (!best || c.length > best.length) return c;
+    }
+    return best;
+  }, null);
+
+  return bestMatch === target;
+}
+
+function NavLinkRow({ item, allHrefs }: { item: NavItem; allHrefs: string[] }) {
   const pathname = usePathname() ?? "";
   const queryClient = useQueryClient();
   const Icon = item.icon;
-  const isActive =
-    pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`));
+  const isActive = isNavItemActive(pathname, item.href, allHrefs);
 
   const handlePointerEnter = () => {
     prefetchAdminRoute(item.href, queryClient);
@@ -58,7 +86,12 @@ function NavLinkRow({ item }: { item: NavItem }) {
             <span>{item.label}</span>
           </a>
         ) : (
-          <Link href={item.href} onPointerEnter={handlePointerEnter} data-umami-event={umamiEvent}>
+          <Link
+            href={item.href}
+            onPointerEnter={handlePointerEnter}
+            data-umami-event={umamiEvent}
+            aria-current={isActive ? "page" : undefined}
+          >
             <Icon />
             <span>{item.label}</span>
           </Link>
@@ -72,6 +105,7 @@ function NavLinkRow({ item }: { item: NavItem }) {
 export function AppSidebar() {
   const { role } = useAuth();
   const navGroups = filterNavGroups(role);
+  const allHrefs = navGroups.flatMap((g) => g.items.map((i) => i.href));
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -81,7 +115,7 @@ export function AppSidebar() {
             <Link
               href="/"
               data-umami-event="nav:logo-home"
-              className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-md px-2 text-sm transition-colors hover:bg-sidebar-accent group-data-[state=collapsed]:justify-center group-data-[state=collapsed]:p-2"
+              className="flex h-12 w-full items-center gap-2 overflow-hidden rounded-lg px-2 text-sm transition-colors hover:bg-[color-mix(in_srgb,var(--sidebar-foreground)_6%,var(--sidebar))] group-data-[state=collapsed]:justify-center group-data-[state=collapsed]:p-2"
             >
               <LuxeroLogoSquare className="size-7 shrink-0 text-sidebar-primary hidden group-data-[state=collapsed]:block" />
               <LuxeroLogo className="w-[120px] h-auto shrink-0 text-sidebar-primary block group-data-[state=collapsed]:hidden" />
@@ -90,14 +124,14 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="gap-1.5">
+      <SidebarContent className="gap-2 px-1">
         {navGroups.map((group) => (
           <SidebarGroup key={group.title}>
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => (
-                  <NavLinkRow key={item.href} item={item} />
+                  <NavLinkRow key={item.href} item={item} allHrefs={allHrefs} />
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>

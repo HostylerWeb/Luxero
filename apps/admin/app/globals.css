@@ -31,13 +31,13 @@
   --chart-4: oklch(0.5 0.09 250);
   --chart-5: oklch(0.44 0.08 250);
   --radius: 0.5rem;
-  --sidebar: oklch(0.97 0.005 95);
-  --sidebar-foreground: oklch(0.24 0.01 250);
+  --sidebar: oklch(0.993 0.003 95);
+  --sidebar-foreground: oklch(0.28 0.012 250);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: oklch(0.92 0.03 85);
-  --sidebar-accent-foreground: oklch(0.24 0.01 250);
-  --sidebar-border: oklch(0.88 0.01 95);
+  --sidebar-accent: oklch(0.955 0.006 95);
+  --sidebar-accent-foreground: oklch(0.28 0.012 250);
+  --sidebar-border: oklch(0.9 0.008 95);
   --sidebar-ring: var(--ring);
   --gold: oklch(0.74 0.14 85);
   --gold-light: oklch(0.83 0.12 85);
@@ -85,13 +85,13 @@
   --chart-3: oklch(0.55 0.1 85);
   --chart-4: oklch(0.45 0.08 250);
   --chart-5: oklch(0.35 0.06 250);
-  --sidebar: oklch(0.1 0.005 250);
-  --sidebar-foreground: oklch(0.95 0.01 85);
+  --sidebar: oklch(0.115 0.006 250);
+  --sidebar-foreground: oklch(0.92 0.012 85);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: oklch(0.17 0.018 85);
-  --sidebar-accent-foreground: oklch(0.95 0.01 85);
-  --sidebar-border: oklch(0.25 0.01 250);
+  --sidebar-accent: oklch(0.19 0.008 250);
+  --sidebar-accent-foreground: oklch(0.92 0.012 85);
+  --sidebar-border: oklch(0.24 0.01 250);
   --sidebar-ring: var(--ring);
   --gold: oklch(0.78 0.14 85);
   --gold-light: oklch(0.85 0.12 85);
@@ -362,6 +362,36 @@
     .animate-fade-in-scale {
       animation: none;
     }
+  }
+
+  /* Admin sidebar — neutral hover, gold active rail (not heavy gold wash) */
+  [data-slot="sidebar-inner"] {
+    border: 1px solid var(--sidebar-border);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 4%, transparent);
+  }
+
+  [data-sidebar="menu-button"] {
+    transition:
+      background-color 150ms ease,
+      color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  [data-sidebar="menu-button"]:hover:not([data-active="true"]) {
+    background-color: color-mix(in srgb, var(--sidebar-foreground) 6%, var(--sidebar));
+    color: var(--sidebar-foreground);
+  }
+
+  /* Active nav: primary styles live on SidebarMenuButton (data-active utilities) */
+  [data-sidebar="menu-button"][data-active="true"]:hover {
+    background-color: color-mix(in srgb, var(--primary) 22%, var(--sidebar));
+  }
+
+  [data-sidebar="group-label"] {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.625rem;
+    color: color-mix(in srgb, var(--sidebar-foreground) 55%, transparent);
   }
 }
 
