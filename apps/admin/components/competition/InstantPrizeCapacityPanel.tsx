@@ -37,38 +37,39 @@ export function InstantPrizeCapacityPanel({
 
   return (
     <div className="space-y-3 rounded-lg border border-gold/20 bg-gold/5 p-4">
-      <p className="text-xs font-medium text-foreground">Live capacity</p>
+      <p className="text-xs font-medium text-foreground">How many wins can you add?</p>
 
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Instant prize slots on this competition</span>
+          <span>Instant wins on this competition</span>
           <span>
             {capacity.assignedSlots} / {capacity.maxTickets}
           </span>
         </div>
         <Progress value={Math.min(slotPct, 100)} className="h-1.5" />
         <p className="text-xs text-muted-foreground">
-          {capacity.remainingSlots} slot{capacity.remainingSlots === 1 ? "" : "s"} remaining
+          {capacity.remainingSlots} win{capacity.remainingSlots === 1 ? "" : "s"} still available
         </p>
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Pick pool: <span className="font-medium text-foreground">{capacity.availableTickets}</span>{" "}
-        tickets available for new winning numbers
+        <span className="font-medium text-foreground">{capacity.availableTickets}</span> unsold
+        ticket numbers can be used for new winning numbers
       </p>
 
       <p className="text-sm">
-        You can add up to{" "}
-        <span className="font-semibold text-gold">{capacity.maxAssignableQty}</span> slot
-        {capacity.maxAssignableQty === 1 ? "" : "s"} right now
+        Maximum right now:{" "}
+        <span className="font-semibold text-gold">{capacity.maxAssignableQty}</span> win
+        {capacity.maxAssignableQty === 1 ? "" : "s"}
       </p>
 
       {capacity.linkedCompetition && (
         <div className="rounded-md border border-border/50 bg-background/50 p-2 text-xs text-muted-foreground">
           <p className="font-medium text-foreground">{capacity.linkedCompetition.title}</p>
           <p>
-            {capacity.linkedCompetition.availableTickets} linked tickets available ·{" "}
-            {capacity.linkedCompetition.ticketsPerSlot} per winning slot
+            {capacity.linkedCompetition.availableTickets} free tickets left in that competition ·{" "}
+            {capacity.linkedCompetition.ticketsPerSlot} ticket
+            {capacity.linkedCompetition.ticketsPerSlot === 1 ? "" : "s"} awarded per win here
           </p>
         </div>
       )}

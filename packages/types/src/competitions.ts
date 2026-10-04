@@ -220,6 +220,7 @@ export interface CompetitionInstantPrize {
     value?: number;
     isActive: boolean;
     type?: "prize" | "competition_ticket";
+    prizeCategory?: "cash" | "site_credit" | "physical";
     linkedCompetitionId?: string;
     linkedCompetition?: { title: string; imageUrl?: string };
     ticketCount?: number;
@@ -239,6 +240,7 @@ export interface CompetitionInstantPrize {
 export interface AdminCompetitionInstantPrizeListItem {
   id: string;
   competitionId: string;
+  instantPrizeId?: string;
   competitionTitle: string;
   instantPrize: {
     title: string;
@@ -246,6 +248,7 @@ export interface AdminCompetitionInstantPrizeListItem {
     images: string[];
     value?: number;
     type?: "prize" | "competition_ticket";
+    prizeCategory?: "cash" | "site_credit" | "physical";
     linkedCompetitionId?: string;
     ticketCount?: number;
   };
@@ -273,6 +276,7 @@ export interface CreateCompetitionInstantPrizePayload {
   competitionId: string;
   instantPrizeId: string;
   quantity: number;
+  winningEntryNumbers?: number[];
 }
 
 export interface UpdateCompetitionInstantPrizePayload {
@@ -280,6 +284,10 @@ export interface UpdateCompetitionInstantPrizePayload {
   absolute?: boolean;
   linkedCompetitionId?: string;
   ticketCount?: number;
+  prizeTitle?: string;
+  prizeValue?: number;
+  prizeCategory?: "cash" | "site_credit" | "physical";
+  regenerateWinningNumbers?: boolean;
 }
 
 export interface InstantPrizeCapacityLinkedCompetition {

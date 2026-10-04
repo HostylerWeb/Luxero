@@ -359,11 +359,11 @@ export default function InstantPrizesAdminPage() {
         cell: ({ row }) =>
           row.original.type === "competition_ticket" ? (
             <StatusBadge variant="info" showIcon={false}>
-              Ticket ×{row.original.ticketCount ?? 1}
+              Free tickets ×{row.original.ticketCount ?? 1}
             </StatusBadge>
           ) : (
             <StatusBadge variant="draft" showIcon={false}>
-              Physical
+              Prize
             </StatusBadge>
           ),
       },
@@ -642,10 +642,14 @@ export default function InstantPrizesAdminPage() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="prize">Physical prize</SelectItem>
-                      <SelectItem value="competition_ticket">Competition ticket</SelectItem>
+                      <SelectItem value="prize">Site credit, cash, or physical prize</SelectItem>
+                      <SelectItem value="competition_ticket">Free tickets in another competition</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormDescription>
+                    Choose credit, cash, or product when editing the name and value below. Luxero does
+                    not auto-pay credit or cash — staff fulfil wins under Instant Prize Wins.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -658,7 +662,7 @@ export default function InstantPrizesAdminPage() {
                   name="linkedCompetitionId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Linked competition</FormLabel>
+                      <FormLabel>Target competition</FormLabel>
                       <FormControl>
                         <AsyncCombobox
                           value={field.value}

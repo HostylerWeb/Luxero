@@ -7,6 +7,12 @@ export const paginationSchema = z.object({
 
 export const idSchema = z.string().length(24);
 
+/** Query strings may send ""; treat as omitted for optional Mongo id params. */
+export const optionalIdQuerySchema = z.preprocess(
+  (val) => (val === "" || val === undefined ? undefined : val),
+  idSchema.optional()
+);
+
 export const searchParamsSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),

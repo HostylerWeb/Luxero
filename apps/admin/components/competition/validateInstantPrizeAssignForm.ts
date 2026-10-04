@@ -1,18 +1,23 @@
 import type { InstantPrizeCapacityResponse } from "@luxero/types";
+import { isProductPrizeSetup, type InstantPrizeSetupMode } from "./instant-prize-capacity-guards";
 
 export interface InstantPrizeAssignFormValues {
   quantity: number;
   selectedPrizeId: string;
-  createInline: boolean;
+  setup: InstantPrizeSetupMode;
   linkedCompetitionId: string;
   ticketCount: number;
+  prizeName: string;
+  manualTicketNumbers: number[] | null;
 }
 
 export interface InstantPrizeAssignFormErrors {
   quantity?: string;
   prize?: string;
+  prizeName?: string;
   linkedCompetitionId?: string;
   ticketCount?: string;
+  manualTicketNumbers?: string;
 }
 
 export function validateInstantPrizeAssignForm(
@@ -25,37 +30,59 @@ export function validateInstantPrizeAssignForm(
   }
 ): InstantPrizeAssignFormErrors {
   const errors: InstantPrizeAssignFormErrors = {};
-  const { quantity, selectedPrizeId, createInline, linkedCompetitionId, ticketCount } = values;
-  const minQty = options.minQuantity ?? (options.editing ? options.claimedCount : 1);
+  const {
+    quantity,
+    selectedPrizeId,
+    setup,
+    linkedCompetitionId,
+    ticketCount,
+    prizeName,
+    manualTicketNumbers,
+  } = values;
+  const minQty =
+    options.minQuantity ??
+    (options.editing ? Math.max(1, options.claimedCount) : 1);
 
   if (!Number.isInteger(quantity) || quantity < minQty) {
     errors.quantity =
       options.editing && options.claimedCount > 0
-        ? `Quantity must be at least ${options.claimedCount} (${options.claimedCount} already claimed)`
-        : "Quantity must be at least 1";
+        ? `Number of wins must be at least ${options.claimedCount} (${options.claimedCount} already won)`
+        : "Number of wins must be at least 1";
   }
 
   const capacity = options.capacity;
   if (capacity && quantity > capacity.maxAssignableQty) {
-    errors.quantity = `You can add at most ${capacity.maxAssignableQty} slot${capacity.maxAssignableQty === 1 ? "" : "s"} right now`;
+    errors.quantity = `You can add at most ${capacity.maxAssignableQty} win${capacity.maxAssignableQty === 1 ? "" : "s"} right now`;
   }
 
   if (!options.editing) {
-    if (!createInline && !selectedPrizeId) {
-      errors.prize = "Choose a prize template or create a ticket prize";
+    if (setup === "saved" && !selectedPrizeId) {
+      errors.prize = "Choose a template";
     }
-    if (createInline && !linkedCompetitionId) {
-      errors.linkedCompetitionId = "Select a linked competition";
-    }
-    if (createInline && (!Number.isInteger(ticketCount) || ticketCount < 1)) {
-      errors.ticketCount = "Tickets per win must be at least 1";
+  }
+
+  if (isProductPrizeSetup(setup) && !prizeName.trim()) {
+    errors.prizeName = "Prize name is required";
+  }
+
+  if (setup === "free_tickets" && !options.editing && !linkedCompetitionId) {
+    errors.linkedCompetitionId = "Select target competition";
+  }
+
+  if (setup === "free_tickets" && (!Number.isInteger(ticketCount) || ticketCount < 1)) {
+    errors.ticketCount = "Tickets per winner must be at least 1";
+  }
+
+  if (manualTicketNumbers !== null) {
+    if (manualTicketNumbers.length !== quantity) {
+      errors.manualTicketNumbers = `Enter exactly ${quantity} ticket number${quantity === 1 ? "" : "s"} (comma-separated), one per win`;
     }
   }
 
   if (capacity?.linkedCompetition && quantity > 0) {
     const ticketsRequired = quantity * capacity.linkedCompetition.ticketsPerSlot;
     if (ticketsRequired > capacity.linkedCompetition.availableTickets) {
-      errors.quantity = `Requires ${ticketsRequired} tickets in "${capacity.linkedCompetition.title}" but only ${capacity.linkedCompetition.availableTickets} available`;
+      errors.quantity = `Needs ${ticketsRequired} tickets in "${capacity.linkedCompetition.title}" but only ${capacity.linkedCompetition.availableTickets} available`;
     }
   }
 
@@ -64,4 +91,17 @@ export function validateInstantPrizeAssignForm(
 
 export function hasAssignFormErrors(errors: InstantPrizeAssignFormErrors): boolean {
   return Object.keys(errors).length > 0;
+}
+
+export function parseManualTicketNumbersInput(raw: string): number[] | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return [];
+  const parts = trimmed.split(/[,;\s]+/).filter(Boolean);
+  const nums: number[] = [];
+  for (const part of parts) {
+    const n = parseInt(part, 10);
+    if (!Number.isFinite(n)) return null;
+    nums.push(n);
+  }
+  return nums;
 }

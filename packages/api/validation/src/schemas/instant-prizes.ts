@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { idSchema } from "./common";
+import { idSchema, optionalIdQuerySchema } from "./common";
+
+export const instantPrizeCategorySchema = z.enum(["cash", "site_credit", "physical"]);
 
 export const createInstantPrizeSchema = z
   .object({
@@ -9,6 +11,7 @@ export const createInstantPrizeSchema = z
     images: z.array(z.string().url()).max(20).default([]),
     isActive: z.boolean().optional().default(true),
     type: z.enum(["prize", "competition_ticket"]).optional().default("prize"),
+    prizeCategory: instantPrizeCategorySchema.optional(),
     linkedCompetitionId: idSchema.optional(),
     ticketCount: z.number().int().min(1).max(10_000).optional(),
   })
@@ -25,6 +28,7 @@ export const updateInstantPrizeSchema = z
     images: z.array(z.string().url()).max(20).optional(),
     isActive: z.boolean().optional(),
     type: z.enum(["prize", "competition_ticket"]).optional(),
+    prizeCategory: instantPrizeCategorySchema.optional().nullable(),
     linkedCompetitionId: idSchema.optional().nullable(),
     ticketCount: z.number().int().min(1).max(10_000).optional().nullable(),
   })
@@ -33,11 +37,21 @@ export const updateInstantPrizeSchema = z
     message: "Linked competition is required for ticket prizes",
   });
 
-export const assignCompetitionInstantPrizeSchema = z.object({
-  competitionId: idSchema,
-  instantPrizeId: idSchema,
-  quantity: z.number().int().min(1).max(10_000).default(1),
-});
+export const assignCompetitionInstantPrizeSchema = z
+  .object({
+    competitionId: idSchema,
+    instantPrizeId: idSchema,
+    quantity: z.number().int().min(1).max(10_000).default(1),
+    winningEntryNumbers: z.array(z.number().int().min(1)).min(1).max(10_000).optional(),
+  })
+  .refine(
+    (data) =>
+      !data.winningEntryNumbers || data.winningEntryNumbers.length === data.quantity,
+    {
+      path: ["winningEntryNumbers"],
+      message: "Ticket numbers count must match number of wins",
+    }
+  );
 
 export const updateCompetitionInstantPrizeSchema = z
   .object({
@@ -45,22 +59,33 @@ export const updateCompetitionInstantPrizeSchema = z
     absolute: z.boolean().optional(),
     linkedCompetitionId: idSchema.optional(),
     ticketCount: z.number().int().min(1).max(10_000).optional(),
+    prizeTitle: z.string().min(1).max(300).optional(),
+    prizeValue: z.number().min(0).optional(),
+    prizeCategory: instantPrizeCategorySchema.optional(),
+    regenerateWinningNumbers: z.boolean().optional(),
   })
   .refine(
     (data) =>
       data.quantity !== undefined ||
       data.linkedCompetitionId !== undefined ||
-      data.ticketCount !== undefined,
-    { message: "At least one field (quantity, linkedCompetitionId, ticketCount) must be provided" }
+      data.ticketCount !== undefined ||
+      data.prizeTitle !== undefined ||
+      data.prizeValue !== undefined ||
+      data.prizeCategory !== undefined ||
+      data.regenerateWinningNumbers === true,
+    {
+      message:
+        "Provide quantity, prize name, free-ticket settings, or regenerate winning numbers",
+    }
   );
 
 export const instantPrizeCapacityQuerySchema = z.object({
   competitionId: idSchema,
-  instantPrizeId: idSchema.optional(),
+  instantPrizeId: optionalIdQuerySchema,
   quantity: z.coerce.number().int().min(1).max(10_000).optional(),
-  linkedCompetitionId: idSchema.optional(),
+  linkedCompetitionId: optionalIdQuerySchema,
   ticketCount: z.coerce.number().int().min(1).max(10_000).optional(),
-  excludeCipId: idSchema.optional(),
+  excludeCipId: optionalIdQuerySchema,
 });
 
 export const reorderCompetitionInstantPrizesSchema = z.object({

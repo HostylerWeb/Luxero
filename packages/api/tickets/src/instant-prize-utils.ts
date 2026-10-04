@@ -1,5 +1,9 @@
 import { CompetitionInstantPrize, InstantPrizeWin, Ticket } from "@luxero/api-db/models";
 import type { IInstantPrize } from "@luxero/api-db/models/InstantPrize";
+import {
+  type AllocationWin,
+  getWonSlotIndices,
+} from "@luxero/api-tickets/instant-prize-allocation";
 import { buildExcludeSetForInstantPrizes } from "@luxero/api-tickets/ticket-service";
 import { type ClientSession, Types } from "mongoose";
 
@@ -57,6 +61,92 @@ export async function generateWinningEntryNumbers(
   }
 
   throw new Error("Unreachable");
+}
+
+export async function validateManualWinningEntryNumbers(
+  competitionId: Types.ObjectId,
+  numbers: number[],
+  quantity: number,
+  maxTickets: number,
+  exclude: Set<number>
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (numbers.length !== quantity) {
+    return {
+      ok: false,
+      message: `Provide exactly ${quantity} ticket number${quantity === 1 ? "" : "s"} (one per win)`,
+    };
+  }
+
+  const unique = new Set(numbers);
+  if (unique.size !== numbers.length) {
+    return { ok: false, message: "Winning ticket numbers must be unique" };
+  }
+
+  for (const n of numbers) {
+    if (!Number.isInteger(n) || n < 1 || n > maxTickets) {
+      return {
+        ok: false,
+        message: `Ticket number ${n} is out of range (1–${maxTickets})`,
+      };
+    }
+    if (exclude.has(n)) {
+      return {
+        ok: false,
+        message: `Ticket number ${n} is already assigned to another instant win`,
+      };
+    }
+  }
+
+  const availableCount = await Ticket.countDocuments({
+    competitionId,
+    number: { $in: numbers },
+    status: "available",
+  });
+
+  if (availableCount !== numbers.length) {
+    return {
+      ok: false,
+      message: "One or more ticket numbers are not available (sold, held, or missing)",
+    };
+  }
+
+  return { ok: true };
+}
+
+export async function regenerateUnclaimedWinningEntryNumbers(
+  competitionId: Types.ObjectId,
+  maxTickets: number,
+  winningEntryNumbers: number[],
+  wins: AllocationWin[],
+  session?: ClientSession
+): Promise<number[]> {
+  const wonSlotIndices = getWonSlotIndices(winningEntryNumbers, wins);
+  const unclaimedSlotIndices = winningEntryNumbers
+    .map((_, index) => index)
+    .filter((index) => !wonSlotIndices.has(index));
+
+  if (unclaimedSlotIndices.length === 0) {
+    return winningEntryNumbers;
+  }
+
+  const exclude = await buildExcludeSetForInstantPrizes(competitionId);
+  for (const slotIndex of unclaimedSlotIndices) {
+    exclude.delete(winningEntryNumbers[slotIndex]!);
+  }
+
+  const replacementNumbers = await generateWinningEntryNumbers(
+    competitionId,
+    unclaimedSlotIndices.length,
+    maxTickets,
+    exclude,
+    session
+  );
+
+  const next = [...winningEntryNumbers];
+  unclaimedSlotIndices.forEach((slotIndex, i) => {
+    next[slotIndex] = replacementNumbers[i]!;
+  });
+  return next;
 }
 
 export interface InstantWinResult {

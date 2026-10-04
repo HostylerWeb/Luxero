@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { BuildVersionWatcher } from "@/components/BuildVersionWatcher";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { PwaInstallPrompt } from "@/components/layout/PwaInstallPrompt";
@@ -70,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   appName="Luxero Admin"
                   tagline="Add to your home screen for one-tap admin access"
                 />
-                <Toaster richColors closeButton />
+                <Toaster />
               </CommandMenuProvider>
             </QueryProvider>
           </ErrorBoundary>

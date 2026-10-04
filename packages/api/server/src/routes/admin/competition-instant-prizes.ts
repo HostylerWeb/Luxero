@@ -27,7 +27,11 @@ import {
   rebuildGrantedTicketIds,
   shrinkGrantedTicketsForTicketCountChange,
 } from "@luxero/api-tickets/instant-prize-allocation";
-import { generateWinningEntryNumbers } from "@luxero/api-tickets/instant-prize-utils";
+import {
+  generateWinningEntryNumbers,
+  regenerateUnclaimedWinningEntryNumbers,
+  validateManualWinningEntryNumbers,
+} from "@luxero/api-tickets/instant-prize-utils";
 import {
   buildExcludeSetForInstantPrizes,
   holdTickets,
@@ -309,6 +313,7 @@ app.get("/", async (c) => {
           prizeImages: { $ifNull: ["$prize.images", []] },
           prizeValue: { $ifNull: ["$prize.value", 0] },
           prizeType: { $ifNull: ["$prize.type", "prize"] },
+          prizeCategory: "$prize.prizeCategory",
           prizeLinkedCompetitionId: "$prize.linkedCompetitionId",
           prizeTicketCount: "$prize.ticketCount",
           competitionTitle: { $ifNull: ["$comp.title", ""] },
@@ -391,6 +396,7 @@ app.get("/", async (c) => {
     const results = cipList.map((cip) => ({
       id: cip._id.toString(),
       competitionId: cip.competitionId.toString(),
+      instantPrizeId: cip.instantPrizeId?.toString(),
       competitionTitle: cip.competitionTitle,
       instantPrize: {
         title: cip.prizeTitle,
@@ -398,6 +404,7 @@ app.get("/", async (c) => {
         images: cip.prizeImages,
         value: cip.prizeValue,
         type: cip.prizeType,
+        prizeCategory: cip.prizeCategory,
         linkedCompetitionId: cip.prizeLinkedCompetitionId?.toString(),
         ticketCount: cip.prizeTicketCount,
       },
@@ -469,7 +476,8 @@ app.post(
   async (c) => {
     try {
       const body = c.get("body") as AssignCompetitionInstantPrizeInput;
-      const { competitionId, instantPrizeId, quantity: qty } = body;
+      const { competitionId, instantPrizeId, quantity: qty, winningEntryNumbers: manualNumbers } =
+        body;
 
       await dbConnect();
 
@@ -512,13 +520,29 @@ app.post(
         let grantedTicketIds: Types.ObjectId[] = [];
 
         try {
-          const winningEntryNumbers = await generateWinningEntryNumbers(
-            new Types.ObjectId(competitionId),
-            qty,
-            competition.maxTickets,
-            baseExclude,
-            session ?? undefined
-          );
+          let winningEntryNumbers: number[];
+
+          if (manualNumbers && manualNumbers.length > 0) {
+            const manualCheck = await validateManualWinningEntryNumbers(
+              new Types.ObjectId(competitionId),
+              manualNumbers,
+              qty,
+              competition.maxTickets,
+              baseExclude
+            );
+            if (!manualCheck.ok) {
+              throw new Error(`VALIDATION:${manualCheck.message}`);
+            }
+            winningEntryNumbers = manualNumbers;
+          } else {
+            winningEntryNumbers = await generateWinningEntryNumbers(
+              new Types.ObjectId(competitionId),
+              qty,
+              competition.maxTickets,
+              baseExclude,
+              session ?? undefined
+            );
+          }
 
           if (winningEntryNumbers.length !== qty) {
             throw new Error(
@@ -599,7 +623,16 @@ async function handleAssignPatch(c: Context) {
   }
 
   const body = c.get("body") as UpdateCompetitionInstantPrizeInput;
-  const { quantity, absolute, linkedCompetitionId, ticketCount } = body;
+  const {
+    quantity,
+    absolute,
+    linkedCompetitionId,
+    ticketCount,
+    prizeTitle,
+    prizeValue,
+    prizeCategory,
+    regenerateWinningNumbers,
+  } = body;
 
   await dbConnect();
 
@@ -838,6 +871,40 @@ async function handleAssignPatch(c: Context) {
           cip.instantPrizeId,
           { linkedCompetitionId: new Types.ObjectId(linkedCompetitionId) },
           sessionOpts(session)
+        );
+      }
+
+      if (prizeTitle !== undefined) {
+        await InstantPrize.findByIdAndUpdate(
+          cip.instantPrizeId,
+          { title: prizeTitle },
+          sessionOpts(session)
+        );
+      }
+
+      if (prizeValue !== undefined) {
+        await InstantPrize.findByIdAndUpdate(
+          cip.instantPrizeId,
+          { value: prizeValue },
+          sessionOpts(session)
+        );
+      }
+
+      if (prizeCategory !== undefined) {
+        await InstantPrize.findByIdAndUpdate(
+          cip.instantPrizeId,
+          { prizeCategory },
+          sessionOpts(session)
+        );
+      }
+
+      if (regenerateWinningNumbers) {
+        currentNumbers = await regenerateUnclaimedWinningEntryNumbers(
+          cip.competitionId,
+          competition.maxTickets,
+          currentNumbers,
+          wins,
+          session ?? undefined
         );
       }
 

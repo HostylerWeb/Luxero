@@ -4,6 +4,8 @@ import { type ISoftDelete, SoftDeleteModel, softDeletePlugin } from "../plugins/
 
 export type InstantPrizeType = "prize" | "competition_ticket";
 
+export type InstantPrizeCategory = "cash" | "site_credit" | "physical";
+
 export interface IInstantPrize extends Document, ISoftDelete {
   title: string;
   description?: string;
@@ -11,6 +13,7 @@ export interface IInstantPrize extends Document, ISoftDelete {
   images: string[];
   isActive: boolean;
   type: InstantPrizeType;
+  prizeCategory?: InstantPrizeCategory;
   linkedCompetitionId?: Types.ObjectId;
   ticketCount?: number;
   createdAt: Date;
@@ -38,6 +41,11 @@ const InstantPrizeSchema = new Schema<IInstantPrize>(
     },
     linkedCompetitionId: { type: Schema.Types.ObjectId, ref: "Competition" },
     ticketCount: { type: Number, default: 1, min: [1, "Ticket count must be at least 1"] },
+    prizeCategory: {
+      type: String,
+      enum: ["cash", "site_credit", "physical"],
+      required: false,
+    },
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );

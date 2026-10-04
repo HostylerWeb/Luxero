@@ -159,6 +159,7 @@ export interface AdminInstantPrize {
   images: string[];
   isActive: boolean;
   type: "prize" | "competition_ticket";
+  prizeCategory?: "cash" | "site_credit" | "physical";
   linkedCompetitionId?: string;
   linkedCompetition?: { title: string; imageUrl?: string; status?: string };
   ticketCount?: number;

@@ -8,7 +8,7 @@ import type {
   InstantPrizeCapacityResponse,
   UpdateCompetitionInstantPrizePayload,
 } from "@luxero/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import {
@@ -251,12 +251,34 @@ export function useAdminInstantPrizeTemplateMutations() {
 }
 
 function buildCapacitySearchParams(params: InstantPrizeCapacityParams): Record<string, string> {
-  const search: Record<string, string> = { competitionId: params.competitionId };
-  if (params.instantPrizeId) search.instantPrizeId = params.instantPrizeId;
-  if (params.quantity !== undefined) search.quantity = String(params.quantity);
-  if (params.linkedCompetitionId) search.linkedCompetitionId = params.linkedCompetitionId;
-  if (params.ticketCount !== undefined) search.ticketCount = String(params.ticketCount);
-  if (params.excludeCipId) search.excludeCipId = params.excludeCipId;
+  const objectId = /^[a-f\d]{24}$/i;
+  const search: Record<string, string> = {};
+  if (objectId.test(params.competitionId)) {
+    search.competitionId = params.competitionId;
+  }
+  if (params.instantPrizeId && objectId.test(params.instantPrizeId)) {
+    search.instantPrizeId = params.instantPrizeId;
+  }
+  if (
+    params.quantity !== undefined &&
+    Number.isInteger(params.quantity) &&
+    params.quantity >= 1
+  ) {
+    search.quantity = String(params.quantity);
+  }
+  if (params.linkedCompetitionId && objectId.test(params.linkedCompetitionId)) {
+    search.linkedCompetitionId = params.linkedCompetitionId;
+  }
+  if (
+    params.ticketCount !== undefined &&
+    Number.isInteger(params.ticketCount) &&
+    params.ticketCount >= 1
+  ) {
+    search.ticketCount = String(params.ticketCount);
+  }
+  if (params.excludeCipId && objectId.test(params.excludeCipId)) {
+    search.excludeCipId = params.excludeCipId;
+  }
   return search;
 }
 
@@ -283,8 +305,13 @@ export function useAdminInstantPrizeCapacity(
       api.get<InstantPrizeCapacityResponse>("/api/admin/competitions-instant-prizes/capacity", {
         params: queryParams,
       }),
-    enabled: (options.enabled ?? true) && !!competitionId,
+    enabled:
+      (options.enabled ?? true) &&
+      !!competitionId &&
+      /^[a-f\d]{24}$/i.test(competitionId) &&
+      !!queryParams.competitionId,
     staleTime: STALE_TIME_ADMIN,
+    placeholderData: keepPreviousData,
   });
 }
 

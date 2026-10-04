@@ -113,6 +113,28 @@
   --violet: oklch(0.62 0.18 285);
 }
 
+/* Sonner toast surfaces — follow admin light/dark tokens */
+:root,
+.dark {
+  --sonner-normal-bg: var(--popover);
+  --sonner-normal-bg-hover: color-mix(in oklch, var(--muted) 35%, var(--popover));
+  --sonner-normal-text: var(--popover-foreground);
+  --sonner-normal-border: var(--border);
+  --sonner-normal-border-hover: color-mix(in oklch, var(--foreground) 12%, var(--border));
+  --sonner-success-bg: color-mix(in oklch, var(--success) 16%, var(--popover));
+  --sonner-success-border: color-mix(in oklch, var(--success) 42%, var(--border));
+  --sonner-success-text: var(--popover-foreground);
+  --sonner-error-bg: color-mix(in oklch, var(--destructive) 14%, var(--popover));
+  --sonner-error-border: color-mix(in oklch, var(--destructive) 48%, var(--border));
+  --sonner-error-text: var(--popover-foreground);
+  --sonner-warning-bg: color-mix(in oklch, var(--warning) 18%, var(--popover));
+  --sonner-warning-border: color-mix(in oklch, var(--warning) 45%, var(--border));
+  --sonner-warning-text: var(--popover-foreground);
+  --sonner-info-bg: color-mix(in oklch, var(--primary) 14%, var(--popover));
+  --sonner-info-border: color-mix(in oklch, var(--primary) 38%, var(--border));
+  --sonner-info-text: var(--popover-foreground);
+}
+
 @theme inline {
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
@@ -198,6 +220,21 @@
   [data-slot="sheet-content"] {
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+  }
+
+  [data-sonner-toaster] {
+    --z-index: 100;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  [data-sonner-toast] {
+    padding: 0.875rem 1rem;
+  }
+
+  [data-sonner-toast][data-styled="true"] {
+    box-shadow:
+      0 4px 6px -1px color-mix(in oklch, var(--foreground) 6%, transparent),
+      0 2px 4px -2px color-mix(in oklch, var(--foreground) 6%, transparent);
   }
 
   @keyframes fadeIn {

@@ -1,7 +1,8 @@
 export type { CompetitionFormSheetProps } from "./CompetitionFormSheet";
 export { CompetitionFormSheet } from "./CompetitionFormSheet";
 export { CompetitionFormTabs } from "./CompetitionFormTabs";
-export { AddPrizeDrawer, CompetitionInstantPrizesTab } from "./CompetitionInstantPrizesTab";
+export { AddPrizeDrawer } from "./AddInstantPrizeDialog";
+export { CompetitionInstantPrizesTab } from "./CompetitionInstantPrizesTab";
 export { AddMilestoneDrawer, CompetitionMilestonesTab } from "./CompetitionMilestonesTab";
 export { CompetitionSettingsForm } from "./CompetitionSettingsForm";
 export { SelectWinnerDialog } from "./SelectWinnerDialog";
