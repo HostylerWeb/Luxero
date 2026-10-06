@@ -30,6 +30,48 @@ export interface MediaConverterSettings {
   video: MediaConverterVideoSettings;
 }
 
+export type MediaConverterBulkConvertStatus =
+  | "converted"
+  | "skipped"
+  | "failed"
+  | "already_optimal";
+
+export interface MediaConverterBulkCatalogItem {
+  key: string;
+  kind: "image" | "video";
+  scope: MediaConverterScope;
+  contentType: string;
+}
+
+export interface MediaConverterBulkPreview {
+  eligibleImages: number;
+  eligibleVideos: number;
+  alreadyTargetFormat: number;
+  skipped: number;
+  items: MediaConverterBulkCatalogItem[];
+}
+
+export interface MediaConverterBulkConvertResultItem {
+  key: string;
+  newKey: string;
+  kind: "image" | "video";
+  status: MediaConverterBulkConvertStatus;
+  oldUrl: string;
+  newUrl: string;
+  originalKeyForDeletion?: string;
+  verified: boolean;
+  documentsUpdated: number;
+  error?: string;
+}
+
+export interface MediaConverterBulkVerifyResultItem {
+  key: string;
+  ok: boolean;
+  contentType?: string;
+  contentLength?: number;
+  error?: string;
+}
+
 export const DEFAULT_MEDIA_CONVERTER_SCOPES: MediaConverterScopeMap = {
   media_library: true,
   competition_prizes: true,

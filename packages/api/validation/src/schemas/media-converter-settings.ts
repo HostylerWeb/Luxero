@@ -33,3 +33,15 @@ export const adminMediaConverterSettingsUpdateSchema = z.object({
 export type AdminMediaConverterSettingsUpdateInput = z.infer<
   typeof adminMediaConverterSettingsUpdateSchema
 >;
+
+export const adminMediaConverterBulkConvertSchema = z.object({
+  keys: z.array(z.string().min(1)).min(1).max(20),
+});
+
+export const adminMediaConverterBulkVerifySchema = z.object({
+  keys: z.array(z.string().min(1)).min(1).max(200),
+});
+
+export const adminMediaConverterBulkDeleteOriginalsSchema = z.object({
+  keys: z.array(z.string().min(1)).min(1).max(200),
+});

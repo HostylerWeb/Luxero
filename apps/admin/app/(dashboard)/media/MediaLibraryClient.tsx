@@ -19,6 +19,7 @@ export function MediaLibraryClient() {
   const type: AssetTypeFilter = (searchParams.get("type") as AssetTypeFilter | null) ?? "all";
   const sort: AssetSort = (searchParams.get("sort") as AssetSort | null) ?? "newest";
   const view: AssetView = (searchParams.get("view") as AssetView | null) ?? "grid";
+  const browseFlat = searchParams.get("browse") !== "folders";
 
   const searchParamsRef = useRef(searchParams);
   searchParamsRef.current = searchParams;
@@ -30,6 +31,7 @@ export function MediaLibraryClient() {
       type?: AssetTypeFilter;
       sort?: AssetSort;
       view?: AssetView;
+      browse?: "flat" | "folders";
     }) => {
       const params = new URLSearchParams(searchParamsRef.current.toString());
       if (next.prefix !== undefined) {
@@ -52,10 +54,35 @@ export function MediaLibraryClient() {
         if (next.view !== "grid") params.set("view", next.view);
         else params.delete("view");
       }
+      if (next.browse !== undefined) {
+        if (next.browse === "folders") params.set("browse", "folders");
+        else params.delete("browse");
+      }
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [pathname, router]
+  );
+
+  const handleStateChange = useCallback(
+    (next: {
+      prefix: string;
+      search: string;
+      type: AssetTypeFilter;
+      sort: AssetSort;
+      view: AssetView;
+      browseFlat?: boolean;
+    }) => {
+      updateUrl({
+        prefix: next.prefix,
+        search: next.search,
+        type: next.type,
+        sort: next.sort,
+        view: next.view,
+        browse: next.browseFlat === false ? "folders" : "flat",
+      });
+    },
+    [updateUrl]
   );
 
   return (
@@ -66,8 +93,9 @@ export function MediaLibraryClient() {
       initialType={type}
       initialSort={sort}
       initialView={view}
+      initialBrowseFlat={browseFlat}
       previewable
-      onStateChange={updateUrl}
+      onStateChange={handleStateChange}
     />
   );
 }

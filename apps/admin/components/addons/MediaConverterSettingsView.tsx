@@ -11,6 +11,7 @@ import {
   VIDEO_SCOPE_LABELS,
   type VideoConverterUiState,
 } from "@/components/addons/media-converter-types";
+import { MediaConverterBulkPanel } from "@/components/addons/MediaConverterBulkPanel";
 import { QualitySliderField } from "@/components/addons/QualitySliderField";
 import { ScopeToggles } from "@/components/addons/ScopeToggles";
 import { PageShell } from "@/components/PageShell";
@@ -188,6 +189,8 @@ export function MediaConverterSettingsView() {
           </div>
         </CardHeader>
       </Card>
+
+      <MediaConverterBulkPanel addonReady={summary.imageOn || summary.videoOn} />
 
       <Tabs defaultValue="image" className="w-full">
         <TabsList>
@@ -389,7 +392,8 @@ export function MediaConverterSettingsView() {
                   you set, then stores the optimized file.
                 </li>
                 <li>
-                  URLs and metadata (dimensions, blur placeholder for images) reflect the stored file.
+                  Use <strong>Convert existing library</strong> above to backfill WebP/WebM for files
+                  already in the bucket, verify them, then optionally delete originals.
                 </li>
               </ol>
               <Separator />

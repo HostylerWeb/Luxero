@@ -296,6 +296,52 @@ export async function getPresignedDownloadUrl(key: string): Promise<string> {
   return s3.getPresignedUrl("GET", key, 300);
 }
 
+export async function listStorageDelimiterPage(
+  prefix: string,
+  limit: number,
+  cursor?: string
+): Promise<{ files: { key: string; size: number; lastModified: Date }[]; folders: string[]; nextCursor: string | undefined }> {
+  const s3 = getS3mini();
+  const result = await s3.listObjectsPaged("/", prefix, limit, cursor, { delimiter: "/" });
+  const files: { key: string; size: number; lastModified: Date }[] = [];
+  const folders: string[] = [];
+  for (const obj of result?.objects ?? []) {
+    if (!obj.Key) continue;
+    if (obj.Key.endsWith("/") || obj.Size === 0) folders.push(obj.Key);
+    else files.push({ key: obj.Key, size: obj.Size || 0, lastModified: obj.LastModified });
+  }
+  return { files, folders, nextCursor: result?.nextContinuationToken };
+}
+
+export async function listObjectKeysPage(
+  prefix: string,
+  limit: number,
+  cursor?: string
+): Promise<{ keys: { key: string; size: number }[]; nextCursor: string | undefined }> {
+  const s3 = getS3mini();
+  const result = await s3.listObjectsPaged("/", prefix, limit, cursor, { delimiter: "/" });
+  const keys = (result?.objects ?? [])
+    .filter((obj) => obj.Key && obj.Size > 0 && !obj.Key.endsWith("/"))
+    .map((obj) => ({ key: obj.Key, size: obj.Size || 0 }));
+  return { keys, nextCursor: result?.nextContinuationToken };
+}
+
+export async function listFolderPrefixesPage(
+  prefix: string,
+  limit: number,
+  cursor?: string
+): Promise<{ prefixes: string[]; nextCursor: string | undefined }> {
+  const s3 = getS3mini();
+  const result = await s3.listObjectsPaged("/", prefix, limit, cursor, { delimiter: "/" });
+  const prefixes: string[] = [];
+  for (const obj of result?.objects ?? []) {
+    if (obj.Key.endsWith("/") || obj.Size === 0) {
+      prefixes.push(obj.Key);
+    }
+  }
+  return { prefixes, nextCursor: result?.nextContinuationToken };
+}
+
 export async function listAssets(
   prefix: string,
   limit: number,

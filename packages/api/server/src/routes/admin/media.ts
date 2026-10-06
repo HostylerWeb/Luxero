@@ -13,6 +13,7 @@ import {
   listAssets,
   uploadFile,
 } from "@luxero/api-storage/s3";
+import { listFlatAssetsPage } from "@luxero/api-storage/list-flat-assets";
 import { Hono } from "hono";
 import imageSize from "image-size";
 import sharp from "sharp";
@@ -206,6 +207,7 @@ app.get("/presign-download", async (c) => {
 
 app.get("/assets", async (c) => {
   const prefix = c.req.query("prefix") ?? "";
+  const flat = c.req.query("flat") === "1";
   const limit = Math.min(parseInt(c.req.query("limit") ?? "50", 10), 50);
   const cursor = c.req.query("cursor") || undefined;
   const search = c.req.query("search") || undefined;
@@ -215,7 +217,9 @@ app.get("/assets", async (c) => {
     return error(c, ErrorCodes.INVALID_LIMIT, "limit must be >= 1", 400);
   }
 
-  const result = await listAssets(prefix, limit, cursor, search);
+  const result = flat
+    ? await listFlatAssetsPage(limit, cursor, search)
+    : await listAssets(prefix, limit, cursor, search);
   let { assets } = result;
 
   if (type === "image") {

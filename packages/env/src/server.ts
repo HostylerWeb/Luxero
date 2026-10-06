@@ -39,10 +39,19 @@ const DEFAULTS: Partial<Record<EnvKey, string>> = {
 
 function _raw(key: EnvKey): string | undefined {
   if (key === "BETTER_AUTH_URL") {
-    return process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
+    return (
+      process.env.BETTER_AUTH_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.APP_URL ||
+      process.env.PUBLIC_ENV__APP_URL
+    );
   }
   if (key === "APP_URL") {
-    return process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
+    return (
+      process.env.APP_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.PUBLIC_ENV__APP_URL
+    );
   }
   const prefixed = `PUBLIC_ENV__${key}`;
   return process.env[prefixed] || process.env[key];

@@ -36,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
@@ -44,6 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ZoomableImageGallery } from "@/components/zoomable-image-gallery";
 import { cn } from "@/lib/utils";
@@ -242,12 +244,14 @@ export interface MediaGridProps {
   initialType?: AssetTypeFilter;
   initialSort?: AssetSort;
   initialView?: AssetView;
+  initialBrowseFlat?: boolean;
   onStateChange?: (state: {
     prefix: string;
     search: string;
     type: AssetTypeFilter;
     sort: AssetSort;
     view: AssetView;
+    browseFlat?: boolean;
   }) => void;
   onSelect?: (urls: string[]) => void;
   selectable?: boolean;
@@ -265,6 +269,7 @@ export function MediaGrid({
   initialType = "all",
   initialSort = "newest",
   initialView = "grid",
+  initialBrowseFlat,
   onStateChange,
   onSelect,
   selectable = false,
@@ -277,6 +282,9 @@ export function MediaGrid({
 }: MediaGridProps) {
   const isManagePage = layout === "page";
   const effectiveSelectable = selectable || isManagePage;
+  const [browseFlat, setBrowseFlat] = useState(
+    initialBrowseFlat ?? (layout === "page")
+  );
   const [assets, setAssets] = useState<S3Asset[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState<PickerState>("loading");
@@ -323,13 +331,23 @@ export function MediaGrid({
 
   useEffect(() => {
     if (!onStateChange) return;
-    onStateChange({ prefix, search: debouncedSearch, type: typeFilter, sort, view });
-  }, [prefix, debouncedSearch, typeFilter, sort, view, onStateChange]);
+    onStateChange({
+      prefix,
+      search: debouncedSearch,
+      type: typeFilter,
+      sort,
+      view,
+      browseFlat: isManagePage ? browseFlat : undefined,
+    });
+  }, [prefix, debouncedSearch, typeFilter, sort, view, browseFlat, isManagePage, onStateChange]);
 
   const visibleKeys = useMemo(() => {
+    if (browseFlat && isManagePage) {
+      return assets.filter((a) => !isFrameKey(a.key)).map((a) => a.key);
+    }
     const directFiles = extractDirectFiles(assets, prefix);
     return directFiles.map((a) => a.key);
-  }, [assets, prefix]);
+  }, [assets, prefix, browseFlat, isManagePage]);
 
   const metaCache = useMetadataCache(visibleKeys);
   const { cache: usageCache, prefetch: prefetchUsage } = useUsageCache();
@@ -340,7 +358,11 @@ export function MediaGrid({
       if (!cursorToken) setLoading("loading");
       try {
         const params = new URLSearchParams();
-        params.set("prefix", prefix);
+        if (isManagePage && browseFlat) {
+          params.set("flat", "1");
+        } else {
+          params.set("prefix", prefix);
+        }
         params.set("limit", "24");
         if (cursorToken) params.set("cursor", cursorToken);
         if (debouncedSearch) params.set("search", debouncedSearch);
@@ -364,7 +386,7 @@ export function MediaGrid({
         toast.error("Failed to load files");
       }
     },
-    [prefix, debouncedSearch, typeFilter, sort]
+    [prefix, debouncedSearch, typeFilter, sort, browseFlat, isManagePage]
   );
 
   useEffect(() => {
@@ -480,8 +502,11 @@ export function MediaGrid({
   }
 
   const breadcrumbs = parseBreadcrumbs(prefix);
-  const subfolders = extractSubfolders(assets, prefix);
-  const directFiles = extractDirectFiles(assets, prefix);
+  const subfolders = browseFlat && isManagePage ? [] : extractSubfolders(assets, prefix);
+  const directFiles =
+    browseFlat && isManagePage
+      ? assets.filter((a) => !isFrameKey(a.key))
+      : extractDirectFiles(assets, prefix);
   const showSelect = showSelectButton ?? Boolean(onSelect);
   const inUseCount = useMemo(() => {
     let count = 0;
@@ -506,6 +531,29 @@ export function MediaGrid({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2">
+          {isManagePage ? (
+            <div className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5">
+              <Switch
+                id="media-browse-flat"
+                checked={browseFlat}
+                onCheckedChange={(checked) => {
+                  setBrowseFlat(checked);
+                  setLoading("loading");
+                  setAssets([]);
+                  setCursor(undefined);
+                  if (checked) {
+                    setPrefix("");
+                  }
+                }}
+                aria-label="Show all images in a flat list"
+              />
+              <Label htmlFor="media-browse-flat" className="cursor-pointer text-sm font-medium">
+                All images
+              </Label>
+            </div>
+          ) : (
+            <div />
+          )}
           <ToggleGroup
             type="single"
             value={typeFilter}
@@ -566,7 +614,7 @@ export function MediaGrid({
         </div>
       </div>
 
-      {breadcrumbs.length > 1 && (
+      {(!browseFlat || !isManagePage) && breadcrumbs.length > 1 && (
         <nav className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
           {breadcrumbs.map((crumb, i) => (
             <span key={crumb.prefix || "root"} className="flex items-center gap-1">

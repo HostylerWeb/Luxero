@@ -83,18 +83,6 @@ export function AuthProvider({
 
   const { data: session, isPending, error: sessionError } = authClient.useSession();
 
-  console.log("[AuthProvider] useSession state", {
-    hasSession: !!session,
-    sessionUserId: session?.user?.id?.substring(0, 12) ?? null,
-    sessionAnonymous: session?.user?.isAnonymous ?? null,
-    sessionEmail: session?.user?.email?.substring(0, 15) ?? null,
-    isPending,
-    hasError: !!sessionError,
-    errorMessage: sessionError instanceof Error ? sessionError.message : null,
-    initialUserId: initialUser?.id?.substring(0, 12) ?? null,
-    initialAnonymous: initialUser?.isAnonymous ?? null,
-  });
-
   const anonStarted = useRef(false);
   const anonFailed = useRef(false);
   const claimedRef = useRef<string | null>(null);

@@ -133,6 +133,7 @@ export const queryKeys = {
     seoSettings: () => ["admin", "seo-settings"] as const,
     conversionSettings: () => ["admin", "conversion-settings"] as const,
     mediaConverterSettings: () => ["admin", "media-converter-settings"] as const,
+    mediaConverterBulkPreview: () => ["admin", "media-converter-settings", "bulk-preview"] as const,
     conversionPostbacks: (filters: Record<string, string | undefined>) =>
       ["admin", "conversion-postbacks", JSON.stringify(filters)] as const,
     conversionPostbacksSummary: (days: number) =>

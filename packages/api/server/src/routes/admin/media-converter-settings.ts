@@ -11,7 +11,19 @@ import { requireAdmin } from "@luxero/api-server/middleware/auth";
 import {
   invalidateMediaConverterSettingsCache,
 } from "@luxero/api-server/lib/media-converter/settings";
-import { adminMediaConverterSettingsUpdateSchema } from "@luxero/api-validation";
+import {
+  buildBulkCatalog,
+  convertBulkItem,
+  deleteOriginalBulkKeys,
+  resolveEligibleCatalogItem,
+  verifyBulkKeys,
+} from "@luxero/api-server/lib/media-converter/bulk";
+import {
+  adminMediaConverterBulkConvertSchema,
+  adminMediaConverterBulkDeleteOriginalsSchema,
+  adminMediaConverterBulkVerifySchema,
+  adminMediaConverterSettingsUpdateSchema,
+} from "@luxero/api-validation";
 import { Hono } from "hono";
 
 const app = new Hono();
@@ -100,6 +112,106 @@ app.put("/", async (c) => {
       operation: "admin.mediaConverterSettings.put",
     });
     return error(c, ErrorCodes.INTERNAL_ERROR, "Internal server error", 500);
+  }
+});
+
+app.get("/bulk/preview", async (c) => {
+  try {
+    await dbConnect();
+    const preview = await buildBulkCatalog();
+    return success(c, preview);
+  } catch (err: unknown) {
+    captureRouteError(err, {
+      requestId: c.get("requestId"),
+      path: c.req.path,
+      userId: c.get("userId") ?? null,
+      operation: "admin.mediaConverterSettings.bulkPreview",
+    });
+    return error(c, ErrorCodes.INTERNAL_ERROR, "Failed to scan storage", 500);
+  }
+});
+
+app.post("/bulk/convert", async (c) => {
+  try {
+    const body = await c.req.json();
+    const parsed = adminMediaConverterBulkConvertSchema.safeParse(body);
+    if (!parsed.success) {
+      return error(c, ErrorCodes.VALIDATION_ERROR, "Invalid convert request", 400);
+    }
+
+    await dbConnect();
+    const settings = await MediaConverterSettings.findById("media_converter_settings").lean<IMediaConverterSettings>();
+
+    const results = [];
+    for (const key of parsed.data.keys) {
+      const item = await resolveEligibleCatalogItem(key, settings ?? undefined);
+      if (!item) {
+        results.push({
+          key,
+          newKey: key,
+          kind: "image" as const,
+          status: "failed" as const,
+          oldUrl: "",
+          newUrl: "",
+          verified: false,
+          documentsUpdated: 0,
+          error: "Key not eligible for conversion",
+        });
+        continue;
+      }
+      results.push(await convertBulkItem(item, settings ?? undefined));
+    }
+
+    return success(c, { results });
+  } catch (err: unknown) {
+    captureRouteError(err, {
+      requestId: c.get("requestId"),
+      path: c.req.path,
+      userId: c.get("userId") ?? null,
+      operation: "admin.mediaConverterSettings.bulkConvert",
+    });
+    return error(c, ErrorCodes.INTERNAL_ERROR, "Bulk conversion failed", 500);
+  }
+});
+
+app.post("/bulk/verify", async (c) => {
+  try {
+    const body = await c.req.json();
+    const parsed = adminMediaConverterBulkVerifySchema.safeParse(body);
+    if (!parsed.success) {
+      return error(c, ErrorCodes.VALIDATION_ERROR, "Invalid verify request", 400);
+    }
+    const results = await verifyBulkKeys(parsed.data.keys);
+    const ok = results.every((r) => r.ok);
+    return success(c, { ok, results });
+  } catch (err: unknown) {
+    captureRouteError(err, {
+      requestId: c.get("requestId"),
+      path: c.req.path,
+      userId: c.get("userId") ?? null,
+      operation: "admin.mediaConverterSettings.bulkVerify",
+    });
+    return error(c, ErrorCodes.INTERNAL_ERROR, "Verification failed", 500);
+  }
+});
+
+app.post("/bulk/delete-originals", async (c) => {
+  try {
+    const body = await c.req.json();
+    const parsed = adminMediaConverterBulkDeleteOriginalsSchema.safeParse(body);
+    if (!parsed.success) {
+      return error(c, ErrorCodes.VALIDATION_ERROR, "Invalid delete request", 400);
+    }
+    const outcome = await deleteOriginalBulkKeys(parsed.data.keys);
+    return success(c, outcome);
+  } catch (err: unknown) {
+    captureRouteError(err, {
+      requestId: c.get("requestId"),
+      path: c.req.path,
+      userId: c.get("userId") ?? null,
+      operation: "admin.mediaConverterSettings.bulkDeleteOriginals",
+    });
+    return error(c, ErrorCodes.INTERNAL_ERROR, "Delete originals failed", 500);
   }
 });
 

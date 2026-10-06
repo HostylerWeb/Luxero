@@ -373,13 +373,15 @@ app.use("*", async (c, next) => {
     ? `'self' 'unsafe-inline' https://fonts.googleapis.com`
     : `'self' 'unsafe-inline' https://fonts.googleapis.com`;
 
+  const devAssetHosts = isDev ? " http://localhost:9011 http://127.0.0.1:9011" : "";
+
   c.res.headers.set("X-Frame-Options", "DENY");
   c.res.headers.set("X-Content-Type-Options", "nosniff");
   c.res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   c.res.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
   c.res.headers.set(
     "Content-Security-Policy",
-    `base-uri 'self'; form-action 'self' https://gateway.paytriot.co.uk; object-src 'none'; default-src 'self'; script-src ${scriptSrc}; frame-src https://challenges.cloudflare.com https://gateway.paytriot.co.uk https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://luxero.win https://staging.luxero.win https://assets.luxero.win https://assets.staging.luxero.win https://umami.luxero.win https://challenges.cloudflare.com https://*.facebook.net https://tiny-glitter-95dd.luxero-win.workers.dev https://api.stripe.com https://www.google.com https://pay.google.com https://payments.google.com https://m.stripe.com https://q.stripe.com; img-src 'self' data: https://assets.luxero.win https://assets.staging.luxero.win https://lh3.googleusercontent.com; style-src ${styleSrc}; font-src 'self' https://fonts.gstatic.com`
+    `base-uri 'self'; form-action 'self' https://gateway.paytriot.co.uk; object-src 'none'; default-src 'self'; script-src ${scriptSrc}; frame-src https://challenges.cloudflare.com https://gateway.paytriot.co.uk https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://luxero.win https://staging.luxero.win https://assets.luxero.win https://assets.staging.luxero.win https://umami.luxero.win https://challenges.cloudflare.com https://*.facebook.net https://tiny-glitter-95dd.luxero-win.workers.dev https://api.stripe.com https://www.google.com https://pay.google.com https://payments.google.com https://m.stripe.com https://q.stripe.com${devAssetHosts}; img-src 'self' data: https://assets.luxero.win https://assets.staging.luxero.win https://lh3.googleusercontent.com${devAssetHosts}; media-src 'self' https://assets.luxero.win https://assets.staging.luxero.win${devAssetHosts}; style-src ${styleSrc}; font-src 'self' https://fonts.gstatic.com`
   );
   if (runtimeConfig.enableHsts) {
     c.res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
