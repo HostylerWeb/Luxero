@@ -289,7 +289,6 @@
          */
         open(config) {
             if (!config || !config.fields) {
-                console.error('PaytriotCheckout.open() missing required parameters: fields');
                 return;
             }
 
@@ -394,8 +393,8 @@
             if (isCancel && typeof this.options.onClose === 'function') {
                 try {
                     this.options.onClose();
-                } catch (e) {
-                    console.error('Error executing onClose callback:', e);
+                } catch {
+                    // Ignore onClose handler failures.
                 }
             }
 

@@ -1,10 +1,11 @@
 import path from "node:path";
+import { hostylerConsoleNoticeIndexHtmlPlugin } from "@luxero/utils";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [hostylerConsoleNoticeIndexHtmlPlugin(), react(), tailwindcss()],
   envPrefix: ["PUBLIC_ENV__", "VITE_"],
   resolve: {
     alias: {

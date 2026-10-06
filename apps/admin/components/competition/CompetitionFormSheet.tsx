@@ -92,8 +92,6 @@ function CompetitionFormSheet({
     }
   }, [undrawDialogOpen]);
 
-  console.debug("[P1-DEBUG] submit button disabled:", { isPending, isFetching, isUploading });
-
   const comp = editingCompetition;
 
   return (

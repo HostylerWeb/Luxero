@@ -123,8 +123,7 @@ export function SignInForm({
       }
       await refreshAuthSession();
       onSuccess?.();
-    } catch (err) {
-      console.error("[Admin SignInForm] unexpected error during password sign-in:", err);
+    } catch {
       setLoading(false);
       setError("Something unexpected happened. Please try again.");
     }

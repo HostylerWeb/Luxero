@@ -164,8 +164,7 @@ export function SignUpForm({
 
       setLoading(false);
       onSuccess?.(normalizedEmail);
-    } catch (err) {
-      console.error("[Admin SignUpForm] unexpected error during submit:", err);
+    } catch {
       setLoading(false);
       setError("Something unexpected happened. Please try again.");
     }

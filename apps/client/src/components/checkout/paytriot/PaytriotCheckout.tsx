@@ -6,7 +6,6 @@ import {
   useComplianceFeatures,
   useCreateCheckoutSession,
 } from "@luxero/api-client";
-import { getBool } from "@luxero/env/vike";
 import { CreditCard, ShieldCheck } from "@luxero/icons";
 import type {
   ApiResponse,
@@ -187,9 +186,6 @@ export function PaytriotCheckout({
   }
 
   if (unavailableReasons.length > 0) {
-    if (getBool("PAYMENT_DEBUG", false)) {
-      console.warn("[PaytriotCheckout] Checkout unavailable:", unavailableReasons);
-    }
     return (
       <CheckoutErrorBanner
         error={{

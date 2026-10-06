@@ -177,10 +177,12 @@
     "backToHome": "Back to home"
   },
   "notFound": {
+    "code": "404",
     "heading": "Page not found",
     "description": "The page you're looking for doesn't exist or has been moved.",
     "goBack": "Go back",
-    "backToHome": "Back to home"
+    "backToHome": "Back to home",
+    "browseCompetitions": "Browse competitions"
   },
   "accessDenied": {
     "heading": "Access Denied",
@@ -1468,7 +1470,18 @@
     "perTicketText": " / Ticket ",
     "free": "Free Entry",
     "drawDate": "Draw · {date}",
+    "drawDateShort": "Draw: {date}",
     "endsIn": "Ends In",
+    "countdown": {
+      "endsIn": "Ends in",
+      "endingToday": "Ending today",
+      "endingSoon": "Ending soon",
+      "days": "Days",
+      "hrs": "Hrs",
+      "mins": "Mins",
+      "secs": "Secs",
+      "ended": "Ended"
+    },
     "pctSold": "{percent}% sold",
     "soldOutLabel": "Sold out",
     "endingSoonNav": "Ending Soon"

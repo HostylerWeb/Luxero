@@ -17,7 +17,7 @@ const SIZE = {
   sm: "text-base font-bold",
   md: "text-xl font-bold",
   lg: "text-3xl font-bold",
-  responsive: "text-base font-bold @sm/card:text-lg @lg/card:text-xl",
+  responsive: "text-[13px] @sm/card:text-base @lg/card:text-xl font-bold",
 } as const;
 
 export function PriceBadge({ competition, size = "md", showPerTicket = true }: PriceBadgeProps) {
@@ -32,7 +32,7 @@ export function PriceBadge({ competition, size = "md", showPerTicket = true }: P
       : "text-xs text-muted-foreground";
   const cashEquivClass =
     size === "responsive"
-      ? "text-xs @lg/card:text-sm text-gold font-bold tabular-nums"
+      ? "text-[10px] leading-tight line-clamp-2 @sm/card:text-xs @lg/card:text-sm text-gold font-bold tabular-nums"
       : "text-xs text-gold font-bold tabular-nums";
 
   return (

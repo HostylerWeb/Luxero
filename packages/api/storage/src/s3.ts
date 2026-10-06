@@ -78,6 +78,9 @@ export function buildAssetUrl(key: string): string {
 
 export const getPublicUrl = buildAssetUrl;
 
+/** Versioned public keys (avatars, media) — safe to cache for a year in browsers and CDNs. */
+export const S3_PUBLIC_IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable";
+
 export function extractKeyFromUrl(url: string): string {
   const prefix = `${getAssetBaseUrl()}/`;
   return url.startsWith(prefix) ? url.slice(prefix.length) : url;
@@ -112,7 +115,9 @@ export async function uploadFile(
   const s3 = getS3mini();
   const data = body instanceof Blob ? new Uint8Array(await body.arrayBuffer()) : body;
   try {
-    const awsHeaders: Record<string, string> = {};
+    const awsHeaders: Record<string, string> = {
+      "cache-control": S3_PUBLIC_IMMUTABLE_CACHE_CONTROL,
+    };
     if (extraHeaders) {
       for (const [k, v] of Object.entries(extraHeaders)) {
         if (typeof v === "string") awsHeaders[k.toLowerCase()] = v;

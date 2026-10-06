@@ -86,8 +86,8 @@ export function useUpdateProfile() {
 
       try {
         await refreshAuthSession();
-      } catch (err) {
-        console.warn("[useUpdateProfile] session refresh failed", err);
+      } catch {
+        // Session refresh is best-effort after profile update.
       }
 
       await Promise.all([

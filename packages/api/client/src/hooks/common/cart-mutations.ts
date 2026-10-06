@@ -29,23 +29,7 @@ import { useCartUiStore } from "../../stores/cart-ui";
 
 const CART_MUTATION_BASE_KEY = ["cart", "mutate"] as const;
 
-// Cart mutations historically logged verbose payloads to the browser console on
-// every call (30+ statements). These gated the entire debug surface behind
-// `NEXT_PUBLIC_DEBUG === "true"` so production builds strip them via dead-code
-// elimination (the env check is a static literal in a `const` initializer).
-const DEBUG_ENABLED =
-  typeof process !== "undefined" &&
-  process.env?.NEXT_PUBLIC_DEBUG === "true" &&
-  typeof console !== "undefined";
-
-const cartDebug = (label: string, payload?: unknown) => {
-  if (!DEBUG_ENABLED) return;
-  if (payload === undefined) {
-    console.log(label);
-  } else {
-    console.log(label, JSON.stringify(payload));
-  }
-};
+const cartDebug = (_label: string, _payload?: unknown) => {};
 
 function settleCartMutation(
   qc: QueryClient,

@@ -1,12 +1,20 @@
 import type { Competition } from "@luxero/types";
-import { getProgress, getTicketsSold } from "@luxero/utils";
+import {
+  getCompetitionImageUrl as resolveCompetitionImageUrl,
+  getProgress,
+  getTicketsSold,
+} from "@luxero/utils";
 
 export function getCompetitionHref(comp: Competition): string {
   return `/competitions/${comp.slug ?? comp._id}`;
 }
 
 export function getCompetitionImageUrl(comp: Competition): string | undefined {
-  return comp.prizeImageUrl ?? comp.imageUrl;
+  return resolveCompetitionImageUrl({
+    prizeImageUrl: comp.prizeImageUrl,
+    imageUrl: comp.imageUrl,
+    updatedAt: comp.updatedAt,
+  });
 }
 
 export function getCompetitionMaxTickets(comp: Competition): number {

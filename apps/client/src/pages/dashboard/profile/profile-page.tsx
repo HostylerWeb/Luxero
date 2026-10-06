@@ -319,6 +319,7 @@ function DashboardProfilePageContent() {
             email={profile.email}
             phone={profile.phone}
             avatarUrl={profile.avatarUrl}
+            avatarCacheVersion={profile.updatedAt}
             isVerified={profile.isVerified}
           />
 

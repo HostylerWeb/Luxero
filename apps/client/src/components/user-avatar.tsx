@@ -1,6 +1,7 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, withAssetCacheVersion } from "@luxero/utils";
+import { useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export interface UserAvatarProps {
@@ -10,6 +11,10 @@ export interface UserAvatarProps {
   className?: string;
   imageClassName?: string;
   fallbackClassName?: string;
+  /** When set, busts browser cache only when profile/competition metadata changes. */
+  cacheVersion?: string | number | Date | null;
+  /** Load image immediately (profile hero, header). */
+  priority?: boolean;
 }
 
 export function UserAvatar({
@@ -19,11 +24,24 @@ export function UserAvatar({
   className,
   imageClassName,
   fallbackClassName,
+  cacheVersion,
+  priority = false,
 }: UserAvatarProps) {
+  const src = useMemo(
+    () => withAssetCacheVersion(avatarUrl, cacheVersion),
+    [avatarUrl, cacheVersion]
+  );
+
   return (
     <Avatar className={className}>
-      {avatarUrl ? (
-        <AvatarImage src={avatarUrl} alt={alt} className={cn("object-cover", imageClassName)} />
+      {src ? (
+        <AvatarImage
+          src={src}
+          alt={alt}
+          className={cn("object-cover", imageClassName)}
+          loading={priority ? "eager" : undefined}
+          fetchPriority={priority ? "high" : undefined}
+        />
       ) : null}
       <AvatarFallback className={fallbackClassName}>{initials}</AvatarFallback>
     </Avatar>

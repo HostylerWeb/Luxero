@@ -103,7 +103,6 @@ async function fetchSsrBody(): Promise<string> {
 }
 
 async function run(): Promise<void> {
-  const path = window.location.pathname + window.location.search;
   try {
     const domHtml = document.body.innerHTML;
     const ssrHtml = await fetchSsrBody();
@@ -111,22 +110,10 @@ async function run(): Promise<void> {
     const similarity = similarityRatio(normalize(domHtml), normalize(ssrHtml));
 
     if (similarity < SIMILARITY_THRESHOLD) {
-      const pct = (similarity * 100).toFixed(1);
-      const detail = classifyDiff(domHtml, ssrHtml);
-
-      console.warn(
-        `%c🔴 [Hydration Diff Detector] ${path}\n` +
-          `   Similarity: ${pct}%\n` +
-          `   Likely causes: countdown timer, time-dependent values, client-only effects\n` +
-          `   Detected: ${detail}\n` +
-          `   Hint: Check for Date.now(), Math.random(), setInterval-based state, mounted guards`,
-        "color: #ff4d4f; font-weight: 600;"
-      );
-      console.debug("[Hydration Diff Detector] DOM (post-hydration):", domHtml.slice(0, 1000));
-      console.debug("[Hydration Diff Detector] SSR (server-rendered):", ssrHtml.slice(0, 1000));
+      // Hydration drift detected (silent in browser console).
     }
-  } catch (err) {
-    console.debug("[Hydration Diff Detector] skipped:", err);
+  } catch {
+    // Hydration diff check is dev-only and non-critical.
   }
 }
 

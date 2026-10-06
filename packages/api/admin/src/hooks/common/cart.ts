@@ -20,34 +20,6 @@ export function cartQueryOptions(options?: UseCartOptions) {
     queryKey: queryKeys.cart(),
     queryFn: async () => {
       const res = await api.get<ICart>("/api/cart");
-      if (process.env.NODE_ENV !== "production") {
-        console.log(
-          "[CART-DEBUG-FE] queryFn response:",
-          JSON.stringify({
-            id: res?.data?.id,
-            itemsCount: res?.data?.items?.length,
-            items: res?.data?.items?.map((i) => ({
-              compId: i.competitionId,
-              qty: i.quantity,
-              price: i.price,
-            })),
-            subtotal: res?.data?.subtotal,
-            total: res?.data?.total,
-            monetarySubtotal: res?.data?.monetarySubtotal,
-            walletTicketsTotal: res?.data?.walletTicketsTotal,
-            walletBalance: res?.data?.walletBalance,
-            adjustments: res?.data?.autoAdjustments?.length,
-          })
-        );
-        console.log(
-          "[FS-DEBUG-FE][cart.query]",
-          JSON.stringify({
-            itemsCount: res?.data?.items?.length,
-            totalQuantity: res?.data?.items?.reduce((s, i) => s + (i.quantity ?? 0), 0),
-            walletTickets: res?.data?.walletTicketsByCompetition?.length,
-          })
-        );
-      }
       return res;
     },
     staleTime: STALE_TIME_USER,

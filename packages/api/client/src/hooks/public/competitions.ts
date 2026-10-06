@@ -16,7 +16,7 @@ import {
 import { useEffect, useRef } from "react";
 import { getSessionSnapshot } from "../../auth/session-snapshot";
 import { api } from "../../client";
-import { STALE_TIME_PUBLIC } from "../../constants";
+import { STALE_TIME_PUBLIC, STALE_TIME_STATIC } from "../../constants";
 import { queryKeys } from "../../keys";
 import { getOffsetNextPageParam } from "../../lib/pagination";
 import type { CompetitionInstantPrizePublicDTO } from "../../types";
@@ -183,9 +183,8 @@ export function useCompetitions(
     queryFn: () => api.get<Competition[]>(`/api/competitions${buildSearchParams(queryParams)}`),
     initialData: options?.initialData,
     placeholderData: keepPreviousData,
-    refetchInterval: 30_000,
-    staleTime: 60_000,
-    refetchOnMount: true,
+    staleTime: STALE_TIME_STATIC,
+    refetchOnMount: false,
     enabled,
   });
 }
@@ -195,7 +194,8 @@ export function useFeaturedCompetitions(options?: { initialData?: ApiResponse<Co
     queryKey: queryKeys.competitions.featured(),
     queryFn: () => api.get<Competition[]>("/api/competitions/featured"),
     initialData: options?.initialData,
-    staleTime: 10_000,
+    staleTime: STALE_TIME_STATIC,
+    refetchOnMount: false,
   });
 }
 
@@ -207,10 +207,9 @@ export function useCompetitionDetail(
     queryKey: queryKeys.competitions.detail(slug),
     queryFn: () => api.get<RawCompetitionResponse>(`/api/competitions/${slug}`),
     initialData: options?.initialData,
-    staleTime: 10_000,
+    staleTime: STALE_TIME_STATIC,
+    refetchOnMount: false,
     enabled: !!slug,
-    refetchOnMount: true,
-    refetchInterval: 10_000,
   });
 }
 

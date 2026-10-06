@@ -8,7 +8,6 @@ import {
   useComplianceFeatures,
   useCreateCheckoutSession,
 } from "@luxero/api-client";
-import { getBool } from "@luxero/env/vike";
 import { CreditCard, ShieldCheck } from "@luxero/icons";
 import type {
   ApiResponse,
@@ -212,10 +211,6 @@ export function StripeCheckout({
   }
 
   if (!canRenderCheckout) {
-    if (getBool("PAYMENT_DEBUG", false) && unavailableReasons.length > 0) {
-      console.warn("[StripeCheckout] Checkout unavailable:", unavailableReasons);
-    }
-
     return (
       <CheckoutErrorBanner
         error={{

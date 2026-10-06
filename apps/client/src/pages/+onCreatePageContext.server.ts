@@ -61,20 +61,12 @@ async function resolveBestSession(cookie: string): Promise<SessionUser | null> {
   const tokens = parseSessionTokens(cookie);
   if (tokens.length <= 1) return null;
 
-  console.log("[Session] multiple session tokens found, retrying individually", {
-    count: tokens.length,
-  });
-
   for (const token of tokens) {
     const h = new Headers();
     h.set("cookie", `${SESSION_COOKIE_NAME}=${token}`);
     try {
       const candidate = await getServerSession("client", h);
       if (candidate) {
-        console.log("[Session] resolved with individual token", {
-          userEmail: candidate.email?.substring(0, 15) ?? null,
-          isAnonymous: candidate.isAnonymous ?? null,
-        });
         return candidate;
       }
     } catch {
@@ -91,19 +83,8 @@ export async function onCreatePageContext(pageContext: PageContextServer) {
   let user: SessionUser | null = null;
   try {
     user = await resolveBestSession(cookie);
-    console.log("[Session] resolved", {
-      path: pageContext.urlParsed.pathname,
-      hasUser: !!user,
-      userEmail: user?.email?.substring(0, 15) ?? null,
-      isAnonymous: user?.isAnonymous ?? null,
-      emailVerified: user?.emailVerified ?? null,
-      cookiePresent: cookie.length > 0,
-    });
-  } catch (err) {
-    console.warn("[Session] fetch failed", {
-      path: pageContext.urlParsed.pathname,
-      err: err instanceof Error ? err.message : String(err),
-    });
+  } catch {
+    user = null;
   }
 
   let cartInitialData: ApiResponse<ICart> | null = null;
@@ -137,8 +118,8 @@ export async function onCreatePageContext(pageContext: PageContextServer) {
   if (user) {
     try {
       cartInitialData = await serverFetch<ICart>("/api/cart", { cookieHeader: cookie });
-    } catch (err) {
-      console.warn("[onCreatePageContext] cart prefetch failed:", err);
+    } catch {
+      cartInitialData = null;
     }
   }
 

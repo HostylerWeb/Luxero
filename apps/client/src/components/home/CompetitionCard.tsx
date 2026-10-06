@@ -3,20 +3,21 @@ import type { Category, Competition, EntryCompetition } from "@luxero/types";
 import {
   CountdownLabel,
   cn,
-  formatDate,
   getAvailableTickets,
   getCompetitionCountdownTarget,
+  getCompetitionImageUrl,
   getProgress,
   getTicketsSold,
 } from "@luxero/utils";
 
 import { useEffect, useState } from "react";
 import { Link } from "@/components/Link";
+import { CompetitionCardCountdown } from "@/components/home/CompetitionCardCountdown";
 import { useCountdown } from "@/components/ui";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CompetitionProgressBar } from "@/components/ui/competition-progress-bar";
-import { formatCurrency, useTranslation } from "@/lib/i18n";
+import { formatCurrency, formatDate, useTranslation } from "@/lib/i18n";
 import { PriceBadge } from "./PriceBadge";
 
 type CompetitionCardSource = Competition | EntryCompetition;
@@ -44,8 +45,13 @@ function getCompSlug(comp: CompetitionCardSource): string {
 }
 
 function getImageUrl(comp: CompetitionCardSource): string | undefined {
-  if ("prizeImageUrl" in comp && comp.prizeImageUrl) return comp.prizeImageUrl;
-  if ("imageUrl" in comp && comp.imageUrl) return comp.imageUrl;
+  if ("updatedAt" in comp || "prizeImageUrl" in comp || "imageUrl" in comp) {
+    return getCompetitionImageUrl({
+      prizeImageUrl: "prizeImageUrl" in comp ? comp.prizeImageUrl : undefined,
+      imageUrl: "imageUrl" in comp ? comp.imageUrl : undefined,
+      updatedAt: "updatedAt" in comp ? comp.updatedAt : undefined,
+    });
+  }
   return undefined;
 }
 
@@ -196,17 +202,22 @@ export function CompetitionCard({
     return (
       <Link
         href={href}
-        className="@container/card group block h-full"
+        className="@container/card group block h-full min-w-0"
         data-umami-event={umamiEvent || "competitions:card-click"}
         data-umami-event-id={getCompSlug(comp)}
         data-umami-event-title={comp.title}
         data-umami-event-price={getTicketPrice(comp)}
       >
-        <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gold/10 bg-card shadow-sm transition-colors duration-300 hover:border-gold/30">
+        <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gold/10 border-b-0 bg-card shadow-sm transition-colors duration-300 hover:border-gold/30">
           {drawDate && (
-            <div className="absolute top-2 right-2 @lg/card:top-3 @lg/card:right-3 z-10">
-              <span className="bg-gold/60 text-black backdrop-blur-sm text-xs @lg/card:text-sm font-bold px-3 @lg/card:px-4 py-1 @lg/card:py-1.5 rounded-md shadow-md whitespace-nowrap">
-                {t("home.drawDate", { date: formatDate(drawDate) })}
+            <div className="comp-card-draw-badge absolute top-1.5 right-1.5 @lg/card:top-3 @lg/card:right-3 z-10 max-w-[calc(100%-0.75rem)]">
+              <span className="block bg-gold/60 text-black backdrop-blur-sm text-[10px] @lg/card:text-sm font-bold px-2 @lg/card:px-4 py-0.5 @lg/card:py-1.5 rounded-md shadow-md">
+                <span className="@sm/card:hidden">
+                  {t("home.drawDateShort", { date: formatDate(drawDate, "d MMM", locale) })}
+                </span>
+                <span className="hidden @sm/card:inline">
+                  {t("home.drawDate", { date: formatDate(drawDate, "d MMMM yyyy", locale) })}
+                </span>
               </span>
             </div>
           )}
@@ -233,17 +244,17 @@ export function CompetitionCard({
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             {categoryLabel && (
-              <div className="absolute top-2 left-2 @lg/card:top-3 @lg/card:left-3 z-10">
-                <span className="bg-gold/60 text-black backdrop-blur-sm text-xs @lg/card:text-sm font-bold px-3 @lg/card:px-4 py-1 @lg/card:py-1.5 rounded-md shadow-md whitespace-nowrap">
+              <div className="absolute top-1.5 left-1.5 @lg/card:top-3 @lg/card:left-3 z-10 max-w-[55%]">
+                <span className="block truncate bg-gold/60 text-black backdrop-blur-sm text-[10px] @lg/card:text-sm font-bold px-2 @lg/card:px-4 py-0.5 @lg/card:py-1.5 rounded-md shadow-md">
                   {categoryLabel}
                 </span>
               </div>
             )}
           </div>
 
-          <div className="flex flex-col flex-1 justify-between p-3 @sm/card:p-4 @lg/card:p-5 gap-1.5 @lg/card:gap-2">
+          <div className="flex flex-col flex-1 justify-between p-2 @sm/card:p-4 @lg/card:p-5 gap-1 @sm/card:gap-1.5 @lg/card:gap-2">
             <div>
-              <h3 className="font-semibold text-[16px] @sm/card:text-[18px] @lg/card:text-[21px] leading-snug text-balance break-words text-gold">
+              <h3 className="font-semibold text-[13px] leading-snug line-clamp-2 @sm/card:text-[16px] @lg/card:text-[21px] text-balance break-words text-gold">
                 {comp.title}
               </h3>
             </div>
@@ -266,15 +277,50 @@ export function CompetitionCard({
               />
 
               {isActive && (
-                <CountdownLabel
+                <CompetitionCardCountdown
                   timeLeft={timeLeft}
-                  size="sm"
-                  icon={<Clock className="w-3 h-3 @lg/card:w-3.5 @lg/card:h-3.5 text-gold" />}
-                  className="justify-center"
+                  endDate={
+                    getCompetitionCountdownTarget({
+                      drawDate: "drawDate" in comp ? comp.drawDate : undefined,
+                      endDate: "endDate" in comp ? comp.endDate : undefined,
+                    }) ?? undefined
+                  }
                 />
               )}
             </div>
           </div>
+
+          {(() => {
+            const ctaActive = isActive && ticketsLeft > 0;
+            const ctaLabel = !isActive
+              ? t("home.notAvailable")
+              : ticketsLeft === 0
+                ? t("home.soldOut")
+                : t("home.enterNow");
+            return (
+              <div
+                className={cn(
+                  "mt-auto shrink-0 rounded-b-2xl p-px",
+                  ctaActive
+                    ? "bg-gradient-to-r from-gold via-amber-500 to-orange-600"
+                    : "bg-gradient-to-r from-muted-foreground/25 to-muted-foreground/15"
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex items-center justify-center rounded-b-[calc(1rem-1px)] py-1.5 text-center @sm/card:py-2.5",
+                    "text-[10px] @sm/card:text-sm @lg/card:text-base font-bold uppercase tracking-[0.1em] @sm/card:tracking-[0.14em]",
+                    "transition-colors duration-200",
+                    ctaActive
+                      ? "bg-card text-gold group-hover:bg-gold group-hover:text-primary-foreground"
+                      : "bg-card/90 text-muted-foreground"
+                  )}
+                >
+                  {ctaLabel}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </Link>
     );

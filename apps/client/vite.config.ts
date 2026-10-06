@@ -1,6 +1,7 @@
 import "@luxero/env/server";
 
 import path from "node:path";
+import { hostylerConsoleNoticeIndexHtmlPlugin } from "@luxero/utils";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import vike from "vike/plugin";
@@ -11,7 +12,7 @@ if ((process.env.FRAMEWORK || "").toLowerCase() !== "vike") {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), vike()],
+  plugins: [hostylerConsoleNoticeIndexHtmlPlugin(), react(), tailwindcss(), vike()],
   server: {
     allowedHosts: ["debug.luxero.win"],
   },

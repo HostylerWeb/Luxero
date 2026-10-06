@@ -74,4 +74,11 @@ export {
 export { getCookieEnvTag, getSessionCookiePrefix } from "./session-cookie";
 export type { SocialIconName, SocialLink } from "./social";
 export { SOCIAL_LINKS } from "./social";
+export {
+  assetCacheVersion,
+  getCompetitionImageUrl,
+  withAssetCacheVersion,
+} from "./asset-cache-url";
 export { getPublicWinnerImageUrl, getPublicWinnerImageUrls } from "./winner-image";
+export { HOSTYLER_CONSOLE_NOTICE_INLINE } from "./hostyler-console-notice";
+export { hostylerConsoleNoticeIndexHtmlPlugin } from "./vite-hostyler-console-notice-plugin";

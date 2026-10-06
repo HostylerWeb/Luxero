@@ -179,7 +179,62 @@
     }
 
     .luxero-grid-competitions {
-      gap: 0.75rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+  }
+
+  /* Layout only — pair with Tailwind `grid` (or `md:grid`) so `hidden` breakpoints work */
+  .luxero-grid-competitions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.5rem, 2vw, 0.75rem);
+  }
+
+  @media (min-width: 640px) {
+    .luxero-grid-competitions {
+      grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+      gap: clamp(1rem, 1.5vw, 2rem);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .luxero-grid-competitions {
+      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .luxero-grid-competitions {
+      grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .luxero-grid-competitions {
+      grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .luxero-grid-competitions {
+      grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+    }
+  }
+
+  @media (min-width: 3000px) {
+    .luxero-grid-competitions {
+      grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+    }
+  }
+
+  /* Narrow competition cards (2-up mobile grid): tighten countdown + badges */
+  @container card (max-width: 12rem) {
+    .comp-card-countdown-sep {
+      display: none;
+    }
+
+    .comp-card-countdown-row {
+      gap: 0.125rem;
     }
   }
 
@@ -291,48 +346,6 @@
 
     .luxero-container-medium {
       max-width: min(100% - 10rem, 104rem);
-    }
-  }
-
-  /* Layout only — pair with Tailwind `grid` (or `md:grid`) so `hidden` breakpoints work */
-  .luxero-grid-competitions {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
-    gap: clamp(1rem, 1.5vw, 2rem);
-  }
-
-  @media (min-width: 640px) {
-    .luxero-grid-competitions {
-      grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .luxero-grid-competitions {
-      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .luxero-grid-competitions {
-      grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-    }
-  }
-
-  @media (min-width: 1536px) {
-    .luxero-grid-competitions {
-      grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-    }
-  }
-
-  @media (min-width: 1920px) {
-    .luxero-grid-competitions {
-      grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
-    }
-  }
-
-  @media (min-width: 3000px) {
-    .luxero-grid-competitions {
-      grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
     }
   }
 }
@@ -625,6 +638,42 @@
     }
     to {
       transform: rotate(360deg);
+    }
+  }
+
+  @keyframes competition-progress-shimmer {
+    0% {
+      transform: translateX(-120%);
+    }
+    100% {
+      transform: translateX(220%);
+    }
+  }
+
+  .competition-progress-fill {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .competition-progress-shimmer {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent 38%,
+      rgb(255 255 255 / 0.5) 50%,
+      transparent 62%,
+      transparent 100%
+    );
+    animation: competition-progress-shimmer 2.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .competition-progress-shimmer {
+      animation: none;
+      opacity: 0;
     }
   }
 

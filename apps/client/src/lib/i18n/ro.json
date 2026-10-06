@@ -177,10 +177,12 @@
     "backToHome": "Înapoi la pagina principală"
   },
   "notFound": {
+    "code": "404",
     "heading": "Pagina nu a fost găsită",
     "description": "Pagina pe care o cauți nu există sau a fost mutată.",
     "goBack": "Înapoi",
-    "backToHome": "Înapoi la pagina principală"
+    "backToHome": "Înapoi la pagina principală",
+    "browseCompetitions": "Vezi competițiile"
   },
   "accessDenied": {
     "heading": "Acces interzis",
@@ -1468,7 +1470,18 @@
     "perTicketText": " / Bilet ",
     "free": "Intrare Gratuită",
     "drawDate": "Extragere · {date}",
+    "drawDateShort": "Extragere: {date}",
     "endsIn": "Se încheie în",
+    "countdown": {
+      "endsIn": "Se încheie în",
+      "endingToday": "Se încheie azi",
+      "endingSoon": "Se încheie curând",
+      "days": "Zile",
+      "hrs": "Ore",
+      "mins": "Min",
+      "secs": "Sec",
+      "ended": "Încheiat"
+    },
     "pctSold": "{percent}% vândut",
     "soldOutLabel": "Epuizat",
     "endingSoonNav": "Se încheie în curând"

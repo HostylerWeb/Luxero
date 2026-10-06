@@ -10,11 +10,10 @@ export function useCountdown(
   enabled: boolean
 ): ReturnType<typeof formatTimeLeft> | null {
   const target = endDate instanceof Date ? endDate.toISOString() : endDate;
-  const initial = enabled && target ? formatTimeLeft(target) : null;
-  const [timeLeft, setTimeLeft] = useState<ReturnType<typeof formatTimeLeft> | null>(initial);
+  const [timeLeft, setTimeLeft] = useState<ReturnType<typeof formatTimeLeft> | null>(null);
 
   useEffect(() => {
-    if (!enabled || !endDate) {
+    if (!enabled || !target) {
       setTimeLeft(null);
       return;
     }
@@ -22,7 +21,7 @@ export function useCountdown(
     update();
     const interval = setInterval(update, COUNTDOWN_TICK_MS);
     return () => clearInterval(interval);
-  }, [enabled, endDate]);
+  }, [enabled, target]);
 
   return timeLeft;
 }

@@ -80,11 +80,6 @@ export function StripeCheckoutUI({
   const handleLoadError = useCallback(
     (event?: { error?: { message?: string; code?: string; type?: string } }) => {
       const stripeError = event?.error;
-      console.error("[StripeCheckoutUI] Payment Element failed to load", {
-        code: stripeError?.code,
-        type: stripeError?.type,
-        message: stripeError?.message,
-      });
       setIsSessionExpired(true);
       setErrorMessage(stripeError?.message ?? t("checkout.stripeSessionLoadError"));
     },

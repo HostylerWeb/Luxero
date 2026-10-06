@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { HOSTYLER_CONSOLE_NOTICE_INLINE } from "@luxero/utils";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -40,6 +41,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-[var(--color-bg-deep)] font-body font-display">
       <head>
+        <script
+          id="hostyler-console-notice"
+          dangerouslySetInnerHTML={{ __html: HOSTYLER_CONSOLE_NOTICE_INLINE }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

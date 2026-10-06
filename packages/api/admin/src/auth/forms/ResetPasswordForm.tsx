@@ -69,7 +69,6 @@ export function ResetPasswordForm({
     } catch (err) {
       setRefreshKey((k) => k + 1);
       setTokenReady(false);
-      console.error("[Admin ResetPasswordForm] error:", err);
       setError(getAuthErrorMessage(err as { message?: string; code?: string; status?: number }));
     }
   }

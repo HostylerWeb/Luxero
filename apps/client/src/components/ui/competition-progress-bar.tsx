@@ -73,6 +73,7 @@ interface BarVisualProps {
   fillClass?: string;
   borderClass?: string;
   milestones?: Milestone[];
+  shimmer?: boolean;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -145,12 +146,16 @@ function ProgressBarVisual({
   fillClass,
   borderClass = "border-gold/20",
   milestones,
+  shimmer = false,
   t,
 }: BarVisualProps) {
   const mounted = useMounted();
 
   const fillBase =
-    fillClass ?? "absolute inset-y-0 left-0 bg-gradient-to-r from-gold-light to-gold";
+    fillClass ??
+    (shimmer
+      ? "absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500/90 via-gold to-amber-300/95 competition-progress-fill"
+      : "absolute inset-y-0 left-0 bg-gradient-to-r from-gold-light to-gold");
 
   const clipRight = Math.max(0, 100 - pct);
 
@@ -166,7 +171,9 @@ function ProgressBarVisual({
       <div
         className={cn(fillBase, shape, mounted && "transition-all duration-500")}
         style={{ width: `${pct}%` }}
-      />
+      >
+        {shimmer ? <span className="competition-progress-shimmer" aria-hidden="true" /> : null}
+      </div>
 
       {milestones?.length ? (
         <TooltipProvider delayDuration={150}>
@@ -307,9 +314,14 @@ export function CompetitionProgressBar({
 
   const isDetail = variant === "detail";
   const isEntries = variant === "entries";
+  const isCard = variant === "card";
 
-  const heightClass = isDetail || isEntries ? "h-8 sm:h-9 lg:h-10" : "h-7 @lg/card:h-8";
-  const textSizeClass = isDetail || isEntries ? "text-sm lg:text-base" : "text-xs @lg/card:text-sm";
+  const heightClass = isDetail || isEntries ? "h-8 sm:h-9 lg:h-10" : "h-6 @sm/card:h-7 @lg/card:h-8";
+  const textSizeClass =
+    isDetail || isEntries ? "text-sm lg:text-base" : "text-[9px] @sm/card:text-xs @lg/card:text-sm";
+
+  const cardBorderClass =
+    "border-gold/25 bg-black/35 shadow-[inset_0_1px_4px_rgba(0,0,0,0.45),0_0_12px_rgba(var(--gold-rgb),0.08)]";
 
   const inlineLabel = percentageBelow
     ? false
@@ -344,6 +356,8 @@ export function CompetitionProgressBar({
         textSize={textSizeClass}
         showInlineLabel={inlineLabel}
         ariaLabel={ariaLabel}
+        borderClass={isCard ? cardBorderClass : undefined}
+        shimmer={isCard}
         milestones={isDetail && hasMilestones ? milestones : undefined}
         t={t}
       />
@@ -358,7 +372,7 @@ export function CompetitionProgressBar({
         </div>
       )}
 
-      {!isDetail && !isEntries && !percentageBelow ? (
+      {!isDetail && !isEntries && !isCard && !percentageBelow ? (
         <p className="text-[10px] tabular-nums text-muted-foreground">
           {ticketsLeft > 0
             ? t("progressBar.remaining", { count: ticketsLeft.toLocaleString() })

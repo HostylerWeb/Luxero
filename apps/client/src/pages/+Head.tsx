@@ -1,4 +1,5 @@
 import "../index.css";
+import { HOSTYLER_CONSOLE_NOTICE_INLINE } from "@luxero/utils";
 import { getEnv } from "@luxero/env/vike";
 import { usePageContext } from "vike-react/usePageContext";
 
@@ -18,6 +19,10 @@ export function Head() {
 
   return (
     <>
+      <script
+        id="hostyler-console-notice"
+        dangerouslySetInnerHTML={{ __html: HOSTYLER_CONSOLE_NOTICE_INLINE }}
+      />
       <html lang={locale} />
       <meta name="description" content={description} />
       <meta name="theme-color" content="#C9A84C" />

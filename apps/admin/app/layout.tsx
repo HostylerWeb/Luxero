@@ -1,4 +1,5 @@
 import { AuthProvider, QueryProvider } from "@luxero/api-admin";
+import { HOSTYLER_CONSOLE_NOTICE_INLINE } from "@luxero/utils";
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
@@ -39,6 +40,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          id="hostyler-console-notice"
+          dangerouslySetInnerHTML={{ __html: HOSTYLER_CONSOLE_NOTICE_INLINE }}
+        />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <script
@@ -75,34 +80,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </QueryProvider>
           </ErrorBoundary>
         </ThemeProvider>
-        {process.env.NODE_ENV !== "production" ? (
-          <script
-            id="image-debug-logger"
-            dangerouslySetInnerHTML={{
-              __html: `
-(function() {
-  if (window.__logRecorder) return;
-  var logs = [];
-  var origLog = console.log;
-  var origWarn = console.warn;
-  var origError = console.error;
-  var record = function(level, args) {
-    logs.push({ level: level, ts: Date.now(), msg: Array.prototype.map.call(args, String).join(' ') });
-    if (level === 'error') origError.apply(console, args);
-    else if (level === 'warn') origWarn.apply(console, args);
-    else origLog.apply(console, args);
-  };
-  console.log = function() { record('log', arguments); };
-  console.warn = function() { record('warn', arguments); };
-  console.error = function() { record('error', arguments); };
-  window.__dumpLogs = function() { return JSON.stringify(logs); };
-  window.__clearLogs = function() { logs = []; };
-  origLog('[logger] image debug logger initialized');
-})();
-`,
-            }}
-          />
-        ) : null}
       </body>
     </html>
   );

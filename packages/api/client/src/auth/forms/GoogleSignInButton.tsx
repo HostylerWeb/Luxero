@@ -56,7 +56,6 @@ export function GoogleSignInButton({
 
   async function handleClick() {
     if (acceptedTerms === false) {
-      console.warn("[GoogleAuth] click blocked — terms not accepted");
       setError(resolvedTermsRequired);
       return;
     }
@@ -70,28 +69,10 @@ export function GoogleSignInButton({
     // picks the correct cookie if both are present.
 
     const action = requestSignUp ? signUpWithGoogle : signInWithGoogle;
-    const actionName = requestSignUp ? "signUpWithGoogle" : "signInWithGoogle";
-    console.log("[GoogleAuth] initiating", {
-      action: actionName,
-      callbackURL,
-      requestSignUp,
-      origin: typeof window !== "undefined" ? window.location.origin : "(ssr)",
-    });
     const result = await action(callbackURL);
     if (result.error) {
-      console.warn("[GoogleAuth] result.error", {
-        action: actionName,
-        error: result.error,
-      });
       setLoading(false);
       setError(getAuthErrorMessage(result.error));
-    } else {
-      console.log("[GoogleAuth] result.ok", {
-        action: actionName,
-        callbackURL,
-        // signIn.social triggers a full-page redirect via window.location; we
-        // won't reach this line on success.
-      });
     }
   }
 

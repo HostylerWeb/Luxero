@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { HOSTYLER_CONSOLE_NOTICE_INLINE } from "@luxero/utils";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import { BuildVersionWatcher } from "@/components/build-version-watcher";
@@ -59,6 +60,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${plusJakarta.variable}`}>
+      <head>
+        <script
+          id="hostyler-console-notice"
+          dangerouslySetInnerHTML={{ __html: HOSTYLER_CONSOLE_NOTICE_INLINE }}
+        />
+      </head>
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         <script
           type="application/ld+json"

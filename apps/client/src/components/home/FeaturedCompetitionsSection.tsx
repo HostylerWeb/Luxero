@@ -1,7 +1,8 @@
-import { useCompetitionCategories, useFeaturedCompetitions } from "@luxero/api-client";
+import { useCompetitionCategories, useCompetitions, useFeaturedCompetitions } from "@luxero/api-client";
 import { ArrowRight } from "@luxero/icons";
 import type { ApiResponse, Category, Competition } from "@luxero/types";
 import { cn } from "@luxero/utils";
+import { useMemo } from "react";
 import { GoldButton } from "@/components/buttons";
 import { Link } from "@/components/Link";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,30 +12,66 @@ import { CompetitionCard } from "./CompetitionCard";
 interface FeaturedCompetitionsSectionProps {
   title?: string;
   limit?: number;
+  /** When featured count is below `limit`, pad with other active competitions. */
+  fillToLimit?: boolean;
   className?: string;
   initialFeatured?: ApiResponse<Competition[]>;
   initialCategories?: ApiResponse<Category[]>;
 }
 
+function competitionId(comp: Competition): string {
+  return comp._id ?? comp.id ?? "";
+}
+
 export function FeaturedCompetitionsSection({
   title,
   limit = 4,
+  fillToLimit = false,
   className,
   initialFeatured,
   initialCategories,
 }: FeaturedCompetitionsSectionProps) {
   const { t } = useTranslation();
-  const { data: featuredResponse, isLoading } = useFeaturedCompetitions({
+  const { data: featuredResponse, isLoading: featuredLoading } = useFeaturedCompetitions({
     initialData: initialFeatured,
   });
   const featured = featuredResponse?.data ?? [];
+
+  const needActiveFill = fillToLimit && !featuredLoading && featured.length < limit;
+  const { data: activeResponse, isLoading: activeLoading } = useCompetitions(
+    { status: "active", limit: limit + 12 },
+    { enabled: needActiveFill }
+  );
+
+  const competitions = useMemo(() => {
+    const seen = new Set<string>();
+    const merged: Competition[] = [];
+    for (const comp of featured) {
+      const id = competitionId(comp);
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      merged.push(comp);
+    }
+    if (fillToLimit && activeResponse?.data) {
+      for (const comp of activeResponse.data) {
+        if (merged.length >= limit) break;
+        const id = competitionId(comp);
+        if (!id || seen.has(id)) continue;
+        seen.add(id);
+        merged.push(comp);
+      }
+    }
+    return merged.slice(0, limit);
+  }, [activeResponse?.data, featured, fillToLimit, limit]);
+
+  const isLoading = featuredLoading || (needActiveFill && activeLoading);
 
   const { data: categoriesResponse } = useCompetitionCategories({
     initialData: initialCategories,
   });
   const categories = categoriesResponse?.data ?? [];
 
-  if (!isLoading && featured.length === 0) return null;
+  if (!isLoading && competitions.length === 0) return null;
 
   return (
     <section className={cn("w-full luxero-container-wide pb-12 lg:pb-16", className)}>
@@ -54,17 +91,15 @@ export function FeaturedCompetitionsSection({
                 </div>
               </div>
             ))
-          : featured
-              .slice(0, limit)
-              .map((comp, index) => (
-                <CompetitionCard
-                  key={comp._id}
-                  competition={comp}
-                  variant="compact"
-                  categories={categories}
-                  priority={index === 0}
-                />
-              ))}
+          : competitions.map((comp, index) => (
+              <CompetitionCard
+                key={competitionId(comp) || comp.slug}
+                competition={comp}
+                variant="compact"
+                categories={categories}
+                priority={index === 0}
+              />
+            ))}
       </div>
 
       {!isLoading ? (

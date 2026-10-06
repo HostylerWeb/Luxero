@@ -17,16 +17,7 @@ export function useMyOrders(page = 1) {
   return useQuery<ApiResponse<MeOrderDto[]>>({
     queryKey: queryKeys.my.orders(page),
     queryFn: async () => {
-      if (process.env.NODE_ENV !== "production") {
-        console.log("[FS-DEBUG-FE][orders.list] fetching page:", page);
-      }
       const res = await api.get<MeOrderDto[]>(`/api/me/orders`, { params: { page, limit: 10 } });
-      if (process.env.NODE_ENV !== "production") {
-        console.log(
-          "[FS-DEBUG-FE][orders.list] response:",
-          JSON.stringify({ ordersCount: res?.data?.length })
-        );
-      }
       return res;
     },
     staleTime: STALE_TIME_USER,
@@ -41,26 +32,7 @@ export function useMyOrderDetail(
   return useQuery<ApiResponse<MeOrderDetailDto>>({
     queryKey: [...queryKeys.my.ordersBase(), "detail", orderId] as const,
     queryFn: async () => {
-      if (process.env.NODE_ENV !== "production") {
-        console.log("[FS-DEBUG-FE][orders.detail] fetching orderId:", orderId);
-      }
       const res = await api.get<MeOrderDetailDto>(`/api/me/orders/${orderId}`);
-      if (process.env.NODE_ENV !== "production") {
-        console.log(
-          "[FS-DEBUG-FE][orders.detail] response:",
-          JSON.stringify({
-            orderId,
-            status: res?.data?.status,
-            totalQuantity: res?.data?.items?.reduce((s, i) => s + (i.quantity ?? 0), 0),
-            itemsLength: res?.data?.items?.length,
-            ticketNumbersCount: res?.data?.items?.reduce(
-              (s, i) => s + (i.ticketNumbers?.length ?? 0),
-              0
-            ),
-            entriesCount: res?.data?.entries?.length,
-          })
-        );
-      }
       return res;
     },
     enabled,

@@ -147,14 +147,6 @@ export function useAuthError() {
     return result === key ? resolved.message : result;
   }, [normalizedCode, resolved.message, t]);
 
-  console.log("[AuthError] resolved", {
-    errorCode: normalizedCode,
-    errorDescription,
-    title: translatedTitle,
-    kind: resolved.kind,
-    returnTo,
-  });
-
   const loginHref = localeHref(
     buildLoginUrl({
       returnTo,
@@ -192,12 +184,6 @@ export function useAuthError() {
     const redirectUrl = signUpHref
       ? `${signUpHref}${signUpHref.includes("?") ? "&" : "?"}google_signup=1`
       : "/auth/sign-up?google_signup=1";
-    console.log("[AuthError] signup_disabled auto-redirect", {
-      errorCode: normalizedCode,
-      kind: resolved.kind,
-      redirectUrl,
-      delayMs: 0,
-    });
     const timeout = setTimeout(() => {
       window.location.href = redirectUrl;
     }, 0);

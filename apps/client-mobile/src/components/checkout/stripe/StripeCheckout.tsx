@@ -25,11 +25,6 @@ import { useRouter } from "@/lib/navigation";
 import { StripeCheckoutUI, StripeProvider } from "./index";
 import type { StripeCheckoutCart } from "./types";
 
-const getBool = (key: string, fallback = false) => {
-  const val = import.meta.env[`PUBLIC_ENV__${key}`] ?? import.meta.env[`VITE_${key}`];
-  return val === "true" ? true : val === "false" ? false : fallback;
-};
-
 const STRIPE_SESSION_ERROR_KEYS: Record<string, TranslationKey> = {
   AUTH_FAILED: "checkout.stripeSessionErrors.AUTH_FAILED",
   RATE_LIMITED: "checkout.stripeSessionErrors.RATE_LIMITED",
@@ -213,10 +208,6 @@ export function StripeCheckout({
   }
 
   if (!canRenderCheckout) {
-    if (getBool("PAYMENT_DEBUG", false) && unavailableReasons.length > 0) {
-      console.warn("[StripeCheckout] Checkout unavailable:", unavailableReasons);
-    }
-
     return (
       <CheckoutErrorBanner
         error={{

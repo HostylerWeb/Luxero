@@ -513,11 +513,7 @@ export default function CompetitionsAdminPage() {
 
   function handleClose() {
     const finalUrls = new Set((form.images ?? []).map((i) => i.url).filter(Boolean));
-    console.log(
-      `[handleClose] finalUrls=${JSON.stringify([...finalUrls])} sessionUrls=${JSON.stringify([...sessionUrlsRef.current])}`
-    );
     const toDelete = [...sessionUrlsRef.current].filter((url) => !finalUrls.has(url));
-    console.log(`[handleClose] toDelete=${JSON.stringify(toDelete)}`);
     if (toDelete.length > 0) {
       Promise.all(
         toDelete.map((url) =>
@@ -613,10 +609,6 @@ export default function CompetitionsAdminPage() {
           : {}),
       };
 
-      console.log(
-        `[handleSubmit] payload image fields: imageUrl=${payload.imageUrl} heroImageUrl=${payload.heroImageUrl} prizeImages=${JSON.stringify(payload.prizeImages)}`
-      );
-
       if (editingId) {
         await updateMutation.mutateAsync({ id: editingId, payload });
       } else {
@@ -631,9 +623,6 @@ export default function CompetitionsAdminPage() {
       const finalPool = (form.images ?? []).map((i) => i.url).filter(Boolean);
       const original = originalImagesRef.current;
       const orphans = original.filter((url) => !finalPool.includes(url));
-      console.log(
-        `[orphanCleanup] finalPool=${JSON.stringify(finalPool)} original=${JSON.stringify(original)} orphans=${JSON.stringify(orphans)}`
-      );
       if (orphans.length > 0) {
         // Best-effort delete. The user already got their 200 from the server,
         // so we don't block on these. We also skip URLs that are still
@@ -648,7 +637,6 @@ export default function CompetitionsAdminPage() {
           orphans
             .filter((url) => {
               const shared = isUrlSharedByOtherCompetition(url);
-              console.log(`[orphanCleanup] url=${url} sharedByOther=${shared}`);
               return !shared;
             })
             .map((url) =>

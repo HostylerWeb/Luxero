@@ -11,6 +11,7 @@ interface ProfileHeroCardProps {
   email: string;
   phone?: string;
   avatarUrl?: string;
+  avatarCacheVersion?: string;
   isVerified?: boolean;
   className?: string;
 }
@@ -21,6 +22,7 @@ export function ProfileHeroCard({
   email,
   phone,
   avatarUrl,
+  avatarCacheVersion,
   isVerified,
   className,
 }: ProfileHeroCardProps) {
@@ -47,6 +49,8 @@ export function ProfileHeroCard({
       <div className="relative flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
         <UserAvatar
           avatarUrl={avatarUrl}
+          cacheVersion={avatarCacheVersion}
+          priority
           initials={initials}
           className="size-20 shrink-0 rounded-2xl ring-2 ring-primary/25 sm:size-24"
           imageClassName="rounded-2xl"

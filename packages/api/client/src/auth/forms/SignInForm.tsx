@@ -145,8 +145,7 @@ export function SignInForm({
       await refreshAuthSession();
       setLoading(false);
       onSuccess?.();
-    } catch (err) {
-      console.error("[SignInForm] unexpected error during password sign-in:", err);
+    } catch {
       setLoading(false);
       turnstileStore.getState().consume();
       setError(

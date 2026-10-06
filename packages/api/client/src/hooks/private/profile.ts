@@ -7,12 +7,12 @@ import type {
   ProfileAddress,
   Winner,
 } from "@luxero/types";
-import { getProfileInitials } from "@luxero/utils";
+import { getProfileInitials, withAssetCacheVersion } from "@luxero/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
 import { useAuth } from "../../auth/use-auth";
 import { api } from "../../client";
-import { STALE_TIME_USER } from "../../constants";
+import { STALE_TIME_STATIC, STALE_TIME_USER } from "../../constants";
 import { queryKeys } from "../../keys";
 import { useUpdateProfile } from "../auth";
 
@@ -47,7 +47,8 @@ export function useMyProfile(options?: { enabled?: boolean; initialData?: ApiRes
   return useQuery<ApiResponse<Profile>>({
     queryKey: queryKeys.my.profile(),
     queryFn: () => api.get<Profile>("/api/me/profile"),
-    staleTime: STALE_TIME_USER,
+    staleTime: STALE_TIME_STATIC,
+    refetchOnMount: false,
     enabled: options?.enabled ?? true,
     initialData: options?.initialData,
   });
@@ -59,7 +60,10 @@ export function useProfileAvatar(options?: { enabled?: boolean }) {
   const { data: profileResponse, isLoading } = useMyProfile({ enabled });
   const profile = profileResponse?.data;
 
-  const avatarUrl = profile?.avatarUrl;
+  const avatarUrl = useMemo(
+    () => withAssetCacheVersion(profile?.avatarUrl, profile?.updatedAt),
+    [profile?.avatarUrl, profile?.updatedAt]
+  );
   const initials = useMemo(
     () =>
       getProfileInitials({
@@ -111,7 +115,6 @@ export function useMyReferrals(options?: {
 
 function syncMyProfileCache(qc: ReturnType<typeof useQueryClient>, response: ApiResponse<Profile>) {
   qc.setQueryData(queryKeys.my.profile(), response);
-  void qc.invalidateQueries({ queryKey: queryKeys.my.profile() });
 }
 
 export function useUploadAvatar() {

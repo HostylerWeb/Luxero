@@ -193,8 +193,7 @@ export function SignUpForm({
 
       setLoading(false);
       onSuccess?.(normalizedEmail);
-    } catch (err) {
-      console.error("[SignUpForm] unexpected error during submit:", err);
+    } catch {
       setLoading(false);
       turnstileStore.getState().consume();
       setError(

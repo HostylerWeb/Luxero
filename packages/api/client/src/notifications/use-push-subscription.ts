@@ -84,7 +84,6 @@ export function usePushSubscription(
         setState("unsubscribed");
       }
     } catch (err) {
-      console.error("[Push] refresh failed:", err);
       setState("error");
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -146,7 +145,6 @@ export function usePushSubscription(
       await onSubscribe(sub.toJSON() as PushSubscriptionJSON);
       setState("subscribed");
     } catch (err) {
-      console.error("[Push] subscribe failed:", err);
       setError(err instanceof Error ? err.message : String(err));
       setState("error");
     }
@@ -168,7 +166,6 @@ export function usePushSubscription(
       }
       setState("unsubscribed");
     } catch (err) {
-      console.error("[Push] unsubscribe failed:", err);
       setError(err instanceof Error ? err.message : String(err));
       setState("error");
     }

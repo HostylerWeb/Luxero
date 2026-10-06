@@ -78,7 +78,6 @@ export function usePushPreferences(): UsePushPreferencesResult {
       await api.patch("/api/push/preferences", { [type]: value });
     } catch (err) {
       setPreferences((prev) => ({ ...prev, [type]: !value }));
-      console.error("[PushPreferences] failed to update:", err);
     } finally {
       setIsUpdating(false);
     }

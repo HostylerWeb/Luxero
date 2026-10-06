@@ -8,7 +8,6 @@ import {
   useClearCart,
   useMyOrderDetail,
 } from "@luxero/api-client";
-import { getBool } from "@luxero/env/vike";
 import { Clock, PartyPopper, Ticket } from "@luxero/icons";
 import type { MeOrderDetailDto } from "@luxero/types";
 import { getGrantedTicketIds } from "@luxero/utils";
@@ -246,37 +245,17 @@ function CheckoutSuccessPageContent() {
   const orderData = orderResponse?.data ?? null;
   const _orderLoading = orderLoading;
 
-  useEffect(() => {
-    if (orderFetchError) {
-      console.warn("[success.order] fetch error", { orderId, orderFetchError });
-    }
-  }, [orderResponse, orderFetchError, orderId]);
-
   const invalidateSuccessQueries = useCallback(async () => {
     await invalidateCheckoutSuccessQueries(queryClient);
   }, [queryClient]);
 
   const displayStatus = useMemo(() => {
-    const paymentDebug = getBool("PAYMENT_DEBUG", false);
     const hasPaymentContext = !!provider && !!sessionId;
     const hasOrderId = !!urlOrderId;
 
     const fulfillmentFailed =
       (orderData?.metadata as { fulfillmentFailedAfterCapture?: boolean } | undefined)
         ?.fulfillmentFailedAfterCapture === true;
-
-    if (paymentDebug) {
-      console.log("[FS-DEBUG-FE][success.displayStatus] input", {
-        paymentParam,
-        provider,
-        hasPaymentContext,
-        hasOrderId,
-        urlOrderId,
-        status,
-        orderStatus: orderData?.status,
-        orderHasFulfillmentFailedAfterCapture: fulfillmentFailed,
-      });
-    }
 
     // Authentication flows that were cancelled by the customer (e.g. 3DS)
     // land back here as redirect_status=canceled — show the cancelled notice
@@ -293,29 +272,14 @@ function CheckoutSuccessPageContent() {
       // was charged but order fulfillment failed — show the bespoke
       // "captured-not-fulfilled" UI (not the generic "failed" UI).
       if (fulfillmentFailed) {
-        if (paymentDebug) {
-          console.log(
-            "[FS-DEBUG-FE][success.displayStatus] paytriot: fulfillmentFailedAfterCapture in order metadata -> captured-not-fulfilled (defense-in-depth)"
-          );
-        }
         return "captured-not-fulfilled" as const;
       }
       // If the URL explicitly says captured-but-not-fulfilled, route to the
       // bespoke UI even before the order detail loads.
       if (paymentParam === "captured-but-not-fulfilled") {
-        if (paymentDebug) {
-          console.log(
-            "[FS-DEBUG-FE][success.displayStatus] paytriot URL payment=captured-but-not-fulfilled -> captured-not-fulfilled"
-          );
-        }
         return "captured-not-fulfilled" as const;
       }
       if (paymentParam === "failed" || paymentParam === "unknown" || paymentParam === "duplicate") {
-        if (paymentDebug) {
-          console.log("[FS-DEBUG-FE][success.displayStatus] paytriot early-return -> failed", {
-            paymentParam,
-          });
-        }
         return "failed" as const;
       }
     }
@@ -328,25 +292,12 @@ function CheckoutSuccessPageContent() {
         // authoritative success signal, no need to verify via order detail
         if (provider === "local") return "completed" as const;
 
-        if (paymentDebug) {
-          console.log("[FS-DEBUG-FE][success.displayStatus] polling success - checking orderData", {
-            orderStatus: orderData?.status,
-            fulfillmentFailed,
-            paymentParam,
-          });
-        }
         // Defense in depth: even when poll reports success, if orderData
         // shows fulfillment failed, escalate to the bespoke UI.
         if (fulfillmentFailed) {
           return "captured-not-fulfilled" as const;
         }
         if (orderData?.status === "failed" || orderData?.status === "refunded") {
-          if (paymentDebug) {
-            console.log("[FS-DEBUG-FE][success.displayStatus] order is failed/refunded -> failed", {
-              fulfillmentFailed,
-              paymentParam,
-            });
-          }
           return "failed" as const;
         }
         if (orderData?.status === "completed") return "completed" as const;
@@ -360,11 +311,6 @@ function CheckoutSuccessPageContent() {
       if (status === "polling" || status === "idle") {
         if (provider === "paytriot") {
           if (fulfillmentFailed) {
-            if (paymentDebug) {
-              console.log(
-                "[FS-DEBUG-FE][success.displayStatus] paytriot polling: fulfillmentFailedAfterCapture -> captured-not-fulfilled"
-              );
-            }
             return "captured-not-fulfilled" as const;
           }
           if (paymentParam === "captured-but-not-fulfilled") {
