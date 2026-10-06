@@ -53,11 +53,6 @@ function AdminEmergencyContent() {
   });
 
   useEffect(() => {
-    const envSecret = (process.env.NEXT_PUBLIC_EMERGENCY_SECRET ?? "").trim();
-    if (envSecret) requestForm.setValue("emergencySecret", envSecret);
-  }, [requestForm]);
-
-  useEffect(() => {
     let cancelled = false;
     async function load() {
       setIsLoadingStatus(true);

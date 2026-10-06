@@ -9,9 +9,9 @@ import { runRetryOrderConfirmationEmails } from "@luxero/api-server/lib/jobs/ret
 import { runTicketingAnomalyChecks } from "@luxero/api-server/lib/jobs/ticketing-anomaly-checks";
 import { runInternalJobWithLock } from "@luxero/api-server/lib/utils/internal-job-runner";
 import {
-  getEmergencySecretHeaderName,
-  validateEmergencySecret,
-} from "@luxero/auth-admin/auth-emergency";
+  getCronJobsSecretHeaderName,
+  validateCronJobsSecret,
+} from "@luxero/auth-admin/internal-jobs-auth";
 import { Hono } from "hono";
 
 const app = new Hono();
@@ -19,10 +19,15 @@ const app = new Hono();
 const IDEMPOTENCY_HEADER = "Idempotency-Key";
 
 app.use("*", async (c, next) => {
-  const secretHeader = getEmergencySecretHeaderName();
-  const emergencySecret = c.req.header(secretHeader) ?? undefined;
-  if (!validateEmergencySecret(emergencySecret)) {
-    return error(c, ErrorCodes.FORBIDDEN, "Invalid or missing emergency secret.", 403);
+  const secretHeader = getCronJobsSecretHeaderName();
+  const cronSecret = c.req.header(secretHeader) ?? undefined;
+  if (!validateCronJobsSecret(cronSecret)) {
+    return error(
+      c,
+      ErrorCodes.FORBIDDEN,
+      "Invalid or missing cron jobs secret (set CRON_JOBS_SECRET).",
+      403
+    );
   }
   await next();
 });

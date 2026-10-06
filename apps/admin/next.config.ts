@@ -96,7 +96,7 @@ const nextConfig: NextConfig = {
     const devAssetHosts =
       process.env.NODE_ENV !== "production" ? " http://localhost:9011 http://127.0.0.1:9011" : "";
     const csp =
-      "base-uri 'self'; form-action 'self'; object-src 'none'; default-src 'self'; " +
+      "base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; default-src 'self'; " +
       `media-src 'self' https://assets.luxero.win https://assets.staging.luxero.win${devAssetHosts}; ` +
       "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.facebook.net https://challenges.cloudflare.com https://umami.luxero.win https://js.stripe.com; " +
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
@@ -150,6 +150,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: csp,
           },
+          { key: "X-Frame-Options", value: "DENY" },
         ],
       },
     ];

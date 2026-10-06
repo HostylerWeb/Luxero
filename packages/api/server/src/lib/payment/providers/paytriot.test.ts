@@ -188,6 +188,10 @@ vi.mock("@luxero/api-payment-paytriot", () => ({
 
 vi.mock("@luxero/env/server", () => ({
   getEnv: __envMocks.getEnv,
+  getBool: (key: string, defaultVal?: boolean) => {
+    if (key === "PAYTRIOT_LENIENT_RESPONSE_SIGNATURE") return false;
+    return defaultVal ?? false;
+  },
 }));
 
 vi.mock("@luxero/api-logger", () => ({
@@ -305,6 +309,7 @@ describe("paytriotAdapter", () => {
           _id: orderId,
           providerSessionId: "paytriot_existing",
           status: "failed",
+          total: 1000,
           orderNumber: "INV-EXISTING",
           metadata: { paytriotFormHtml: "<form>existing</form>" },
         }),
@@ -564,6 +569,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_1",
       });
@@ -576,6 +582,7 @@ describe("paytriotAdapter", () => {
       __paytriotMocks.verifyResponse.mockReturnValue(true);
       __paytriotMocks.httpParseQuery.mockReturnValue({
         responseCode: "0",
+        amountReceived: 1000,
         transactionUnique: `${orderId.toString()}-abc12345`,
         transactionID: "txn_123",
         signature: "abc",
@@ -599,6 +606,7 @@ describe("paytriotAdapter", () => {
           return {
             _id: orderId,
             userId,
+            total: 10,
             status: "pending",
             providerSessionId: "paytriot_sess_2",
           };
@@ -608,6 +616,7 @@ describe("paytriotAdapter", () => {
 
       __paytriotMocks.httpParseQuery.mockReturnValue({
         responseCode: "0",
+        amountReceived: 1000,
         transactionUnique: `${orderId.toString()}-abc12345`,
         transactionID: "txn_456",
         signature: "abc",
@@ -642,6 +651,7 @@ describe("paytriotAdapter", () => {
           return {
             _id: orderId,
             userId,
+            total: 10,
             status: "pending",
             providerSessionId: "paytriot_sess_3",
             metadata: { promoCode: "test_code" },
@@ -676,6 +686,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_txnid",
         metadata: {},
@@ -684,6 +695,7 @@ describe("paytriotAdapter", () => {
       __paytriotMocks.verifyResponse.mockReturnValue(true);
       __paytriotMocks.httpParseQuery.mockReturnValue({
         responseCode: "0",
+        amountReceived: 1000,
         transactionUnique: `${orderId.toString()}-abc12345`,
         transactionID: "txn_123",
         signature: "abc",
@@ -713,6 +725,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_fail",
         metadata: {},
@@ -757,6 +770,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_avs",
         metadata: {},
@@ -765,6 +779,7 @@ describe("paytriotAdapter", () => {
       __paytriotMocks.verifyResponse.mockReturnValue(true);
       __paytriotMocks.httpParseQuery.mockReturnValue({
         responseCode: "0",
+        amountReceived: 1000,
         transactionUnique: `${orderId.toString()}-abc12345`,
         transactionID: "txn_avs",
         signature: "abc",
@@ -807,6 +822,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_3ds",
         metadata: {},
@@ -815,6 +831,7 @@ describe("paytriotAdapter", () => {
       __paytriotMocks.verifyResponse.mockReturnValue(true);
       __paytriotMocks.httpParseQuery.mockReturnValue({
         responseCode: "0",
+        amountReceived: 1000,
         transactionUnique: `${orderId.toString()}-abc12345`,
         transactionID: "txn_3ds",
         signature: "abc",
@@ -859,6 +876,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_card",
         metadata: {},
@@ -867,6 +885,7 @@ describe("paytriotAdapter", () => {
       __paytriotMocks.verifyResponse.mockReturnValue(true);
       __paytriotMocks.httpParseQuery.mockReturnValue({
         responseCode: "0",
+        amountReceived: 1000,
         transactionUnique: `${orderId.toString()}-abc12345`,
         transactionID: "txn_card",
         signature: "abc",
@@ -913,6 +932,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_xref",
         metadata: {},
@@ -921,6 +941,7 @@ describe("paytriotAdapter", () => {
       __paytriotMocks.verifyResponse.mockReturnValue(true);
       __paytriotMocks.httpParseQuery.mockReturnValue({
         responseCode: "0",
+        amountReceived: 1000,
         transactionUnique: `${orderId.toString()}-abc12345`,
         transactionID: "txn_xref",
         xref: "XREF_ABC_123",
@@ -950,6 +971,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_referred",
         metadata: {},
@@ -992,6 +1014,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_declkeep",
         metadata: {},
@@ -1034,6 +1057,7 @@ describe("paytriotAdapter", () => {
       __mocks.__findById.mockResolvedValue({
         _id: orderId,
         userId,
+        total: 10,
         status: "pending",
         providerSessionId: "paytriot_sess_invcreds",
         metadata: {},
@@ -1071,6 +1095,7 @@ describe("paytriotAdapter", () => {
       __paytriotMocks.verifyResponse.mockReturnValue(true);
       __paytriotMocks.httpParseQuery.mockReturnValue({
         responseCode: "0",
+        amountReceived: 1000,
         transactionUnique: "",
         transactionID: "txn_stray",
         signature: "abc",

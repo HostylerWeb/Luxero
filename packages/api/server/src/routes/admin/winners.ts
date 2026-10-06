@@ -14,6 +14,7 @@ import { error, paginated, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { sendPushNotification } from "@luxero/api-server/lib/push";
 import { requireAdmin, requireStaff } from "@luxero/api-server/middleware/auth";
+import type { Context, Next } from "hono";
 import type { TicketLike } from "@luxero/api-tickets/ticket-mapper";
 import { createWinnerSchema, validateBody } from "@luxero/api-validation";
 import { ADMIN_WINNER_TABLE } from "@luxero/types";
@@ -28,12 +29,15 @@ app.use("*", requireStaff);
 
 // Fulfilment writes on an existing winner are admin-only. Managers may confirm a
 // winner (POST /) and read winner data but must not edit/claim/delete/restore.
-app.use("/:id", async (c, next) => {
+async function requireAdminForWinnerSubRoutes(c: Context, next: Next) {
   if (c.req.method === "GET" || c.req.method === "HEAD" || c.req.method === "OPTIONS") {
     return next();
   }
   return requireAdmin(c, next);
-});
+}
+
+app.use("/:id", requireAdminForWinnerSubRoutes);
+app.use("/:id/*", requireAdminForWinnerSubRoutes);
 
 const COMP_COLLECTION = Competition.collection.name;
 const PROFILE_COLLECTION = Profile.collection.name;

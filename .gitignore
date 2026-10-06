@@ -37,6 +37,9 @@ dist/
 # Logs
 *.log
 
+# PDF documents (local proposals / handoff — do not upload)
+*.pdf
+
 # OS files
 .DS_Store
 .vscode/

@@ -43,11 +43,6 @@ function AdminSetupContent() {
   });
 
   useEffect(() => {
-    const envSecret = (process.env.NEXT_PUBLIC_SETUP_SECRET ?? "").trim();
-    if (envSecret) form.setValue("setupSecret", envSecret);
-  }, [form]);
-
-  useEffect(() => {
     let cancelled = false;
     async function load() {
       setIsLoadingStatus(true);

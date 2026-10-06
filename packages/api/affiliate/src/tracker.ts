@@ -76,7 +76,10 @@ async function fireTrackerUrl(
 ): Promise<void> {
   try {
     assertSafeOutboundUrl(url);
-    const res = await fetch(url, method === "POST" ? { method: "POST" } : undefined);
+    const res = await fetch(url, {
+      ...(method === "POST" ? { method: "POST" } : {}),
+      redirect: "error",
+    });
     void recordPostbackLog({
       eventType,
       trackerId,

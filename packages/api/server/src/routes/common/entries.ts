@@ -1,6 +1,7 @@
 import { Competition, Order, ReferralPurchase, Ticket } from "@luxero/api-db/models";
 import dbConnect from "@luxero/api-infra/db";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
+import { escapeRegex } from "@luxero/api-infra/fuzzy-search";
 import {
   defaultAggregateOptions,
   defaultCountMaxTimeMS,
@@ -31,6 +32,21 @@ function formatPublicDisplayName(
   if (showLastName && lastName) return `${firstName} ${lastName}`;
   if (lastName) return `${firstName} ${lastName[0]}.`;
   return firstName;
+}
+
+const PUBLIC_ENTRY_SORT_FIELDS = ["entryNumber", "createdAt"] as const;
+
+function parsePublicEntryCursor(
+  cursor: string | undefined
+): { entryNumber: number; _id: string } | null {
+  if (!cursor) return null;
+  const data = decodeCursor<Record<string, unknown>>(cursor);
+  if (!data) return null;
+  const entryNumber = data.entryNumber;
+  const id = data._id;
+  if (typeof entryNumber !== "number" || !Number.isFinite(entryNumber)) return null;
+  if (typeof id !== "string" || !/^[a-f\d]{24}$/i.test(id)) return null;
+  return { entryNumber, _id: id };
 }
 
 function mapPublicEntry(entry: Record<string, unknown>) {
@@ -114,7 +130,9 @@ app.get(
         return error(c, ErrorCodes.VALIDATION_ERROR, "competitionId is required", 400);
       }
 
-      const search = c.req.query("search")?.trim() || undefined;
+      const searchRaw = c.req.query("search")?.trim() || undefined;
+      const search =
+        searchRaw && searchRaw.length <= 64 ? escapeRegex(searchRaw.slice(0, 64)) : undefined;
       await dbConnect();
 
       const competition = await Competition.findById(competitionId).lean();
@@ -169,9 +187,8 @@ app.get(
               $match: {
                 $or: [
                   { firstName: { $regex: search, $options: "i" } },
-                  { lastName: { $regex: search, $options: "i" } },
-                  ...(Number.isFinite(Number(search))
-                    ? [{ entryNumber: Number(search) }, { orderNumber: Number(search) }]
+                  ...(Number.isFinite(Number(searchRaw))
+                    ? [{ entryNumber: Number(searchRaw) }, { orderNumber: Number(searchRaw) }]
                     : []),
                 ],
               },
@@ -183,10 +200,9 @@ app.get(
         const { limit, cursor, sortField, sortDir } = parseCursorPagination(c, {
           defaultSortField: "entryNumber",
           defaultSortDir: 1,
+          allowedSortFields: PUBLIC_ENTRY_SORT_FIELDS,
         });
-        const cursorData = cursor
-          ? decodeCursor<{ entryNumber: number; _id: string }>(cursor)
-          : null;
+        const cursorData = parsePublicEntryCursor(cursor);
         const cursorFilter = buildCursorFilter(
           sortField,
           sortDir as 1 | -1,

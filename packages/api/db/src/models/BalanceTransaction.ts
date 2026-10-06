@@ -64,8 +64,14 @@ const BalanceTransactionSchema = new Schema<IBalanceTransaction>(
 
 BalanceTransactionSchema.index({ userId: 1, createdAt: -1 });
 BalanceTransactionSchema.index({ orderId: 1 });
-BalanceTransactionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7776000 });
-BalanceTransactionSchema.index({ idempotencyKey: 1 }, { sparse: true, unique: true });
+BalanceTransactionSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 90 * 24 * 60 * 60,
+    partialFilterExpression: { status: { $in: ["pending", "failed"] } },
+  }
+);
+BalanceTransactionSchema.index({ userId: 1, idempotencyKey: 1 }, { sparse: true, unique: true });
 
 export const BalanceTransaction = m<IBalanceTransaction>(
   "BalanceTransaction",

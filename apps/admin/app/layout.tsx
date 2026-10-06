@@ -75,10 +75,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </QueryProvider>
           </ErrorBoundary>
         </ThemeProvider>
-        <script
-          id="image-debug-logger"
-          dangerouslySetInnerHTML={{
-            __html: `
+        {process.env.NODE_ENV !== "production" ? (
+          <script
+            id="image-debug-logger"
+            dangerouslySetInnerHTML={{
+              __html: `
 (function() {
   if (window.__logRecorder) return;
   var logs = [];
@@ -99,8 +100,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   origLog('[logger] image debug logger initialized');
 })();
 `,
-          }}
-        />
+            }}
+          />
+        ) : null}
       </body>
     </html>
   );

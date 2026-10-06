@@ -88,12 +88,14 @@ Alternative: [devservers.yml](../devservers.yml) + `bun run devserver` (Python v
 1. Ensure infra + `bun run dev` are running and **admin** responds on port 3222.
 2. **First admin user (once per database):**  
    http://localhost:3222/auth/setup  
-   Submit email; setup secret is pre-filled from `NEXT_PUBLIC_SETUP_SECRET` in `apps/admin/.env.local` if configured. Copy the **one-time password** shown.
+   Enter your **SETUP_SECRET** when prompted (server env only — never `NEXT_PUBLIC_*`). Copy the **one-time password** shown.
 3. **Sign in:**  
    http://localhost:3222/auth/login  
    Use that email and password. Unauthenticated visits to `/` redirect to login.
 
-Emergency recovery (if enabled): `/auth/emergency` with `ADMIN_EMERGENCY_SECRET` / `NEXT_PUBLIC_EMERGENCY_SECRET`.
+Emergency recovery (if enabled): `/auth/emergency` — type **ADMIN_EMERGENCY_SECRET** manually (server env only).
+
+Scheduled jobs: POST `https://<admin-host>/api/internal/jobs/<job-name>` with header **`X-Cron-Jobs-Secret: <CRON_JOBS_SECRET>`** (separate from emergency secret).
 
 ## Docker infra (local)
 

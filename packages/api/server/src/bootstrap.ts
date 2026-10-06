@@ -40,6 +40,7 @@ import { registerStripeWebhooks } from "@luxero/api-server/lib/payment/register-
 import { affiliateMiddleware } from "@luxero/api-server/middleware/affiliate";
 import { sessionMiddleware } from "@luxero/api-server/middleware/auth";
 import { redisCacheRoute } from "@luxero/api-server/middleware/cache";
+import { csrfProtection } from "@luxero/api-server/middleware/csrf";
 import {
   emailRateLimit,
   paymentRateLimit,
@@ -420,6 +421,8 @@ app.use(
     exposeHeaders: ["Set-Cookie"],
   })
 );
+
+app.use("*", csrfProtection());
 
 // Version endpoint — returns the build timestamp injected at Docker build
 app.get("/api/version", (c) => {

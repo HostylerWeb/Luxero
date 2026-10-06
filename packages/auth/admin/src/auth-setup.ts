@@ -4,6 +4,7 @@ import { Profile } from "@luxero/api-db/models";
 import { SetupError } from "@luxero/api-errors";
 import { invalidateUser } from "@luxero/api-infra/cache";
 import { getAdminAuth } from "@luxero/auth-admin/admin-auth";
+import { secretsEqual } from "@luxero/auth-admin/secret-compare";
 import { createLuxeroProfile } from "@luxero/auth-admin/auth-hooks";
 import { getMongoDb } from "@luxero/auth-admin/auth-mongo";
 import { getEnv } from "@luxero/env/server";
@@ -38,8 +39,10 @@ export function setupRequiresSecret(): boolean {
 
 export function validateSetupSecret(headerValue: string | undefined): boolean {
   const secret = getConfiguredSetupSecret();
-  if (!secret) return true;
-  return headerValue === secret;
+  if (!secret) {
+    return process.env.NODE_ENV !== "production";
+  }
+  return secretsEqual(headerValue, secret);
 }
 
 export function getSetupSecretHeaderName(): string {

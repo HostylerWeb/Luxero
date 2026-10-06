@@ -3,23 +3,37 @@ import dbConnect from "@luxero/api-infra/db";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { error, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
+import { requireGuestCheckout } from "@luxero/api-server/middleware/auth";
 import {
   validatePendingReferralCode,
   validatePromoCode,
   validateReferralCode,
 } from "@luxero/api-tickets/promo-codes";
 import { Hono } from "hono";
+import { ZodError, z } from "zod";
 
 const app = new Hono();
 
-app.post("/validate", async (c) => {
-  try {
-    const { code, subtotal, pendingReferralCode, items } = await c.req.json();
-    const userId = c.get("userId") as string | undefined;
+const validateDiscountSchema = z.object({
+  code: z.string().min(1).max(64),
+  subtotal: z.number().nonnegative().optional(),
+  pendingReferralCode: z.string().max(64).optional(),
+  items: z
+    .array(
+      z.object({
+        competitionId: z.string(),
+        quantity: z.number().int().positive(),
+        unitPrice: z.number().nonnegative(),
+      })
+    )
+    .optional(),
+});
 
-    if (!code) {
-      return error(c, ErrorCodes.VALIDATION_ERROR, "Discount code is required", 400);
-    }
+app.post("/validate", requireGuestCheckout, async (c) => {
+  try {
+    const body = validateDiscountSchema.parse(await c.req.json());
+    const { code, subtotal, pendingReferralCode, items } = body;
+    const userId = c.get("userId")!;
 
     await dbConnect();
 
@@ -110,7 +124,11 @@ app.post("/validate", async (c) => {
       }
     }
 
-    const pendingResult = await validatePendingReferralCode(upperCode, subtotal ?? 0, userId ?? "");
+    const pendingResult = await validatePendingReferralCode(
+      upperCode,
+      subtotal ?? 0,
+      userId ?? ""
+    );
     if (pendingResult.valid) {
       return success(c, {
         valid: true,
@@ -134,7 +152,10 @@ app.post("/validate", async (c) => {
       error: "Invalid discount code",
     });
   } catch (err: unknown) {
-    console.error("Error validating discount code:", err);
+    if (err instanceof ZodError) {
+      return error(c, ErrorCodes.VALIDATION_ERROR, "Invalid request body", 400);
+    }
+    console.error("Error validating discount:", err);
     captureRouteError(err, {
       requestId: c.get("requestId"),
       path: c.req.path,

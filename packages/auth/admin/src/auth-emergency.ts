@@ -4,6 +4,7 @@ import { EmergencyError } from "@luxero/api-errors";
 import { getAdminAuth } from "@luxero/auth-admin/admin-auth";
 import { sendEmergencyOtpEmail } from "@luxero/auth-admin/auth-email";
 import { type AdminSetupResult, upsertAdminAccount } from "@luxero/auth-admin/auth-setup";
+import { secretsEqual } from "@luxero/auth-admin/secret-compare";
 import { getEnv } from "@luxero/env/server";
 
 const getAppUrl = () => getEnv("APP_URL").replace(/\/$/, "");
@@ -38,7 +39,7 @@ export function isEmergencyRecoveryEnabled(): boolean {
 export function validateEmergencySecret(headerValue: string | undefined): boolean {
   const secret = getConfiguredEmergencySecret();
   if (!secret) return false;
-  return headerValue === secret;
+  return secretsEqual(headerValue, secret);
 }
 
 export function getEmergencySecretHeaderName(): string {

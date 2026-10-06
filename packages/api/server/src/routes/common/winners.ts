@@ -7,10 +7,62 @@ import { captureRouteError } from "@luxero/api-infra/sentry";
 import { redisCacheRoute } from "@luxero/api-server/middleware/cache";
 import { publicFeedRateLimit } from "@luxero/api-server/middleware/rate-limit";
 import { Hono } from "hono";
+import mongoose from "mongoose";
 
 const app = new Hono();
 
 app.use("*", publicFeedRateLimit());
+
+function formatPublicWinnerDisplayName(input: {
+  displayName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  showLastName?: boolean | null;
+}): string {
+  if (input.displayName?.trim()) return input.displayName.trim();
+  const firstName = input.firstName?.trim() || "Winner";
+  const lastName = input.lastName?.trim();
+  const showLastName = input.showLastName ?? true;
+  if (showLastName && lastName) return `${firstName} ${lastName}`;
+  if (lastName) return `${firstName} ${lastName[0]}.`;
+  return firstName;
+}
+
+function mapPublicWinner(
+  winner: {
+    displayName?: string | null;
+    prizeTitle?: string | null;
+    prizeValue?: number | null;
+    ticketNumber: number;
+    drawnAt: Date;
+  },
+  competition: {
+    title?: string;
+    slug?: string;
+    imageUrl?: string | null;
+    prizeImageUrl?: string | null;
+  } | null,
+  displayName: string
+) {
+  const imageUrl =
+    competition?.prizeImageUrl && competition.prizeImageUrl.length > 0
+      ? competition.prizeImageUrl
+      : (competition?.imageUrl ?? null);
+  return {
+    displayName,
+    prizeTitle: winner.prizeTitle ?? null,
+    prizeValue: winner.prizeValue ?? null,
+    ticketNumber: winner.ticketNumber,
+    drawnAt: winner.drawnAt,
+    competition: competition
+      ? {
+          title: competition.title ?? "",
+          slug: competition.slug ?? "",
+          imageUrl,
+        }
+      : null,
+  };
+}
 
 app.get(
   "/",
@@ -41,51 +93,41 @@ app.get(
       const profiles =
         userIds.length > 0
           ? await Profile.find({ _id: { $in: userIds } })
-              .select("firstName lastName email")
+              .select("firstName lastName showLastName")
               .lean()
           : [];
       const profileMap = new Map(profiles.map((p) => [p._id.toString(), p]));
 
-      const headCheck = async (url: string): Promise<boolean> => {
-        try {
-          const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 2000);
-          const res = await fetch(url, { method: "HEAD", signal: controller.signal });
-          clearTimeout(timer);
-          return res.status !== 404;
-        } catch {
-          return true;
-        }
-      };
-
       for (const winner of winners) {
         if (!winner.displayName && winner.userId) {
           const profile = profileMap.get(winner.userId.toString());
-          if (profile) {
-            winner.displayName =
-              profile.firstName && profile.lastName
-                ? `${profile.firstName} ${profile.lastName}`
-                : profile.firstName
-                  ? profile.firstName
-                  : profile.email?.split("@")[0] || "Winner";
-          }
-        }
-
-        const comp = winner.competitionId as
-          | { imageUrl?: string | null; prizeImageUrl?: string | null }
-          | null
-          | undefined;
-        if (comp && typeof comp === "object") {
-          if (comp.prizeImageUrl && !(await headCheck(comp.prizeImageUrl))) {
-            comp.prizeImageUrl = null;
-          }
-          if (comp.imageUrl && !(await headCheck(comp.imageUrl))) {
-            comp.imageUrl = null;
-          }
+          winner.displayName = formatPublicWinnerDisplayName({
+            displayName: winner.displayName,
+            firstName: profile?.firstName,
+            lastName: profile?.lastName,
+            showLastName: profile?.showLastName,
+          });
         }
       }
 
-      return paginated(c, winners, total, page, limit);
+      const publicWinners = winners.map((w) => {
+        const comp = w.competitionId as
+          | {
+              title?: string;
+              slug?: string;
+              imageUrl?: string | null;
+              prizeImageUrl?: string | null;
+            }
+          | null
+          | undefined;
+        const compObj = comp && typeof comp === "object" ? comp : null;
+        const name =
+          w.displayName?.trim() ||
+          formatPublicWinnerDisplayName({ displayName: w.displayName });
+        return mapPublicWinner(w, compObj, name);
+      });
+
+      return paginated(c, publicWinners, total, page, limit);
     } catch (err: unknown) {
       console.error("Error fetching winners:", err);
       captureRouteError(err, {
@@ -110,13 +152,27 @@ app.get(
   async (c) => {
     try {
       const competitionId = c.req.param("competitionId");
+      if (!mongoose.Types.ObjectId.isValid(competitionId)) {
+        return error(c, ErrorCodes.VALIDATION_ERROR, "Invalid competition id", 400);
+      }
       await dbConnect();
 
       const winners = await Winner.find({ competitionId })
-        .populate("userId", "firstName lastName avatarUrl")
+        .select("displayName prizeTitle prizeValue drawnAt ticketNumber showFullName")
+        .sort({ drawnAt: -1 })
+        .limit(100)
         .lean();
 
-      return success(c, winners);
+      const publicWinners = winners.map((w) =>
+        mapPublicWinner(
+          w,
+          null,
+          w.displayName?.trim() ||
+            formatPublicWinnerDisplayName({ displayName: w.displayName })
+        )
+      );
+
+      return success(c, publicWinners);
     } catch (err: unknown) {
       console.error("Error fetching competition winners:", err);
       captureRouteError(err, {

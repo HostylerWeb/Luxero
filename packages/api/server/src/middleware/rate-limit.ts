@@ -41,12 +41,10 @@ function extractEmail(c: Context): string | null {
 }
 
 function extractIp(c: Context): string {
-  return (
-    c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ??
-    c.req.header("cf-connecting-ip") ??
-    c.req.header("x-real-ip") ??
-    "unknown"
-  );
+  const fromProxy =
+    c.req.header("cf-connecting-ip")?.trim() || c.req.header("x-real-ip")?.trim();
+  if (fromProxy) return fromProxy;
+  return "unknown";
 }
 
 function isDevEnv(): boolean {
@@ -133,8 +131,13 @@ export function paymentRateLimit(): MiddlewareHandler {
     const isPaymentSession = path.startsWith("payments/session") && c.req.method === "POST";
     const isCartDiscount = path === "cart/discount" && c.req.method === "POST";
     const isReferralClaim = path === "referral-code/claim" && c.req.method === "POST";
+    const isDiscountValidate =
+      (path === "discounts/validate" || path === "promo-codes/validate") &&
+      c.req.method === "POST";
 
-    if (!isPaymentSession && !isCartDiscount && !isReferralClaim) return next();
+    if (!isPaymentSession && !isCartDiscount && !isReferralClaim && !isDiscountValidate) {
+      return next();
+    }
 
     const redis = await getRedis();
     if (!redis) {

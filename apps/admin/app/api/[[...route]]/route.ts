@@ -14,6 +14,12 @@ import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { runtimeConfig } from "@luxero/api-infra/runtime-config";
 import { captureRouteError, flushSentry, initSentry } from "@luxero/api-infra/sentry";
 import { sessionMiddleware } from "@luxero/api-server/middleware/auth";
+import {
+  emailRateLimit,
+  paymentRateLimit,
+  rateLimitBodyReader,
+} from "@luxero/api-server/middleware/rate-limit";
+import { csrfProtection } from "@luxero/api-server/middleware/csrf";
 import authEmergency from "@luxero/api-server/routes/admin/auth/emergency";
 import authSetup from "@luxero/api-server/routes/admin/auth/setup";
 import adminBalances from "@luxero/api-server/routes/admin/balances";
@@ -299,6 +305,10 @@ app.get("/api/health/ready", async (c) => {
   return c.json({ status: "healthy", checks });
 });
 
+app.use("*", rateLimitBodyReader);
+app.use("*", emailRateLimit());
+app.use("*", csrfProtection());
+
 // Auth routes (before session middleware — no session required for auth)
 app.route("/api/auth-setup", authSetup);
 app.route("/api/auth-emergency", authEmergency);
@@ -309,6 +319,7 @@ app.on(["POST", "GET"], "/api/auth/*", async (c) => {
 
 // Session middleware (after auth routes)
 app.use("*", sessionMiddleware);
+app.use("*", paymentRateLimit());
 
 // Me routes (admin's own profile)
 app.route("/api/me/profile", meProfile);

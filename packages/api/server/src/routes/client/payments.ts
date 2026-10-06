@@ -60,9 +60,12 @@ import { Types } from "mongoose";
 
 const app = new Hono();
 
-app.get("/health", async (c) => {
+app.get("/health", requireGuestCheckout, async (c) => {
+  if (process.env.NODE_ENV === "production") {
+    return c.json({ status: "ok", checkedAt: new Date().toISOString() });
+  }
   const providers: Record<string, string> = {};
-  for (const id of ["local", "paytriot", "stripe"] as const) {
+  for (const id of ["local", "paytriot"] as const) {
     try {
       const adapter = await getAdapter(id);
       const result = await adapter.testCredentials("sandbox");
@@ -79,43 +82,31 @@ app.get("/health", async (c) => {
   });
 });
 
-// Autofill checkout form from a previous profile for the given email.
-// Returns a subset of profile fields (phone, DOB, address) so the user
-// doesn't have to re-enter them. Silently returns empty data when the
-// email has no profile (prevents email enumeration).
+// Autofill checkout from the signed-in user's profile only (never lookup by arbitrary email).
 app.get("/profile-fill", requireGuestCheckout, async (c) => {
+  const empty = {
+    firstName: "",
+    lastName: "",
+    phone: "",
+    dateOfBirth: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    postcode: "",
+    country: "GB",
+    isVerified: false,
+  };
   try {
-    const email = c.req.query("email");
-    if (!email?.includes("@")) {
-      return c.json({
-        firstName: "",
-        lastName: "",
-        phone: "",
-        dateOfBirth: "",
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        postcode: "",
-        country: "GB",
-      });
+    const userId = c.get("userId");
+    if (!userId) {
+      return c.json(empty);
     }
     await dbConnect();
-    const profile = await Profile.findOne({ email }).select(
+    const profile = await Profile.findById(userId).select(
       "firstName lastName phone dateOfBirth addressLine1 addressLine2 city postcode country isGuestCheckout"
     );
     if (!profile) {
-      return c.json({
-        firstName: "",
-        lastName: "",
-        phone: "",
-        dateOfBirth: "",
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        postcode: "",
-        country: "GB",
-        isVerified: false,
-      });
+      return c.json(empty);
     }
     return c.json({
       firstName: profile.firstName ?? "",
@@ -131,7 +122,7 @@ app.get("/profile-fill", requireGuestCheckout, async (c) => {
     });
   } catch (err) {
     log.error("[checkout.profile-fill] lookup failed", {
-      email: c.req.query("email"),
+      userId: c.get("userId"),
       err: err instanceof Error ? err.message : String(err),
     });
     return c.json({
@@ -708,7 +699,11 @@ app.get("/paytriot/form", requireGuestCheckout, async (c) => {
     }).lean();
 
     if (!order) {
-      const shopOrder = await ShopOrder.findOne({ _id: orderId, provider: "paytriot" }).lean();
+      const shopOrder = await ShopOrder.findOne({
+        _id: orderId,
+        userId: new Types.ObjectId(userId!),
+        provider: "paytriot",
+      }).lean();
       if (shopOrder) {
         const formHtml = ((shopOrder.metadata ?? {}) as Record<string, unknown>).paytriotFormHtml as
           | string

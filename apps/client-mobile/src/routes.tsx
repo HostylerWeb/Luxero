@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { DashboardMobileContent } from "@/components/layout/DashboardMobileContent";
 import { MainShell } from "@/components/layout/MainShell";
+import { RequireAccount } from "@/components/auth/RequireAccount";
 
 const HomePage = lazy(() => import("@/pages/index/+Page"));
 const LoginPage = lazy(() => import("@/pages/auth/login/+Page"));
@@ -28,6 +29,7 @@ const PrivacyPage = lazy(() => import("@/pages/privacy/+Page"));
 const CookiePolicyPage = lazy(() => import("@/pages/cookie-policy/+Page"));
 const ResponsiblePlayPage = lazy(() => import("@/pages/responsible-play/+Page"));
 const FreePostalEntryPage = lazy(() => import("@/pages/free-postal-entry/+Page"));
+const ReferralRedirectPage = lazy(() => import("@/pages/r/@code/+Page"));
 const NotFoundPage = lazy(() => import("@/pages/not-found/+Page"));
 const AccessDeniedPage = lazy(() => import("@/pages/access-denied/+Page"));
 
@@ -56,9 +58,30 @@ export function AppRoutes() {
         <Route path="/auth/error" element={<AuthErrorPage />} />
 
         {/* Cart & checkout */}
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+        <Route
+          path="/cart"
+          element={
+            <RequireAccount>
+              <CartPage />
+            </RequireAccount>
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <RequireAccount>
+              <CheckoutPage />
+            </RequireAccount>
+          }
+        />
+        <Route
+          path="/checkout/success"
+          element={
+            <RequireAccount>
+              <CheckoutSuccessPage />
+            </RequireAccount>
+          }
+        />
 
         {/* Main pages */}
         <Route path="/competitions" element={<CompetitionsPage />} />
@@ -75,6 +98,7 @@ export function AppRoutes() {
         <Route path="/cookie-policy" element={<CookiePolicyPage />} />
         <Route path="/responsible-play" element={<ResponsiblePlayPage />} />
         <Route path="/free-postal-entry" element={<FreePostalEntryPage />} />
+        <Route path="/r/:code" element={<ReferralRedirectPage />} />
         <Route path="/access-denied" element={<AccessDeniedPage />} />
 
         {/* Dashboard — inside main shell with sidebar context */}

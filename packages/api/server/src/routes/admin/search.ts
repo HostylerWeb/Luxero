@@ -14,6 +14,7 @@ import {
 import dbConnect from "@luxero/api-infra/db";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { escapeRegex, substringRegex } from "@luxero/api-infra/fuzzy-search";
+import { defaultAggregateOptions } from "@luxero/api-infra/mongo-query-options";
 import { error, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { requireManager } from "@luxero/api-server/middleware/auth";
@@ -41,6 +42,7 @@ const VALID_TYPES = [
 type SearchType = (typeof VALID_TYPES)[number];
 
 const LIMIT_PER_TYPE = 5;
+const SEARCH_AGGREGATE_OPTIONS = defaultAggregateOptions(5000);
 
 interface SearchResultItem {
   id: string;
@@ -70,7 +72,7 @@ app.get("/", async (c) => {
       : [...VALID_TYPES];
     const includeTypes = new Set(types);
 
-    if (!q || q.length < 1) {
+    if (!q || q.length < 2 || q.length > 100) {
       return success(c, { results: [] });
     }
 
@@ -578,6 +580,7 @@ app.get("/", async (c) => {
             }
 
             const pipeline: PipelineStage[] = [
+              { $match: { number: ticketNum } },
               {
                 $lookup: {
                   from: "competitions",
@@ -602,7 +605,6 @@ app.get("/", async (c) => {
                   ownerEmail: { $ifNull: ["$_owner.email", ""] },
                 },
               },
-              { $match: { number: ticketNum } },
               { $sort: { soldAt: -1 } },
               { $limit: LIMIT_PER_TYPE },
               {
@@ -610,13 +612,14 @@ app.get("/", async (c) => {
                   _id: 1,
                   number: 1,
                   status: 1,
+                  competitionId: 1,
                   competitionTitle: 1,
                   ownerEmail: 1,
                 },
               },
             ];
 
-            const tickets = await Ticket.aggregate(pipeline).exec();
+            const tickets = await Ticket.aggregate(pipeline).option(SEARCH_AGGREGATE_OPTIONS);
 
             results.push({
               type: "tickets",
@@ -628,7 +631,7 @@ app.get("/", async (c) => {
                 description: `${t.competitionTitle} — ${t.ownerEmail || "Available"}`,
                 url: `/competitions?search=${encodeURIComponent(t.competitionTitle)}`,
                 type: "tickets" as const,
-                detailUrl: `/competitions/${t._id.toString()}`,
+                detailUrl: `/competitions/${t.competitionId?.toString?.() ?? t.competitionId}`,
                 badge: t.status,
               })),
             });
@@ -675,6 +678,7 @@ app.get("/", async (c) => {
               {
                 $project: {
                   _id: 1,
+                  userId: 1,
                   type: 1,
                   amount: 1,
                   status: 1,
@@ -686,7 +690,9 @@ app.get("/", async (c) => {
               },
             ];
 
-            const txns = await BalanceTransaction.aggregate(pipeline).exec();
+            const txns = await BalanceTransaction.aggregate(pipeline).option(
+              SEARCH_AGGREGATE_OPTIONS
+            );
 
             results.push({
               type: "balance_transactions",
@@ -698,7 +704,7 @@ app.get("/", async (c) => {
                 description: `${t.userEmail || "Unknown"} — £${Number(t.balanceBefore).toFixed(2)} → £${Number(t.balanceAfter).toFixed(2)}`,
                 url: `/users?search=${encodeURIComponent(t.userEmail)}`,
                 type: "balance_transactions" as const,
-                detailUrl: `/users/${t._id.toString()}`,
+                detailUrl: `/users/${t.userId?.toString?.() ?? t.userId}`,
                 badge: t.status,
               })),
             });

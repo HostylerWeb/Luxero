@@ -25,6 +25,7 @@ import { sendPushNotification } from "@luxero/api-server/lib/push";
 import { onProgress } from "@luxero/api-server/lib/utils/extraction-events";
 import { runExtraction } from "@luxero/api-server/lib/utils/frame-extractor";
 import { requireAdmin, requireStaff } from "@luxero/api-server/middleware/auth";
+import type { Context, Next } from "hono";
 import { extractKeyFromUrl } from "@luxero/api-storage/s3";
 import {
   enrichCompetitionsWithTicketStats,
@@ -72,7 +73,7 @@ app.use("*", requireStaff);
 // Admin-only writes for a specific competition (and its sub-resources). Managers
 // may read competitions and run draws (POST /:id/end-draw, POST /winners) but
 // must not create/edit/delete competitions or their landing videos.
-app.use("/:id", async (c, next) => {
+async function requireAdminForCompetitionSubRoutes(c: Context, next: Next) {
   if (c.req.method === "GET" || c.req.method === "HEAD" || c.req.method === "OPTIONS") {
     return next();
   }
@@ -80,7 +81,10 @@ app.use("/:id", async (c, next) => {
     return next();
   }
   return requireAdmin(c, next);
-});
+}
+
+app.use("/:id", requireAdminForCompetitionSubRoutes);
+app.use("/:id/*", requireAdminForCompetitionSubRoutes);
 
 app.get("/", async (c) => {
   try {

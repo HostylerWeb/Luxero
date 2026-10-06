@@ -91,7 +91,7 @@ export function buildAuth(config: BuildAuthConfig): BetterAuthOptions {
     },
     hooks: config.hooks,
     rateLimit: {
-      enabled: getNum("RATE_LIMIT_AUTH", 0) > 0,
+      enabled: getNum("RATE_LIMIT_AUTH", process.env.NODE_ENV === "production" ? 1 : 0) > 0,
       storage: "memory" as const,
       window: 60,
       max: 20,

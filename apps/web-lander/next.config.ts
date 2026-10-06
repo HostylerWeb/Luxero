@@ -43,6 +43,17 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         headers: [{ key: "Cache-Control", value: "private, no-cache, no-store, must-revalidate" }],
       },
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",
+          },
+        ],
+      },
     ];
   },
   async redirects() {

@@ -13,16 +13,23 @@ export function parsePagination(c: Context) {
 export interface CursorPaginationOptions {
   defaultSortField?: string;
   defaultSortDir?: 1 | -1;
+  /** When set, unknown sortField query values fall back to defaultSortField. */
+  allowedSortFields?: readonly string[];
 }
 
 export function parseCursorPagination(
   c: { req: { query: (k: string) => string | undefined } },
   options: CursorPaginationOptions = {}
 ) {
-  const { defaultSortField = "createdAt", defaultSortDir = -1 } = options;
-  const limit = Math.min(parseInt(c.req.query("limit") || "20", 10), 100);
+  const { defaultSortField = "createdAt", defaultSortDir = -1, allowedSortFields } = options;
+  const rawLimit = parseInt(c.req.query("limit") || "20", 10);
+  const limit = Math.max(1, Math.min(Number.isNaN(rawLimit) ? 20 : rawLimit, 100));
   const cursor = c.req.query("cursor") || undefined;
-  const sortField = c.req.query("sortField") || defaultSortField;
+  const rawSortField = c.req.query("sortField") || defaultSortField;
+  const sortField =
+    allowedSortFields && !allowedSortFields.includes(rawSortField)
+      ? defaultSortField
+      : rawSortField;
   const sortDirRaw = c.req.query("sortDir") || (defaultSortDir === -1 ? "desc" : "asc");
   const sortDir = sortDirRaw === "asc" ? 1 : -1;
   return { limit, cursor, sortField, sortDir };

@@ -173,7 +173,8 @@ export async function finalizeSuccessfulOrder(params: {
     log.debug("[finalize] entering withMongoTransactionOptional", {
       orderId: order._id.toString(),
     });
-    const _result = await withMongoTransactionOptional(async (txnSession) => {
+    const _result = await withMongoTransactionOptional(
+      async (txnSession) => {
       log.debug("[finalize] calling processOrderFulfillment", {
         orderId: order._id.toString(),
         competitionIds,
@@ -226,7 +227,9 @@ export async function finalizeSuccessfulOrder(params: {
       });
 
       return fulfillmentResult;
-    });
+    },
+      { logPrefix: "finalize", strictOnTxFailure: true }
+    );
 
     completedSteps.push("fulfillment_completed");
     if (

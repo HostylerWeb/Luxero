@@ -47,7 +47,7 @@ services:
       - luxero_turborepo_mailpit_data:/data
 
   minio:
-    image: quay.io/minio/minio:latest
+    image: minio/minio:latest
     container_name: luxero_turborepo_minio
     restart: unless-stopped
     command: server /data/minio --console-address ":9001"
@@ -67,7 +67,7 @@ services:
       start_period: 30s
 
   createbuckets:
-    image: quay.io/minio/mc:latest
+    image: minio/mc:latest
     container_name: luxero_turborepo_minio_init
     depends_on:
       minio:

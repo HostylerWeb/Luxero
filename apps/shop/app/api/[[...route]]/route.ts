@@ -3,6 +3,12 @@ import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { runtimeConfig } from "@luxero/api-infra/runtime-config";
 import { captureRouteError, flushSentry, initSentry } from "@luxero/api-infra/sentry";
 import { sessionMiddleware } from "@luxero/api-server/middleware/auth";
+import { csrfProtection } from "@luxero/api-server/middleware/csrf";
+import {
+  emailRateLimit,
+  paymentRateLimit,
+  rateLimitBodyReader,
+} from "@luxero/api-server/middleware/rate-limit";
 import shopPayments from "@luxero/api-server/routes/client/payments";
 import shopCart from "@luxero/api-server/routes/client/shop/cart";
 import shopCategories from "@luxero/api-server/routes/client/shop/categories";
@@ -142,6 +148,10 @@ app.use(
   })
 );
 
+app.use("*", rateLimitBodyReader);
+app.use("*", emailRateLimit());
+app.use("*", csrfProtection());
+
 // Version endpoint — returns the build timestamp injected at Docker build
 app.get("/api/version", (c) => {
   c.res.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -176,6 +186,7 @@ app.on(["POST", "GET"], "/api/auth/*", async (c) => {
 
 // Session middleware (after auth routes)
 app.use("*", sessionMiddleware);
+app.use("*", paymentRateLimit());
 
 // Shop routes
 app.route("/api/shop/products", shopProducts);

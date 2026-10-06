@@ -768,8 +768,10 @@ export const paytriotAdapter: PaymentProviderAdapter = {
     });
     const merchantSecret = getEnv("PAYTRIOT_MERCHANT_SECRET") ?? "";
 
+    let signatureVerified = false;
     try {
       verifyResponse(parsed as unknown as Record<string, unknown>, merchantSecret);
+      signatureVerified = true;
     } catch (sigErr) {
       const rawUnique = parsed.transactionUnique ?? "";
       const orderId = rawUnique.split("-")[0];
@@ -968,6 +970,49 @@ export const paytriotAdapter: PaymentProviderAdapter = {
     } catch {} // non-fatal pointer update
 
     if (responseCode === 0) {
+      const lenientSig = getEnv("PAYTRIOT_LENIENT_RESPONSE_SIGNATURE") === "true";
+      if (!signatureVerified && !lenientSig) {
+        log.warn("[paytriot.handleWebhook] rejected success: invalid signature", {
+          orderId: order._id.toString(),
+          transactionUnique: rawUnique,
+        });
+        await Order.findByIdAndUpdate(order._id, {
+          $set: {
+            "metadata.paytriotRejectedReason": "invalid_signature",
+            "metadata.paytriotSigAcceptedWithWarning": false,
+          },
+        });
+        return {
+          eventType: "PAYTRIOT.SIGNATURE_INVALID",
+          sessionId,
+          status: "failed",
+        };
+      }
+
+      const expectedPence = Math.round(order.total * 100);
+      if (
+        parsed.amountReceived == null ||
+        Number(parsed.amountReceived) !== expectedPence
+      ) {
+        log.warn("[paytriot.handleWebhook] rejected success: amount mismatch", {
+          orderId: order._id.toString(),
+          expectedPence,
+          amountReceived: parsed.amountReceived,
+        });
+        await Order.findByIdAndUpdate(order._id, {
+          $set: {
+            "metadata.paytriotRejectedReason": "amount_mismatch",
+            "metadata.paytriotExpectedPence": expectedPence,
+            "metadata.paytriotAmountReceived": parsed.amountReceived,
+          },
+        });
+        return {
+          eventType: "PAYTRIOT.AMOUNT_MISMATCH",
+          sessionId,
+          status: "failed",
+        };
+      }
+
       // Payment was captured — reset order to pending if needed so fulfillment
       // always proceeds. This handles retries on orders left in "failed" state
       // by a previous attempt. Terminal states (completed/refunded) are skipped.
