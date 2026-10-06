@@ -74,3 +74,4 @@ export {
 export { getCookieEnvTag, getSessionCookiePrefix } from "./session-cookie";
 export type { SocialIconName, SocialLink } from "./social";
 export { SOCIAL_LINKS } from "./social";
+export { getPublicWinnerImageUrl, getPublicWinnerImageUrls } from "./winner-image";

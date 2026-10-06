@@ -153,6 +153,7 @@ export interface Winner {
   competition?: {
     title?: string;
     prizeImageUrl?: string;
+    imageUrl?: string;
   };
 }
 

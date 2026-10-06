@@ -153,7 +153,7 @@ app.get(
                   $expr: {
                     $and: [
                       { $eq: ["$_id", "$$ownerId"] },
-                      { $eq: ["$deletedAt", null] },
+                      { $eq: [{ $ifNull: ["$deletedAt", null] }, null] },
                       { $eq: [{ $ifNull: ["$$cachedFirst", null] }, null] },
                     ],
                   },

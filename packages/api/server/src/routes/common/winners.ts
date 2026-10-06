@@ -28,11 +28,27 @@ function formatPublicWinnerDisplayName(input: {
   return firstName;
 }
 
+function resolveCompetitionImageUrl(competition: {
+  imageUrl?: string | null;
+  prizeImageUrl?: string | null;
+} | null): string | null {
+  if (!competition) return null;
+  if (competition.prizeImageUrl && competition.prizeImageUrl.length > 0) {
+    return competition.prizeImageUrl;
+  }
+  return competition.imageUrl ?? null;
+}
+
 function mapPublicWinner(
   winner: {
+    _id?: mongoose.Types.ObjectId;
     displayName?: string | null;
     prizeTitle?: string | null;
     prizeValue?: number | null;
+    prizeImageUrl?: string | null;
+    winnerPhotoUrl?: string | null;
+    location?: string | null;
+    testimonial?: string | null;
     ticketNumber: number;
     drawnAt: Date;
   },
@@ -44,21 +60,25 @@ function mapPublicWinner(
   } | null,
   displayName: string
 ) {
-  const imageUrl =
-    competition?.prizeImageUrl && competition.prizeImageUrl.length > 0
-      ? competition.prizeImageUrl
-      : (competition?.imageUrl ?? null);
+  const competitionImageUrl = resolveCompetitionImageUrl(competition);
+  const prizeImageUrl = winner.prizeImageUrl?.trim() || competitionImageUrl || null;
   return {
+    _id: winner._id?.toString(),
     displayName,
     prizeTitle: winner.prizeTitle ?? null,
     prizeValue: winner.prizeValue ?? null,
+    prizeImageUrl,
+    winnerPhotoUrl: winner.winnerPhotoUrl?.trim() || null,
+    location: winner.location ?? null,
+    testimonial: winner.testimonial ?? null,
     ticketNumber: winner.ticketNumber,
     drawnAt: winner.drawnAt,
     competition: competition
       ? {
           title: competition.title ?? "",
           slug: competition.slug ?? "",
-          imageUrl,
+          imageUrl: competitionImageUrl,
+          prizeImageUrl: competitionImageUrl,
         }
       : null,
   };

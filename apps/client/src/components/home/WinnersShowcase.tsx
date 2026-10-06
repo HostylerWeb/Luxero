@@ -1,5 +1,6 @@
 import { ArrowRight, Sparkles, Trophy } from "@luxero/icons";
 import type { Winner } from "@luxero/types";
+import { getPublicWinnerImageUrl } from "@luxero/utils";
 import { useState } from "react";
 import { GoldOutlineButton } from "@/components/buttons";
 import { Link } from "@/components/Link";
@@ -16,7 +17,7 @@ function getCompetitionTitle(w: Winner): string {
 }
 
 function getWinnerImage(w: Winner): string | undefined {
-  return w.prizeImageUrl ?? w.winnerPhotoUrl;
+  return getPublicWinnerImageUrl(w);
 }
 
 export function WinnersShowcase({ winners: winnersRaw }: { winners: Winner[] }) {

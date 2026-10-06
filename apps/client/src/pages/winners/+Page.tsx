@@ -4,7 +4,7 @@ import { useWinners } from "@luxero/api-client";
 
 import { ArrowRight, Calendar, MapPin, Sparkles, Ticket, Trophy } from "@luxero/icons";
 import type { Winner } from "@luxero/types";
-import { cn, formatDate, getDisplayName } from "@luxero/utils";
+import { cn, formatDate, getDisplayName, getPublicWinnerImageUrls, getPublicWinnerImageUrl } from "@luxero/utils";
 import { useState } from "react";
 import { useData } from "vike-react/useData";
 import { GoldOutlineButton } from "@/components/buttons";
@@ -28,12 +28,7 @@ function getCompetitionTitle(winner: Winner): string {
 }
 
 function getWinnerImages(winner: Winner): string[] {
-  return Array.from(
-    new Set<string>([
-      ...(winner.prizeImageUrl ? [winner.prizeImageUrl] : []),
-      ...(winner.winnerPhotoUrl ? [winner.winnerPhotoUrl] : []),
-    ])
-  ).filter(Boolean);
+  return getPublicWinnerImageUrls(winner);
 }
 
 function _formatPrizeValue(value?: number): string | null {
@@ -78,7 +73,7 @@ function WinnerAvatar({ winner, className }: { winner: Winner; className?: strin
         .toUpperCase()
     : winner.displayName?.[0]?.toUpperCase() || "W";
 
-  const avatarUrl = userObj?.avatarUrl ?? winner.winnerPhotoUrl;
+  const avatarUrl = userObj?.avatarUrl ?? winner.winnerPhotoUrl ?? getPublicWinnerImageUrl(winner);
 
   return (
     <div
