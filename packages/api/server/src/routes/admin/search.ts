@@ -13,7 +13,7 @@ import {
 } from "@luxero/api-db/models";
 import dbConnect from "@luxero/api-infra/db";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
-import { escapeRegex, substringRegex } from "@luxero/api-infra/fuzzy-search";
+import { escapeRegex, prefixRegex, substringRegex } from "@luxero/api-infra/fuzzy-search";
 import { defaultAggregateOptions } from "@luxero/api-infra/mongo-query-options";
 import { error, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
@@ -208,7 +208,7 @@ app.get("/", async (c) => {
               },
             ];
 
-            const orders = await Order.aggregate(pipeline).exec();
+            const orders = await Order.aggregate(pipeline).option(SEARCH_AGGREGATE_OPTIONS).exec();
 
             results.push({
               type: "orders",
@@ -368,7 +368,7 @@ app.get("/", async (c) => {
               },
             ];
 
-            const winners = await Winner.aggregate(pipeline).exec();
+            const winners = await Winner.aggregate(pipeline).option(SEARCH_AGGREGATE_OPTIONS).exec();
 
             results.push({
               type: "winners",
@@ -475,7 +475,7 @@ app.get("/", async (c) => {
               },
             ];
 
-            const wins = await InstantPrizeWin.aggregate(pipeline).exec();
+            const wins = await InstantPrizeWin.aggregate(pipeline).option(SEARCH_AGGREGATE_OPTIONS).exec();
 
             results.push({
               type: "instant_prize_wins",
@@ -540,7 +540,10 @@ app.get("/", async (c) => {
         (async () => {
           try {
             const refPurchases = await ReferralPurchase.find({
+              deletedAt: null,
               $or: [
+                { referrerEmail: { $regex: prefixRegex(q), $options: "i" } },
+                { referredEmail: { $regex: prefixRegex(q), $options: "i" } },
                 { referrerEmail: { $regex: safe, $options: "i" } },
                 { referredEmail: { $regex: safe, $options: "i" } },
               ],

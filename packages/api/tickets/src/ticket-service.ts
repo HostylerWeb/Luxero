@@ -2,7 +2,7 @@ import { TicketAvailabilityError } from "@luxero/api-errors";
 
 export { TicketAvailabilityError } from "@luxero/api-errors";
 
-import { Cart, Competition, Order, Ticket } from "@luxero/api-db/models";
+import { Cart, Competition, Order, Profile, Ticket } from "@luxero/api-db/models";
 import type { ITicketFields } from "@luxero/api-db/models/schemas/ticket.schema";
 import type { TicketStatus } from "@luxero/api-db/models/Ticket";
 import { CH, invalidateByChannelSafe } from "@luxero/api-infra/cache";
@@ -682,6 +682,10 @@ export async function claimTicketsForOrder(
   const order = await Order.findById(orderIdObj).select("orderNumber").lean();
   const orderNumberValue: number | undefined = order?.orderNumber;
 
+  const ownerProfile = await Profile.findById(userIdObj)
+    .select("firstName lastName showLastName")
+    .lean();
+
   let iterations = 0;
   while (claimed.length < qty && iterations < MAX_CLAIM_ITERATIONS) {
     iterations++;
@@ -729,6 +733,11 @@ export async function claimTicketsForOrder(
     };
     if (orderNumberValue !== undefined) {
       setFields.orderNumber = orderNumberValue;
+    }
+    if (ownerProfile?.firstName) {
+      setFields.entryFirstName = ownerProfile.firstName;
+      setFields.entryLastName = ownerProfile.lastName ?? undefined;
+      setFields.entryShowLastName = ownerProfile.showLastName ?? true;
     }
     const bulkResult = await Ticket.bulkWrite(
       candidates.map((t) => ({

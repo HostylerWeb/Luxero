@@ -81,6 +81,8 @@ export type { IProfile } from "./Profile";
 export { Profile } from "./Profile";
 export type { DiscountType, IPromoCode } from "./PromoCode";
 export { PromoCode } from "./PromoCode";
+export type { IPromoRedemption } from "./PromoRedemption";
+export { PromoRedemption } from "./PromoRedemption";
 export type { IPushSubscription } from "./PushSubscription";
 export { PushSubscription } from "./PushSubscription";
 export type { IReferralPurchase } from "./ReferralPurchase";

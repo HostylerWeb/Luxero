@@ -318,10 +318,11 @@ export function buildFulfillmentDeps(
 
 export async function reserveCheckoutPromoCode(
   promoCode: string | undefined,
-  userId: string
+  userId: string,
+  orderId?: string
 ): Promise<boolean> {
   if (promoCode) {
-    const result = await reservePromoCodeUsage(promoCode, userId);
+    const result = await reservePromoCodeUsage(promoCode, userId, orderId);
     return result !== null;
   }
   return true;

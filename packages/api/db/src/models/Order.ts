@@ -99,22 +99,12 @@ OrderSchema.index({ providerSessionId: 1 });
 OrderSchema.index({ provider: 1, status: 1 });
 OrderSchema.index({ userId: 1, idempotencyKey: 1 }, { unique: true });
 OrderSchema.index({ status: 1, createdAt: -1 }, { partialFilterExpression: { deletedAt: null } });
-// TTL: auto-delete abandoned pending/processing orders after 7 days
 OrderSchema.index(
-  { createdAt: 1 },
-  {
-    expireAfterSeconds: 7 * 24 * 60 * 60,
-    partialFilterExpression: { status: { $in: ["pending", "processing"] } },
-  }
+  { status: 1, updatedAt: -1 },
+  { partialFilterExpression: { deletedAt: null, status: "failed" } }
 );
-// TTL: auto-delete completed/refunded/failed orders after 90 days
-OrderSchema.index(
-  { updatedAt: 1 },
-  {
-    expireAfterSeconds: 90 * 24 * 60 * 60,
-    partialFilterExpression: { status: { $in: ["completed", "refunded"] } },
-  }
-);
+// Order TTL indexes (pending / completed / failed) are applied at startup via
+// ensureOrderRetentionIndexes() so retention days are env-configurable.
 
 OrderSchema.plugin(softDeletePlugin);
 

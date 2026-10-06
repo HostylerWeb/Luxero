@@ -43,6 +43,7 @@ vi.mock("@luxero/api-logger", () => ({
 const mockEnrichCartItems = vi.hoisted(() => vi.fn());
 const mockCheckAvailability = vi.hoisted(() => vi.fn());
 const mockCountOwnedByUserBatch = vi.hoisted(() => vi.fn());
+const mockCountEffectiveOwnedByUserBatch = vi.hoisted(() => vi.fn());
 const mockGetCompetitionTicketStatsBatch = vi.hoisted(() => vi.fn());
 const mockMergeWalletIntoCheckoutItems = vi.hoisted(() => vi.fn());
 
@@ -53,6 +54,7 @@ vi.mock("@luxero/api-tickets/cart-enrichment", () => ({
 vi.mock("@luxero/api-tickets/ticket-service", () => ({
   checkAvailability: mockCheckAvailability,
   countOwnedByUserBatch: mockCountOwnedByUserBatch,
+  countEffectiveOwnedByUserBatch: mockCountEffectiveOwnedByUserBatch,
   getCompetitionTicketStatsBatch: mockGetCompetitionTicketStatsBatch,
 }));
 
@@ -304,6 +306,7 @@ describe("finalizeCart cartVersion", () => {
   beforeEach(() => {
     mockEnrichCartItems.mockResolvedValue([{ price: 10, quantity: 1 }]);
     mockCountOwnedByUserBatch.mockResolvedValue(new Map([[compId.toString(), 0]]));
+    mockCountEffectiveOwnedByUserBatch.mockResolvedValue(new Map([[compId.toString(), 0]]));
     mockGetCompetitionTicketStatsBatch.mockResolvedValue(
       new Map([[compId.toString(), { available: 100 }]])
     );

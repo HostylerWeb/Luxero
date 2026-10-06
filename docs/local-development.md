@@ -8,6 +8,18 @@ Quick reference for running the Luxero monorepo on your machine.
 - **Docker** (MongoDB, Mailpit, MinIO via compose)
 - **Redis** on `localhost:6379` (compose includes Redis on a profile; many dev setups use a host Redis instead)
 
+## MongoDB tuning
+
+On API startup the server runs **`ensureMongoDatabaseOptimizations()`**: Better Auth indexes (`user.email`, `session.userId`), env-driven order TTL indexes, and **`syncIndexes()`** on all Mongoose models (disable with `MONGODB_SYNC_INDEXES_ON_STARTUP=false`).
+
+Manual sync:
+
+```bash
+bun run packages/api/server/src/lib/jobs/sync-mongo-indexes.ts
+```
+
+See root [`.env.example`](../.env.example) for `MONGODB_*` retention and read-preference variables.
+
 ## First-time setup
 
 From the repo root (`turborepo-main/`):

@@ -1,4 +1,5 @@
 import { ComplianceAuditLog, ReferralPurchase, ReferralSettings } from "@luxero/api-db/models";
+import { modelAggregateAnalytics } from "@luxero/api-infra/mongo-aggregate";
 import dbConnect from "@luxero/api-infra/db";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { substringRegex } from "@luxero/api-infra/fuzzy-search";
@@ -382,9 +383,9 @@ app.get("/", async (c) => {
     );
 
     const [dataResult, totalResult, summaryResult] = await Promise.all([
-      ReferralPurchase.aggregate(dataPipeline),
-      ReferralPurchase.aggregate(countPipeline),
-      ReferralPurchase.aggregate(summaryPipeline),
+      modelAggregateAnalytics(ReferralPurchase, dataPipeline).exec(),
+      modelAggregateAnalytics(ReferralPurchase, countPipeline).exec(),
+      modelAggregateAnalytics(ReferralPurchase, summaryPipeline).exec(),
     ]);
 
     const total = totalResult.length > 0 ? (totalResult[0] as { total: number }).total : 0;

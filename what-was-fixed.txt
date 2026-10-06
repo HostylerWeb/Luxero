@@ -75,6 +75,33 @@ Docker dev MinIO: Quay images 401 on this host; now uses docker.io minio images 
 .gitignore: PDFs could be committed; now *.pdf ignored; we fixed it because proposal PDFs must not go to GitHub.
 
 
+--- Fixed on this machine (dell-laptop — database speed & retention pass) ---
+
+Mongo index sync on startup: Indexes in code could drift from the live database; now the API runs syncIndexes + auth/session indexes on first boot (and via sync-mongo-indexes.ts job); we fixed it because missing indexes cause slow scans and login/session cleanup pain at scale.
+
+Better Auth session indexes: Session revoke/list by userId could full-scan; now userId and userId+expiresAt indexes are ensured on session; we fixed it because banning users and cleaning sessions must stay fast.
+
+Better Auth user indexes: Email/role lookups could scan the whole user collection; now email (unique sparse) and role indexes are ensured; we fixed it because admin login and role queries must not degrade as users grow.
+
+Order retention (TTL): Completed orders were hard-coded to auto-delete after 90 days; now TTL is env-driven (default ~7 years for completed/refunded, 180d failed, 7d pending) with named indexes applied at startup; we fixed it because finance/compliance may need years of order history.
+
+Failed-order cleanup: Failed orders never expired; now optional TTL on failed status via MONGODB_ORDER_FAILED_TTL_DAYS; we fixed it because abandoned payment attempts could pile up forever.
+
+Public competition entries list: It joined every ticket to orders and profiles; now it uses ticket order numbers and cached display names on new sales, with profile join only when cache missing; we fixed it because the public entries page was one of the heaviest database paths.
+
+Promo code redemptions: Usage lived only in a growing array on the promo document; now PromoRedemption records tie user + promo (+ order after checkout); we fixed it because support/finance could not reliably link a code to an order.
+
+Referral purchase search: Email search had no supporting indexes; now referrer/referred email indexes and prefix-friendly admin search; we fixed it because referral admin search would scan the whole collection as volume grows.
+
+Admin search timeouts: Some global search aggregations had no time cap; now all use the same 5s aggregate limit; we fixed it because one search could hang the database.
+
+Aggregate safety net: Some reports could run unbounded; now default 15s maxTimeMS is applied to aggregates missing explicit limits (MONGODB_ENFORCE_AGGREGATE_MAX_TIME_MS); we fixed it because runaway queries should fail fast.
+
+Heavy referral admin stats: All stats hit the primary database node; now optional MONGODB_READ_SECONDARY routes heavy referral analytics to a secondary when enabled; we fixed it because read-heavy dashboards should not starve checkout writes.
+
+Env documentation: MONGODB_* retention and tuning vars were undocumented; now .env.example and docs/local-development.md describe them; we fixed it because ops needs one place to set retention without reading code.
+
+
 --- VPS / production ops (do after deploy) ---
 
 1. Rotate secrets if NEXT_PUBLIC_SETUP_SECRET or NEXT_PUBLIC_EMERGENCY_SECRET ever existed in a built admin bundle: new SETUP_SECRET, ADMIN_EMERGENCY_SECRET, BETTER_AUTH_SECRET, and a new CRON_JOBS_SECRET (never reuse emergency secret for cron).
@@ -89,6 +116,6 @@ Docker dev MinIO: Quay images 401 on this host; now uses docker.io minio images 
 
 5. Confirm Redis is up in prod (rate limits and some checkout paths fail closed without Redis).
 
-6. Review Order TTL (90d on completed/refunded) with finance before go-live; unchanged in code.
+6. Order history retention: Set MONGODB_ORDER_COMPLETED_TTL_DAYS in env (default in code is ~7 years; use 0 to disable auto-delete). After deploy, run once or rely on API boot: bun run packages/api/server/src/lib/jobs/sync-mongo-indexes.ts
 
 7. Remove or gitignore root sys (~24MB junk) if still present locally before any future push from another machine.

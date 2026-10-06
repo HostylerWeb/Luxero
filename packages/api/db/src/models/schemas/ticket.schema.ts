@@ -17,6 +17,9 @@ export interface ITicketFields {
   instantPrizeWinId?: Types.ObjectId;
   reservedAt?: Date;
   soldAt?: Date;
+  entryFirstName?: string;
+  entryLastName?: string;
+  entryShowLastName?: boolean;
 }
 
 export function createTicketSchema() {
@@ -35,6 +38,9 @@ export function createTicketSchema() {
       instantPrizeWinId: { type: Schema.Types.ObjectId, ref: "InstantPrizeWin" },
       reservedAt: { type: Date },
       soldAt: { type: Date },
+      entryFirstName: { type: String },
+      entryLastName: { type: String },
+      entryShowLastName: { type: Boolean },
     },
     { timestamps: false }
   );

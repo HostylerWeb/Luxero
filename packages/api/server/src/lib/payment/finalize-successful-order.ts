@@ -4,6 +4,7 @@ import { Competition, InstantPrizeWin, Order, Profile } from "@luxero/api-db/mod
 import { CH, invalidateByChannelSafe, invalidateUser } from "@luxero/api-infra/cache";
 import { withMongoTransactionOptional } from "@luxero/api-infra/mongo-capabilities";
 import { createLogger } from "@luxero/api-logger";
+import { attachPromoRedemptionOrderId } from "@luxero/api-tickets/promo-codes";
 import { getItemsFromOrder, processOrderFulfillment } from "@luxero/api-payment-core";
 import { incrementCounter } from "@luxero/api-server/lib/observability/metrics";
 import { sendPushNotification } from "@luxero/api-server/lib/push";
@@ -202,6 +203,9 @@ export async function finalizeSuccessfulOrder(params: {
       });
 
       profileStatsDelta = { entries: fulfillmentResult.totalQuantity, spent: order.total };
+      if (promoCode) {
+        await attachPromoRedemptionOrderId(promoCode, userId, order._id.toString()).catch(() => {});
+      }
       log.debug(`[finalize] processOrderFulfillment completed`, {
         orderId: order._id.toString(),
         totalQuantity: fulfillmentResult.totalQuantity,

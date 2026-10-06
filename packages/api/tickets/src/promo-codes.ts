@@ -1,6 +1,7 @@
 import type { DiscountType } from "@luxero/api-db/models";
-import { Order, Profile, PromoCode, ReferralSettings } from "@luxero/api-db/models";
+import { Order, Profile, PromoCode, PromoRedemption, ReferralSettings } from "@luxero/api-db/models";
 import { createLogger } from "@luxero/api-logger";
+import mongoose from "mongoose";
 
 const log = createLogger("promo-codes");
 
@@ -262,10 +263,55 @@ export async function releasePromoCodeUsage(
   promo.usedBy = usedBy;
   await promo.save({ session });
 
+  const redemptionDelete = PromoRedemption.deleteMany({
+    promoCodeId: promo._id,
+    userId: new mongoose.Types.ObjectId(userId),
+  });
+  if (session) redemptionDelete.session(session);
+  await redemptionDelete;
+
   return promo;
 }
 
-export async function reservePromoCodeUsage(code: string, userId: string) {
+async function recordPromoRedemption(
+  promoCodeId: mongoose.Types.ObjectId,
+  userId: string,
+  orderId?: string
+): Promise<void> {
+  try {
+    await PromoRedemption.create({
+      promoCodeId,
+      userId: new mongoose.Types.ObjectId(userId),
+      ...(orderId ? { orderId: new mongoose.Types.ObjectId(orderId) } : {}),
+    });
+  } catch (err) {
+    if (err instanceof mongoose.mongo.MongoServerError && err.code === 11000) {
+      return;
+    }
+    throw err;
+  }
+}
+
+export async function attachPromoRedemptionOrderId(
+  code: string,
+  userId: string,
+  orderId: string
+): Promise<void> {
+  const normalizedCode = code.trim().toUpperCase();
+  const promo = await PromoCode.findOne({ code: normalizedCode }).select("_id").lean();
+  if (!promo) return;
+  await PromoRedemption.findOneAndUpdate(
+    { promoCodeId: promo._id, userId: new mongoose.Types.ObjectId(userId), orderId: { $exists: false } },
+    { $set: { orderId: new mongoose.Types.ObjectId(orderId) } },
+    { sort: { createdAt: -1 } }
+  );
+}
+
+export async function reservePromoCodeUsage(
+  code: string,
+  userId: string,
+  orderId?: string
+) {
   const normalizedCode = code.trim().toUpperCase();
   const now = new Date();
   const promo = await PromoCode.findOne({
@@ -295,6 +341,7 @@ export async function reservePromoCodeUsage(code: string, userId: string) {
       { returnDocument: "after" }
     );
     if (!updated) return null;
+    await recordPromoRedemption(updated._id, userId, orderId);
     return updated;
   }
 
@@ -331,5 +378,6 @@ export async function reservePromoCodeUsage(code: string, userId: string) {
 
   if (!updated) return null;
 
+  await recordPromoRedemption(updated._id, userId, orderId);
   return updated;
 }

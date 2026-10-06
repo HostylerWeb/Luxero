@@ -44,6 +44,11 @@ vi.mock("@luxero/api-db/models", () => ({
       });
     }),
   },
+  PromoRedemption: {
+    create: vi.fn(async () => ({})),
+    deleteMany: vi.fn(async () => ({ deletedCount: 0 })),
+    findOneAndUpdate: vi.fn(async () => null),
+  },
 }));
 
 import { calculateReferralDiscountAmount } from "@luxero/api-tickets/promo-codes";
@@ -219,22 +224,24 @@ describe("reservePromoCodeUsage", () => {
   }
 
   test("returns the promo code on successful first reservation", async () => {
+    const userId = new Types.ObjectId().toString();
     __mocks.promoFindOneAndUpdateResult = {
       ...__mocks.promoFindOneResult,
       currentUses: 1,
-      usedBy: ["user123"],
+      usedBy: [userId],
     };
 
     const reserve = await loadReservePromoCodeUsage();
-    const result = await reserve("TEST20", "user123");
+    const result = await reserve("TEST20", userId);
 
     expect(result).not.toBeNull();
     expect(result?.code).toBe("TEST20");
   });
 
   test("prevents double-reservation for the same user", async () => {
+    const userId = new Types.ObjectId().toString();
     const reserve = await loadReservePromoCodeUsage();
-    const result = await reserve("TEST20", "user123");
+    const result = await reserve("TEST20", userId);
 
     expect(result).toBeNull();
   });
@@ -247,7 +254,7 @@ describe("reservePromoCodeUsage", () => {
     };
 
     const reserve = await loadReservePromoCodeUsage();
-    const result = await reserve("TEST20", "anotherUser");
+    const result = await reserve("TEST20", new Types.ObjectId().toString());
 
     expect(result).toBeNull();
   });

@@ -44,6 +44,10 @@ ReferralPurchaseSchema.index({ referrerId: 1, purchasedAt: 1 });
 ReferralPurchaseSchema.index({ referredUserId: 1 });
 ReferralPurchaseSchema.index({ referredUserId: 1, purchasedAt: 1 });
 ReferralPurchaseSchema.index({ orderId: 1 }, { unique: true });
+ReferralPurchaseSchema.index({ referrerEmail: 1 });
+ReferralPurchaseSchema.index({ referredEmail: 1 });
+ReferralPurchaseSchema.index({ referrerEmail: 1, purchasedAt: -1 });
+ReferralPurchaseSchema.index({ referredEmail: 1, purchasedAt: -1 });
 
 ReferralPurchaseSchema.plugin(softDeletePlugin);
 

@@ -1,5 +1,5 @@
 import { Profile, ReferralPurchase, ReferralSettings } from "@luxero/api-db/models";
-import dbConnect from "@luxero/api-infra/db";
+import { modelAggregateAnalytics } from "@luxero/api-infra/mongo-aggregate";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { error, success } from "@luxero/api-infra/response";
 import {
@@ -35,7 +35,7 @@ app.get("/summary", async (c) => {
   try {
     await dbConnect();
     const totalReferrers = await countUniqueActiveReferrers();
-    const awardAgg = await ReferralPurchase.aggregate([
+    const awardAgg = await modelAggregateAnalytics(ReferralPurchase, [
       { $match: { deletedAt: null } },
       {
         $group: {
@@ -44,8 +44,8 @@ app.get("/summary", async (c) => {
           totalPurchases: { $sum: 1 },
         },
       },
-    ]);
-    const walletBalances = await Profile.aggregate([
+    ]).exec();
+    const walletBalances = await modelAggregateAnalytics(Profile, [
       { $match: { referralTierAwardedTickets: { $gt: 0 } } },
       {
         $group: {
@@ -54,7 +54,7 @@ app.get("/summary", async (c) => {
           usersWithBalance: { $sum: 1 },
         },
       },
-    ]);
+    ]).exec();
     const minted = awardAgg[0]?.totalAwarded ?? 0;
     const inWallets = walletBalances[0]?.totalInWallets ?? 0;
     const redeemed = minted - inWallets;
@@ -110,7 +110,7 @@ app.get("/timeseries", async (c) => {
       },
       { $sort: { _id: 1 as 1 | -1 } },
     ];
-    const results = await ReferralPurchase.aggregate(pipeline);
+    const results = await modelAggregateAnalytics(ReferralPurchase, pipeline).exec();
     return success(
       c,
       results.map((r) => ({ date: r._id, tickets: r.tickets, purchases: r.purchases }))

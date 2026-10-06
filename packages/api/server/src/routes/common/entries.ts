@@ -145,18 +145,22 @@ app.get(
         { $match: { competitionId: objectId, status: "sold" } },
         {
           $lookup: {
-            from: "orders",
-            localField: "orderId",
-            foreignField: "_id",
-            as: "order",
-          },
-        },
-        { $unwind: { path: "$order", preserveNullAndEmptyArrays: true } },
-        {
-          $lookup: {
             from: "profiles",
-            localField: "ownerId",
-            foreignField: "_id",
+            let: { ownerId: "$ownerId", cachedFirst: "$entryFirstName" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$_id", "$$ownerId"] },
+                      { $eq: ["$deletedAt", null] },
+                      { $eq: [{ $ifNull: ["$$cachedFirst", null] }, null] },
+                    ],
+                  },
+                },
+              },
+              { $project: { firstName: 1, lastName: 1, showLastName: 1 } },
+            ],
             as: "profile",
           },
         },
@@ -165,17 +169,15 @@ app.get(
           $project: {
             _id: 1,
             entryNumber: "$number",
-            orderNumber: { $ifNull: ["$order.orderNumber", "$orderNumber"] },
+            orderNumber: 1,
             ownerId: 1,
             firstName: {
-              $cond: {
-                if: "$profile.firstName",
-                then: "$profile.firstName",
-                else: "Anonymous",
-              },
+              $ifNull: ["$entryFirstName", { $ifNull: ["$profile.firstName", "Anonymous"] }],
             },
-            lastName: "$profile.lastName",
-            showLastName: { $ifNull: ["$profile.showLastName", true] },
+            lastName: { $ifNull: ["$entryLastName", "$profile.lastName"] },
+            showLastName: {
+              $ifNull: ["$entryShowLastName", { $ifNull: ["$profile.showLastName", true] }],
+            },
             createdAt: { $ifNull: ["$soldAt", "$$NOW"] },
           },
         },

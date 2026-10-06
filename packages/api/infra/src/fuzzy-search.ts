@@ -9,6 +9,10 @@ export function singleCharGapRegex(str: string): string {
   return safe.split("").join(".?");
 }
 
+export function prefixRegex(str: string): string {
+  return `^${escapeRegex(str)}`;
+}
+
 export function substringRegex(str: string): string {
   return escapeRegex(str);
 }

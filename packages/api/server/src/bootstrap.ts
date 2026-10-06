@@ -258,6 +258,10 @@ app.use("*", async (c, next) => {
     try {
       await dbConnect();
       console.log("[API Init] MongoDB connected");
+      const { ensureMongoDatabaseOptimizations } = await import(
+        "@luxero/api-server/lib/mongo-index-maintenance"
+      );
+      await ensureMongoDatabaseOptimizations();
       await ensureBonusAwardFireIndexes();
       void flushPendingReferralAwards().catch(() => {});
       void backfillTicketOrderNumbers().catch((err) => {

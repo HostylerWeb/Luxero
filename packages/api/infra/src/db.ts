@@ -1,7 +1,8 @@
 import { createLogger } from "@luxero/api-logger";
-import { getEnv } from "@luxero/env/server";
+import { getBool, getEnv } from "@luxero/env/server";
 import mongoose from "mongoose";
 import { resolveMongoConnectOptions } from "./mongo-capabilities";
+import { DEFAULT_AGGREGATE_MAX_TIME_MS } from "./mongo-query-options";
 
 const logger = createLogger("api-infra:db");
 
@@ -33,6 +34,25 @@ const globalForMongo = globalThis as typeof globalThis & {
 mongoose.set("strictQuery", true);
 
 let sessionIndexesEnsured = false;
+let aggregateGuardInstalled = false;
+
+function installDefaultAggregateMaxTime(): void {
+  if (aggregateGuardInstalled) return;
+  if (!getBool("MONGODB_ENFORCE_AGGREGATE_MAX_TIME_MS", true)) return;
+
+  const origExec = mongoose.Aggregate.prototype.exec;
+  mongoose.Aggregate.prototype.exec = function execWithMaxTime(
+    this: mongoose.Aggregate<unknown>,
+    ...args: Parameters<typeof origExec>
+  ) {
+    const internal = this as mongoose.Aggregate<unknown> & { options?: { maxTimeMS?: number } };
+    if (internal.options?.maxTimeMS == null) {
+      this.option({ maxTimeMS: DEFAULT_AGGREGATE_MAX_TIME_MS });
+    }
+    return origExec.apply(this, args);
+  };
+  aggregateGuardInstalled = true;
+}
 
 async function dbConnect(): Promise<typeof mongoose> {
   if (!getEnv("DATABASE_URL")) {
@@ -54,6 +74,7 @@ async function dbConnect(): Promise<typeof mongoose> {
       })
       .then((conn) => {
         globalForMongo.__mongoClient = conn;
+        installDefaultAggregateMaxTime();
         ensureSessionTTLIndexes();
         setupDbShutdownHandlers();
         return conn;
