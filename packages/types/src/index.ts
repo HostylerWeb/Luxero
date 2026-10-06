@@ -9,6 +9,7 @@ export * from "./competitions";
 export * from "./compliance";
 export * from "./content";
 export * from "./homepage";
+export * from "./media-converter";
 export * from "./me";
 export * from "./orders";
 export * from "./payments";

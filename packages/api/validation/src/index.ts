@@ -12,6 +12,7 @@ export * from "./schemas/email-settings";
 export * from "./schemas/ending-soon-settings";
 export * from "./schemas/homepage-layout-settings";
 export * from "./schemas/instant-prizes";
+export * from "./schemas/media-converter-settings";
 export * from "./schemas/notifications";
 export * from "./schemas/orders";
 export * from "./schemas/payment-methods";

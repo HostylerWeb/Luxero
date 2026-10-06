@@ -18,6 +18,23 @@ const nextConfig: NextConfig = {
     maximumDiskCacheSize: 250_000_000,
   },
   async headers() {
+    const devAssetHosts =
+      process.env.NODE_ENV !== "production" ? " http://localhost:9011 http://127.0.0.1:9011" : "";
+    const devClient =
+      process.env.NODE_ENV !== "production"
+        ? " http://localhost:3555 http://127.0.0.1:3555 http://localhost:3333"
+        : "";
+    const csp =
+      "base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; default-src 'self'; " +
+      `media-src 'self' https://assets.luxero.win https://assets.staging.luxero.win${devAssetHosts}; ` +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+      "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+      "worker-src 'self' blob:; child-src 'self' blob:; " +
+      `connect-src 'self' https://assets.luxero.win https://assets.staging.luxero.win${devAssetHosts}${devClient}; ` +
+      `img-src 'self' data: blob: https://assets.luxero.win https://assets.staging.luxero.win https://luxero.win https://lh3.googleusercontent.com${devAssetHosts}; ` +
+      "font-src 'self' https://fonts.gstatic.com data:";
+
     return [
       {
         source: "/_next/image/:path*",
@@ -49,8 +66,7 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           {
             key: "Content-Security-Policy",
-            value:
-              "default-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",
+            value: csp,
           },
         ],
       },

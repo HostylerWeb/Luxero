@@ -115,7 +115,7 @@ Scheduled jobs: POST `https://<admin-host>/api/internal/jobs/<job-name>` with he
 |---------|---------|------|
 | MongoDB 7 | Database + replica set `rs0` | `localhost:27017` |
 | Mailpit | Dev email (SMTP + UI) | SMTP `1025`, UI http://localhost:1080 |
-| MinIO | S3-compatible assets | API http://localhost:9011, console http://localhost:9010 |
+| MinIO | S3-compatible assets | S3 API http://localhost:9011 (no local console port) |
 
 Redis: `redis://localhost:6379` (from app env).
 

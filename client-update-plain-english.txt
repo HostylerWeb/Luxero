@@ -1,14 +1,8 @@
-Luxero — summary of recent improvements
-=========================================
-Prepared for: client review (plain language, no technical jargon)
-Branch of work: dell-laptop (on GitHub — for your team to review before going live)
-
-
 What this document is
 ---------------------
 We reviewed the Luxero competition website and admin system and made a series of improvements. Most changes are about keeping customer data safe, making payments trustworthy, and helping the site stay fast and reliable as more people use it.
 
-Nothing in this list changes what customers see on the surface in a big way — it is mostly “behind the scenes” work that protects the business and prepares the platform for growth.
+Nothing in this list changes what customers see on the surface in a big way  - it is mostly “behind the scenes” work that protects the business and prepares the platform for growth.
 
 
 Payments and checkout
@@ -24,18 +18,18 @@ Payments and checkout
 
 Customer and public information
 -------------------------------
-• “Fill my details from my account”: That feature only loads the logged-in customer’s own details — not someone else’s by guessing an email.
+• “Fill my details from my account”: That feature only loads the logged-in customer’s own details  - not someone else’s by guessing an email.
 
 • Public list of competition entries: Search and paging were tightened so people cannot abuse the list to slow the site or hunt for private information.
 
-• Public winners pages: Only the information meant for the public is shown (display name, prize, ticket number, etc.) — not internal or private account fields.
+• Public winners pages: Only the information meant for the public is shown (display name, prize, ticket number, etc.)  - not internal or private account fields.
 
 
 Admin and staff access
 ----------------------
 • Emergency and setup passwords: Sensitive admin setup keys are no longer exposed in a way that anyone could read from the public website files.
 
-• Scheduled background jobs: Automated tasks (like clean-ups and draw checks) now use their own secret password, separate from “break glass” emergency login — so one leaked password does not control everything.
+• Scheduled background jobs: Automated tasks (like clean-ups and draw checks) now use their own secret password, separate from “break glass” emergency login  - so one leaked password does not control everything.
 
 • Fake requests from other websites: The admin and shop backends reject more types of cross-site requests that could otherwise change data while a staff member is logged in.
 
@@ -59,7 +53,7 @@ Website speed and database (the “engine room”)
 
 • Login sessions: Indexes were added so finding and clearing a user’s sessions when needed stays fast as user counts grow.
 
-• Order records: How long old orders are kept is now configurable. By default, completed orders are kept for many years instead of being auto-deleted after three months — better for accounts and disputes. Old failed checkout attempts can be cleaned up after a configurable period.
+• Order records: How long old orders are kept is now configurable. By default, completed orders are kept for many years instead of being auto-deleted after three months  - better for accounts and disputes. Old failed checkout attempts can be cleaned up after a configurable period.
 
 • Competition entry lists: The public “who entered” lists were optimized so they do less heavy work on each page load; new ticket sales store display names so the list does not always need extra lookups.
 
@@ -83,7 +77,7 @@ Local development (for your developers)
 
 What your team should do before going live
 -----------------------------------------
-1. Review this work on the dell-laptop branch — do not merge to main until you are satisfied.
+1. Review this work on the dell-laptop branch  - do not merge to main until you are satisfied.
 
 2. Rotate any secrets that may ever have been exposed in old admin builds (setup, emergency, login, and the new separate password for automated jobs).
 
@@ -91,11 +85,6 @@ What your team should do before going live
 
 4. After deploy, run the one-time database index sync (or restart the API so it runs on first request) and confirm order-retention settings match what finance/legal want.
 
-5. Keep Redis running in production — several protections depend on it.
+5. Keep Redis running in production  - several protections depend on it.
 
 6. Test a real payment in staging after these changes.
-
-
-Questions?
-----------
-Your developer can map any item above to the detailed technical list in what-was-fixed.txt on the same branch.

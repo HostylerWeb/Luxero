@@ -50,6 +50,12 @@ export const pageMeta: Record<string, PageMetaEntry> = {
   "/notifications/subscriptions": { title: "Push Subscriptions", group: "Configuration" },
   "/seo-settings": { title: "SEO Settings", group: "Configuration" },
   "/conversion-tracking": { title: "Conversion Tracking", group: "Configuration" },
+  "/addons": { title: "Addons", group: "Configuration" },
+  "/addons/media-converter": {
+    title: "Media converter",
+    parent: "/addons",
+    group: "Configuration",
+  },
 
   "/auth/access-denied": { title: "Access Denied" },
   "/sentry-debug": { title: "Sentry Debug" },

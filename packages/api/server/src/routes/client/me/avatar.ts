@@ -62,10 +62,19 @@ app.post("/", async (c) => {
 
     const ext = getExtFromFile(file);
     const random = Math.random().toString(36).slice(2);
-    const key = `avatars/${userId}/${Date.now()}-${random}.${ext}`;
+    let key = `avatars/${userId}/${Date.now()}-${random}.${ext}`;
 
     const arrayBuffer = await file.arrayBuffer();
-    await uploadFile(key, new Uint8Array(arrayBuffer), file.type);
+    let bytes = new Uint8Array(arrayBuffer);
+    let contentType = file.type;
+
+    const { transformUploadBytes } = await import("@luxero/api-server/lib/media-converter/transform");
+    const transformed = await transformUploadBytes({ key, bytes, contentType });
+    key = transformed.key;
+    bytes = transformed.bytes;
+    contentType = transformed.contentType;
+
+    await uploadFile(key, bytes, contentType);
 
     // Delete old avatar only after new one is uploaded successfully
     const existing = await Profile.findById(userId).select("avatarUrl").lean();

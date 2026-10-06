@@ -1,4 +1,5 @@
 import { Profile, ReferralPurchase, ReferralSettings } from "@luxero/api-db/models";
+import dbConnect from "@luxero/api-infra/db";
 import { modelAggregateAnalytics } from "@luxero/api-infra/mongo-aggregate";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { error, success } from "@luxero/api-infra/response";
@@ -55,8 +56,12 @@ app.get("/summary", async (c) => {
         },
       },
     ]).exec();
-    const minted = awardAgg[0]?.totalAwarded ?? 0;
-    const inWallets = walletBalances[0]?.totalInWallets ?? 0;
+    type AwardRow = { totalAwarded?: number; totalPurchases?: number };
+    type WalletRow = { totalInWallets?: number; usersWithBalance?: number };
+    const awardRow = (awardAgg[0] ?? {}) as AwardRow;
+    const walletRow = (walletBalances[0] ?? {}) as WalletRow;
+    const minted = awardRow.totalAwarded ?? 0;
+    const inWallets = walletRow.totalInWallets ?? 0;
     const redeemed = minted - inWallets;
     return success(c, {
       totalReferrers,
@@ -64,8 +69,8 @@ app.get("/summary", async (c) => {
       ticketsRedeemed: Math.max(0, redeemed),
       ticketsInWallets: inWallets,
       burnRate: minted > 0 ? Math.round((redeemed / minted) * 100) : 0,
-      purchasesRecorded: awardAgg[0]?.totalPurchases ?? 0,
-      usersWithWalletBalance: walletBalances[0]?.usersWithBalance ?? 0,
+      purchasesRecorded: awardRow.totalPurchases ?? 0,
+      usersWithWalletBalance: walletRow.usersWithBalance ?? 0,
       activeReferralPurchases: await ReferralPurchase.countDocuments({
         deletedAt: null,
         ticketsAwarded: { $gt: 0 },
@@ -110,7 +115,11 @@ app.get("/timeseries", async (c) => {
       },
       { $sort: { _id: 1 as 1 | -1 } },
     ];
-    const results = await modelAggregateAnalytics(ReferralPurchase, pipeline).exec();
+    const results = (await modelAggregateAnalytics(ReferralPurchase, pipeline).exec()) as Array<{
+      _id: string;
+      tickets: number;
+      purchases: number;
+    }>;
     return success(
       c,
       results.map((r) => ({ date: r._id, tickets: r.tickets, purchases: r.purchases }))

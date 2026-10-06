@@ -275,6 +275,8 @@ export function MediaGrid({
   multiple = true,
   previewable,
 }: MediaGridProps) {
+  const isManagePage = layout === "page";
+  const effectiveSelectable = selectable || isManagePage;
   const [assets, setAssets] = useState<S3Asset[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState<PickerState>("loading");
@@ -434,6 +436,9 @@ export function MediaGrid({
 
   function handleDeleteClick() {
     setDeleteForce(false);
+    for (const url of selected) {
+      prefetchUsage(url);
+    }
     setDeleteOpen(true);
   }
 
@@ -593,7 +598,8 @@ export function MediaGrid({
         cursor={cursor}
         view={view}
         layout={layout}
-        selectable={selectable}
+        selectable={effectiveSelectable}
+        manageMode={isManagePage}
         selected={selected}
         selectedUrls={selectedUrls}
         metaCache={metaCache}
@@ -623,7 +629,7 @@ export function MediaGrid({
         </div>
       )}
 
-      {selected.size >= 2 && (
+      {isManagePage && selected.size >= 1 && (
         <BulkActionBar
           count={selected.size}
           onCopy={handleCopyMany}
@@ -704,6 +710,7 @@ interface MediaGridBodyProps {
   view: AssetView;
   layout: "page" | "modal";
   selectable: boolean;
+  manageMode?: boolean;
   selected: Set<string>;
   selectedUrls: string[];
   metaCache: Map<string, Meta>;
@@ -728,6 +735,7 @@ function MediaGridBody({
   view,
   layout,
   selectable,
+  manageMode = false,
   selected,
   selectedUrls,
   metaCache,
@@ -863,6 +871,7 @@ function MediaGridBody({
               key={asset.key}
               asset={asset}
               selectable={selectable}
+              manageMode={manageMode}
               selected={selected}
               preselected={preselectedSet}
               previewable={previewable}
@@ -912,6 +921,7 @@ function MediaGridBody({
                     key={asset.key}
                     asset={asset}
                     selectable={selectable}
+                    manageMode={manageMode}
                     selected={selected}
                     preselected={preselectedSet}
                     previewable={previewable}
@@ -957,6 +967,7 @@ function MediaGridBody({
 interface TileProps {
   asset: S3Asset;
   selectable: boolean;
+  manageMode?: boolean;
   selected: Set<string>;
   preselected: Set<string>;
   meta?: Meta;
@@ -971,6 +982,7 @@ interface TileProps {
 function GridTile({
   asset,
   selectable,
+  manageMode = false,
   selected,
   preselected,
   meta,
@@ -999,6 +1011,12 @@ function GridTile({
       tabIndex={0}
       aria-pressed={isSelected || isPreselected || undefined}
       onClick={() => {
+        if (manageMode) {
+          if (previewable && (isImageFile(asset.key) || isVideoFile(asset.key)))
+            onPreview?.(asset.url);
+          else window.open(asset.url, "_blank", "noopener,noreferrer");
+          return;
+        }
         if (selectable) onToggleSelection(asset.url);
         else if (previewable && (isImageFile(asset.key) || isVideoFile(asset.key)))
           onPreview?.(asset.url);
@@ -1007,6 +1025,12 @@ function GridTile({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
+          if (manageMode) {
+            if (previewable && (isImageFile(asset.key) || isVideoFile(asset.key)))
+              onPreview?.(asset.url);
+            else window.open(asset.url, "_blank", "noopener,noreferrer");
+            return;
+          }
           if (selectable) onToggleSelection(asset.url);
           else if (previewable && (isImageFile(asset.key) || isVideoFile(asset.key)))
             onPreview?.(asset.url);
@@ -1021,6 +1045,20 @@ function GridTile({
       )}
     >
       <div className="relative aspect-square bg-muted">
+        {manageMode && (
+          <div
+            className="absolute left-2 top-2 z-10 flex size-7 items-center justify-center rounded-md bg-background/90 shadow-sm backdrop-blur"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <Checkbox
+              aria-label={`Select ${filename}`}
+              checked={isSelected}
+              onCheckedChange={() => onToggleSelection(asset.url)}
+              className="border-muted-foreground data-[state=checked]:border-gold data-[state=checked]:bg-gold"
+            />
+          </div>
+        )}
         {isImage && !imgError ? (
           <Image
             src={asset.url}
@@ -1144,6 +1182,7 @@ function FolderGridTile({
 function ListRow({
   asset,
   selectable,
+  manageMode = false,
   selected,
   preselected,
   usages,
@@ -1171,6 +1210,12 @@ function ListRow({
       tabIndex={0}
       aria-pressed={isSelected || isPreselected || undefined}
       onClick={() => {
+        if (manageMode) {
+          if (previewable && (isImageFile(asset.key) || isVideoFile(asset.key)))
+            onPreview?.(asset.url);
+          else window.open(asset.url, "_blank", "noopener,noreferrer");
+          return;
+        }
         if (selectable) onToggleSelection(asset.url);
         else if (previewable && (isImageFile(asset.key) || isVideoFile(asset.key)))
           onPreview?.(asset.url);
@@ -1179,6 +1224,12 @@ function ListRow({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
+          if (manageMode) {
+            if (previewable && (isImageFile(asset.key) || isVideoFile(asset.key)))
+              onPreview?.(asset.url);
+            else window.open(asset.url, "_blank", "noopener,noreferrer");
+            return;
+          }
           if (selectable) onToggleSelection(asset.url);
           else if (previewable && (isImageFile(asset.key) || isVideoFile(asset.key)))
             onPreview?.(asset.url);
@@ -1192,6 +1243,20 @@ function ListRow({
           : "border-border border-l-border hover:border-gold/40"
       )}
     >
+      {manageMode && (
+        <div
+          className="shrink-0"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          <Checkbox
+            aria-label={`Select ${filename}`}
+            checked={isSelected}
+            onCheckedChange={() => onToggleSelection(asset.url)}
+            className="border-muted-foreground data-[state=checked]:border-gold data-[state=checked]:bg-gold"
+          />
+        </div>
+      )}
       <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-muted">
         {isImage && !imgError ? (
           <Image

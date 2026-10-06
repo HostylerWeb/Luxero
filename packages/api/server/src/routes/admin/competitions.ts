@@ -882,7 +882,7 @@ app.post("/:id/landing-video", async (c) => {
 
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "mp4";
     const random = Math.random().toString(36).slice(2);
-    const key = `landing-videos/${competition._id.toString()}/${Date.now()}-${random}.${ext}`;
+    let key = `landing-videos/${competition._id.toString()}/${Date.now()}-${random}.${ext}`;
 
     // Delete prior video and frames if replacing
     const priorUrl = competition.landingPageVideoUrl;
@@ -898,7 +898,16 @@ app.post("/:id/landing-video", async (c) => {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    await uploadFile(key, new Uint8Array(arrayBuffer), file.type);
+    let bytes = new Uint8Array(arrayBuffer);
+    let contentType = file.type;
+
+    const { transformUploadBytes } = await import("@luxero/api-server/lib/media-converter/transform");
+    const transformed = await transformUploadBytes({ key, bytes, contentType });
+    key = transformed.key;
+    bytes = transformed.bytes;
+    contentType = transformed.contentType;
+
+    await uploadFile(key, bytes, contentType);
 
     const url = buildAssetUrl(key);
 
@@ -1017,6 +1026,16 @@ app.post("/:id/landing-video/confirm", async (c) => {
     }
 
     const { buildAssetUrl, deleteAsset } = await import("@luxero/api-storage/s3");
+    const { normalizeObjectAtKey } = await import("@luxero/api-server/lib/media-converter/transform");
+
+    let storageKey = body.key;
+    try {
+      const normalized = await normalizeObjectAtKey(body.key);
+      storageKey = normalized.key;
+    } catch (err) {
+      console.error("[confirm] media converter normalize failed:", err);
+    }
+
     const priorUrl = competition.landingPageVideoUrl;
 
     // Delete prior video and frames after new one is safely committed to DB
@@ -1030,7 +1049,7 @@ app.post("/:id/landing-video/confirm", async (c) => {
       );
     }
 
-    const url = buildAssetUrl(body.key);
+    const url = buildAssetUrl(storageKey);
 
     // Upsert: atomically creates a new job or resets an existing (possibly abandoned) one.
     // This avoids E11000 duplicate key errors from the unique competitionId index.

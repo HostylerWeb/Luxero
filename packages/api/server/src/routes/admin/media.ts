@@ -109,7 +109,7 @@ app.post("/upload", async (c) => {
 
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const random = Math.random().toString(36).slice(2);
-  const key =
+  let key =
     keyParam ||
     (slug
       ? `prizes/${slug}/${Date.now()}-${random}.${ext}`
@@ -123,8 +123,14 @@ app.post("/upload", async (c) => {
   }
 
   const arrayBuffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuffer);
-  const contentType = file.type || "application/octet-stream";
+  let bytes = new Uint8Array(arrayBuffer);
+  let contentType = file.type || "application/octet-stream";
+
+  const { transformUploadBytes } = await import("@luxero/api-server/lib/media-converter/transform");
+  const transformed = await transformUploadBytes({ key, bytes, contentType });
+  key = transformed.key;
+  bytes = transformed.bytes;
+  contentType = transformed.contentType;
 
   console.log(
     `[media.upload] ${requestId} reading file completed bytes=${bytes.byteLength} contentType=${contentType}`

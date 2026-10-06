@@ -14,6 +14,7 @@
 import "./types";
 
 import { ensureComplianceSettings } from "@luxero/api-compliance/settings";
+import { ensureMediaConverterSettings } from "@luxero/api-server/lib/media-converter/settings";
 import { dbConnect } from "@luxero/api-db";
 import { PaymentMethod } from "@luxero/api-db/models";
 import {
@@ -279,6 +280,14 @@ app.use("*", async (c, next) => {
             seedErr instanceof Error ? seedErr.message : String(seedErr)
           );
         }
+      }
+      try {
+        await ensureMediaConverterSettings();
+      } catch (seedErr) {
+        console.warn(
+          "[API Init] Media converter auto-seed failed (will retry on next read):",
+          seedErr instanceof Error ? seedErr.message : String(seedErr)
+        );
       }
       if (!adsterraSeeded) {
         try {

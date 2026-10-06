@@ -48,6 +48,9 @@ dist/
 # Script artifacts (HAR files, screenshots, audit results)
 /.artifacts/
 
+# Ops / migration example scripts (local laptop; documented in ssh.txt — not committed)
+scripts/sync-assets-from-hetzner.sh
+
 # Environment files (ignore all .env.* except .env.example)
 .env
 .env.*

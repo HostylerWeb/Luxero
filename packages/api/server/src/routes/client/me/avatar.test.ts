@@ -48,6 +48,14 @@ vi.mock("@luxero/api-storage/s3", () => ({
   uploadFile: __mock.uploadFile,
 }));
 
+vi.mock("@luxero/api-server/lib/media-converter/transform", () => ({
+  transformUploadBytes: async (input: {
+    key: string;
+    bytes: Uint8Array;
+    contentType: string;
+  }) => ({ ...input, converted: false }),
+}));
+
 vi.mock("@luxero/api-storage/avatar-storage", () => ({
   deleteAvatarIfOwned: __mock.deleteAvatarIfOwned,
   getAuthUserImage: __mock.getAuthUserImage,

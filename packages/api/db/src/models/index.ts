@@ -50,6 +50,8 @@ export type { FrameExtractionJobStatus, IFrameExtractionJob } from "./FrameExtra
 export { FrameExtractionJob } from "./FrameExtractionJob";
 export type { IHomepageLayoutSettings } from "./HomepageLayoutSettings";
 export { HomepageLayoutSettings } from "./HomepageLayoutSettings";
+export type { IMediaConverterSettings } from "./MediaConverterSettings";
+export { DEFAULT_MEDIA_CONVERTER_SETTINGS, MediaConverterSettings } from "./MediaConverterSettings";
 export type { IInstantPrize } from "./InstantPrize";
 export { InstantPrize } from "./InstantPrize";
 export type { IInstantPrizeWin, IShippingAddress } from "./InstantPrizeWin";

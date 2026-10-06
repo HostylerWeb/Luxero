@@ -55,8 +55,7 @@ services:
       MINIO_ROOT_USER: luxero_dev_access_key
       MINIO_ROOT_PASSWORD: luxero_dev_secret_key
     ports:
-      - "9011:9000"   # API
-      - "9010:9001"   # Console
+      - "9011:9000"   # S3 API (manage files via admin /media, not MinIO console)
     volumes:
       - luxero_turborepo_minio_data:/data
     healthcheck:

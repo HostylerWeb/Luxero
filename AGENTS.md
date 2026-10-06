@@ -185,4 +185,4 @@ bun run packages/api/server/src/lib/jobs/recompute-referral-counts.ts --userId=<
   - API: `http://localhost:1080/api/v1/messages`
   - Web UI: `http://localhost:1080/`
 - **MongoDB** — port 27017
-- **MinIO** (S3-compatible storage) — port 9011 (API), 9010 (Console)
+- **MinIO** (S3-compatible storage) — port 9011 (S3 API only; use admin Media Library, not MinIO console)

@@ -91,6 +91,14 @@ vi.mock("@luxero/api-storage/s3", () => ({
   },
 }));
 
+vi.mock("@luxero/api-server/lib/media-converter/transform", () => ({
+  transformUploadBytes: async (input: {
+    key: string;
+    bytes: Uint8Array;
+    contentType: string;
+  }) => ({ ...input, converted: false }),
+}));
+
 vi.mock("@luxero/api-db/models", () => ({
   Competition: {
     find: (_query: Record<string, unknown>, _projection: string) => ({

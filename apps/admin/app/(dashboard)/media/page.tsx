@@ -11,7 +11,7 @@ export default function MediaPage() {
   return (
     <PageShell
       title="Media Library"
-      description="Browse and manage uploaded images. Frames are excluded."
+      description="Browse storage, select files with checkboxes, and delete permanently from the bucket. Frames are excluded."
       actions={<MediaUploadButton />}
     >
       <div className="mx-auto w-full max-w-7xl">
