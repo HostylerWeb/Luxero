@@ -20,8 +20,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 type ProcessAction = "approve" | "reject";
+type DialogMode = "process" | "lift";
 
 function OverrideRequestBadge({ status }: { status: "pending" | "approved" | "rejected" | null }) {
   if (!status) return <span className="text-xs text-muted-foreground">—</span>;
@@ -35,10 +39,13 @@ function OverrideRequestBadge({ status }: { status: "pending" | "approved" | "re
 
 export function SelfExcludedUsersTable() {
   const { data, isLoading } = useSelfExcludedUsers();
-  const { processOverrideMutation } = useSelfExclusionOverrideMutations();
+  const { processOverrideMutation, liftSelfExclusionMutation } = useSelfExclusionOverrideMutations();
   const [selectedUser, setSelectedUser] = useState<SelfExcludedUser | null>(null);
   const [processAction, setProcessAction] = useState<ProcessAction>("approve");
+  const [dialogMode, setDialogMode] = useState<DialogMode>("process");
   const [adminNote, setAdminNote] = useState("");
+  const [liftReason, setLiftReason] = useState("");
+  const [acknowledgePermanent, setAcknowledgePermanent] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const users = data?.data ?? [];
@@ -48,8 +55,46 @@ export function SelfExcludedUsersTable() {
   async function handleProcess(action: ProcessAction, user: SelfExcludedUser) {
     setSelectedUser(user);
     setProcessAction(action);
+    setDialogMode("process");
     setAdminNote("");
     setDialogOpen(true);
+  }
+
+  function handleLift(user: SelfExcludedUser) {
+    setSelectedUser(user);
+    setDialogMode("lift");
+    setLiftReason("");
+    setAcknowledgePermanent(false);
+    setDialogOpen(true);
+  }
+
+  async function confirmLift() {
+    if (!selectedUser) return;
+    const reason = liftReason.trim();
+    if (reason.length < 10) {
+      toast.error("Reason must be at least 10 characters for audit purposes.");
+      return;
+    }
+    if (selectedUser.isPermanent && !acknowledgePermanent) {
+      toast.error("Confirm lifting the permanent self-exclusion before continuing.");
+      return;
+    }
+    setEmailWarning(null);
+    try {
+      const result = await liftSelfExclusionMutation.mutateAsync({
+        userId: selectedUser.userId,
+        reason,
+        acknowledgePermanent: selectedUser.isPermanent ? true : undefined,
+      });
+      toast.success(`Self-exclusion removed for ${selectedUser.email}`);
+      if (result.data?.emailError) {
+        setEmailWarning(result.data.emailError);
+      }
+      setDialogOpen(false);
+      setSelectedUser(null);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to remove self-exclusion");
+    }
   }
 
   async function confirmProcess() {
@@ -116,6 +161,10 @@ export function SelfExcludedUsersTable() {
       <Card className="border-border/70 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base">Self-Excluded Users</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Use <strong>Remove exclusion</strong> to lift self-exclusion directly. Approve or reject
+            only applies when the user submitted an override request.
+          </p>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -163,7 +212,19 @@ export function SelfExcludedUsersTable() {
                       </div>
                     </td>
                     <td className="py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleLift(user)}
+                          disabled={
+                            liftSelfExclusionMutation.isPending ||
+                            processOverrideMutation.isPending
+                          }
+                          data-umami-event="compliance:lift-self-exclusion"
+                        >
+                          Remove exclusion
+                        </Button>
                         {user.overrideRequest?.status === "pending" && (
                           <>
                             <Button
@@ -172,7 +233,7 @@ export function SelfExcludedUsersTable() {
                               onClick={() => handleProcess("approve", user)}
                               disabled={processOverrideMutation.isPending}
                             >
-                              Approve
+                              Approve request
                             </Button>
                             <Button
                               size="sm"
@@ -180,18 +241,17 @@ export function SelfExcludedUsersTable() {
                               onClick={() => handleProcess("reject", user)}
                               disabled={processOverrideMutation.isPending}
                             >
-                              Reject
+                              Reject request
                             </Button>
                           </>
                         )}
-                        {!user.overrideRequest && (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
                         {user.overrideRequest && user.overrideRequest.status !== "pending" && (
                           <span className="text-xs text-muted-foreground">
-                            Processed{" "}
+                            Request {user.overrideRequest.status}{" "}
                             {user.overrideRequest.createdAt
-                              ? new Date(user.overrideRequest.createdAt).toLocaleDateString("en-GB")
+                              ? new Date(user.overrideRequest.createdAt).toLocaleDateString(
+                                  "en-GB"
+                                )
                               : ""}
                           </span>
                         )}
@@ -214,50 +274,103 @@ export function SelfExcludedUsersTable() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent size="sm">
-          <DialogHeader>
-            <DialogTitle>
-              {processAction === "approve" ? "Approve Override Request" : "Reject Override Request"}
-            </DialogTitle>
-            <DialogDescription>
-              {processAction === "approve"
-                ? `This will lift the self-exclusion for ${selectedUser?.email}. The user's reason will be used as the audit log reason.`
-                : `This will mark the override request as rejected for ${selectedUser?.email}.`}
-            </DialogDescription>
-          </DialogHeader>
+          {dialogMode === "lift" ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Remove self-exclusion</DialogTitle>
+                <DialogDescription>
+                  This immediately lifts self-exclusion for {selectedUser?.email}. The action is
+                  recorded in the compliance audit log.
+                </DialogDescription>
+              </DialogHeader>
 
-          {selectedUser?.overrideRequest && (
-            <div className="rounded-lg border border-border bg-muted/50 p-3 text-sm">
-              <span className="font-medium">User reason: </span>
-              <span className="text-muted-foreground">
-                "{selectedUser.overrideRequest.userReason}"
-              </span>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="lift-reason" className="text-sm font-medium">
+                  Reason (required, min 10 characters)
+                </Label>
+                <Textarea
+                  id="lift-reason"
+                  value={liftReason}
+                  onChange={(e) => setLiftReason(e.target.value)}
+                  placeholder="Why is this exclusion being removed?"
+                  rows={3}
+                />
+              </div>
+
+              {selectedUser?.isPermanent ? (
+                <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                  <Checkbox
+                    id="lift-ack-permanent"
+                    checked={acknowledgePermanent}
+                    onCheckedChange={(checked) => setAcknowledgePermanent(checked === true)}
+                  />
+                  <Label htmlFor="lift-ack-permanent" className="cursor-pointer text-sm leading-snug">
+                    I confirm this user had a <strong>permanent</strong> self-exclusion and I am
+                    authorising its removal.
+                  </Label>
+                </div>
+              ) : null}
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => void confirmLift()}
+                  disabled={liftSelfExclusionMutation.isPending}
+                >
+                  Remove exclusion
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  {processAction === "approve" ? "Approve Override Request" : "Reject Override Request"}
+                </DialogTitle>
+                <DialogDescription>
+                  {processAction === "approve"
+                    ? `This will lift the self-exclusion for ${selectedUser?.email}. The user's reason will be used as the audit log reason.`
+                    : `This will mark the override request as rejected for ${selectedUser?.email}.`}
+                </DialogDescription>
+              </DialogHeader>
+
+              {selectedUser?.overrideRequest && (
+                <div className="rounded-lg border border-border bg-muted/50 p-3 text-sm">
+                  <span className="font-medium">User reason: </span>
+                  <span className="text-muted-foreground">
+                    &ldquo;{selectedUser.overrideRequest.userReason}&rdquo;
+                  </span>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label htmlFor="self-exclude-admin-note" className="text-sm font-medium">
+                  Admin note (optional)
+                </label>
+                <Input
+                  id="self-exclude-admin-note"
+                  value={adminNote}
+                  onChange={(e) => setAdminNote(e.target.value)}
+                  placeholder="Add a note for the user..."
+                />
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant={processAction === "approve" ? "default" : "destructive"}
+                  onClick={() => void confirmProcess()}
+                  disabled={processOverrideMutation.isPending}
+                >
+                  {processAction === "approve" ? "Lift Self-Exclusion" : "Reject Request"}
+                </Button>
+              </DialogFooter>
+            </>
           )}
-
-          <div className="space-y-2">
-            <label htmlFor="self-exclude-admin-note" className="text-sm font-medium">
-              Admin note (optional)
-            </label>
-            <Input
-              id="self-exclude-admin-note"
-              value={adminNote}
-              onChange={(e) => setAdminNote(e.target.value)}
-              placeholder="Add a note for the user..."
-            />
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant={processAction === "approve" ? "default" : "destructive"}
-              onClick={() => void confirmProcess()}
-              disabled={processOverrideMutation.isPending}
-            >
-              {processAction === "approve" ? "Lift Self-Exclusion" : "Reject Request"}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

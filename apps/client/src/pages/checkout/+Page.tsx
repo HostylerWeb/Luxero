@@ -51,6 +51,11 @@ import { formatCurrency, localeHref, useTranslation } from "@/lib/i18n";
 import { isProfileAddressValid, profileAddressFromProfile } from "@/lib/profile-address";
 import type { Data } from "./+data";
 
+function isCheckoutPhoneValid(phone: string): boolean {
+  const trimmed = phone.trim();
+  return trimmed.length >= 5 && trimmed.length <= 30;
+}
+
 interface ContactInfo {
   firstName: string;
   lastName: string;
@@ -62,6 +67,7 @@ interface ContactFieldsProps {
   contact: ContactInfo;
   onContactChange: (field: keyof ContactInfo, value: string) => void;
   showEmailError: boolean;
+  showPhoneError: boolean;
   profileFillActive: boolean;
   onBlur: (field: string) => void;
 }
@@ -70,6 +76,7 @@ const ContactFields = memo(function ContactFields({
   contact,
   onContactChange,
   showEmailError,
+  showPhoneError,
   profileFillActive,
   onBlur,
 }: ContactFieldsProps) {
@@ -139,7 +146,9 @@ const ContactFields = memo(function ContactFields({
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="review-phone">{t("checkout.phoneNumber")}</Label>
+          <Label htmlFor="review-phone">
+            {t("checkout.phoneNumber")} <span className="text-red-400">*</span>
+          </Label>
           <Input
             id="review-phone"
             type="tel"
@@ -147,9 +156,13 @@ const ContactFields = memo(function ContactFields({
             value={contact.phone}
             onChange={(e) => onContactChange("phone", e.target.value)}
             onBlur={() => onBlur("phone")}
-            className="h-9"
+            className={cn("h-9", showPhoneError && "border-red-400 focus-visible:ring-red-400/50")}
             autoComplete="tel"
+            required
           />
+          {showPhoneError && (
+            <p className="text-xs text-red-400 mt-1">{t("checkout.phoneValidation")}</p>
+          )}
         </div>
       </div>
     </div>
@@ -439,10 +452,12 @@ function CheckoutPageContent() {
   }, []);
 
   const isContactValid = contact.email.trim().length > 0 && contact.email.includes("@");
+  const isPhoneValid = isCheckoutPhoneValid(contact.phone);
   const isAddressValid = isProfileAddressValid(address);
   const isDobValid = isGuest ? dob.trim().length > 0 : true;
-  const isFormValid = isContactValid && isAddressValid && isDobValid;
+  const isFormValid = isContactValid && isPhoneValid && isAddressValid && isDobValid;
   const showEmailError = Boolean(touched.email && !isContactValid);
+  const showPhoneError = Boolean(touched.phone && !isPhoneValid);
   const showDobError = Boolean(touched.dob && isGuest && !isDobValid);
   const showAddressError = Boolean(
     touched.address &&
@@ -703,6 +718,7 @@ function CheckoutPageContent() {
                     contact={contact}
                     onContactChange={handleContactChange}
                     showEmailError={showEmailError}
+                    showPhoneError={showPhoneError}
                     profileFillActive={profileFillActive}
                     onBlur={markTouched}
                   />

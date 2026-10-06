@@ -48,12 +48,16 @@ vi.mock("@luxero/api-storage/s3", () => ({
   uploadFile: __mock.uploadFile,
 }));
 
-vi.mock("@luxero/api-server/lib/media-converter/transform", () => ({
-  transformUploadBytes: async (input: {
-    key: string;
-    bytes: Uint8Array;
-    contentType: string;
-  }) => ({ ...input, converted: false }),
+vi.mock("@luxero/api-server/lib/avatar/process-upload", () => ({
+  AvatarUploadValidationError: class AvatarUploadValidationError extends Error {},
+  validateAvatarFileMeta: vi.fn(),
+  processAvatarUploadBytes: vi.fn(
+    async (userId: string, _bytes: Uint8Array, _mime: string) => ({
+      key: `avatars/${userId}/${Date.now()}-mock.webp`,
+      bytes: new Uint8Array([1, 2, 3]),
+      contentType: "image/webp" as const,
+    })
+  ),
 }));
 
 vi.mock("@luxero/api-storage/avatar-storage", () => ({
@@ -175,7 +179,7 @@ describe("POST /me/profile/avatar", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(__mock.uploadedKey).toMatch(new RegExp(`^avatars/${userId}/\\d+-[a-z0-9]+\\.png$`));
+    expect(__mock.uploadedKey).toMatch(new RegExp(`^avatars/${userId}/\\d+-mock\\.webp$`));
     expect(__mock.uploadFile).toHaveBeenCalledTimes(1);
     expect(__mock.profileUpdatePayload).toEqual({
       avatarUrl: `${assetProfiles.local.ASSET_BASE_URL}/${__mock.uploadedKey}`,
@@ -183,7 +187,7 @@ describe("POST /me/profile/avatar", () => {
     expect(body.data.avatarUrl).toBe(`${assetProfiles.local.ASSET_BASE_URL}/${__mock.uploadedKey}`);
   });
 
-  test("deletes previous owned avatar before upload", async () => {
+  test("deletes previous owned avatar after upload", async () => {
     __mock.profileDoc = {
       _id: userId,
       email: "user@example.com",
@@ -211,7 +215,7 @@ describe("POST /me/profile/avatar/import-google", () => {
     __mock.getAuthUserImage.mockImplementation(async () => googleImage);
   });
 
-  test("sets avatarUrl from Better Auth user.image", async () => {
+  test("sets avatarUrl from Better Auth user.image and deletes owned previous", async () => {
     __mock.profileDoc = {
       _id: userId,
       email: "user@example.com",
@@ -223,6 +227,9 @@ describe("POST /me/profile/avatar/import-google", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(__mock.deleteAvatarIfOwned).toHaveBeenCalledWith(
+      `${assetProfiles.local.ASSET_BASE_URL}/avatars/${userId}/custom.png`
+    );
     expect(__mock.profileUpdatePayload).toEqual({ avatarUrl: googleImage });
     expect(body.data.avatarUrl).toBe(googleImage);
   });

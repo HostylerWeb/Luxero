@@ -47,6 +47,7 @@ export interface BuildAuthConfig {
   plugins: BetterAuthOptions["plugins"];
   hooks?: BetterAuthOptions["hooks"];
   socialProviders?: BetterAuthOptions["socialProviders"];
+  onUserEmailVerified?: (user: HookAuthUser) => Promise<void>;
   onAPIErrorURL: string;
   rateLimit?: Record<string, unknown>;
   advanced?: Record<string, unknown>;
@@ -80,10 +81,20 @@ export function buildAuth(config: BuildAuthConfig): BetterAuthOptions {
         create: {
           after: async (user: HookAuthUser) => {
             await createLuxeroProfile(user);
+            if (user.emailVerified && config.onUserEmailVerified) {
+              void config.onUserEmailVerified(user).catch((err) => {
+                console.error("[AUTH] onUserEmailVerified failed:", err);
+              });
+            }
           },
         },
         update: {
           after: async (user: HookAuthUser) => {
+            if (user.emailVerified && config.onUserEmailVerified) {
+              void config.onUserEmailVerified(user).catch((err) => {
+                console.error("[AUTH] onUserEmailVerified failed:", err);
+              });
+            }
             await syncProfileFromAuthUser(user);
           },
         },

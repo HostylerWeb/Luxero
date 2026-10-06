@@ -1,3 +1,4 @@
+import { dbConnect } from "@luxero/api-db";
 import { Profile } from "@luxero/api-db/models";
 import { sendEmail } from "@luxero/api-email/client";
 import { getEmailConfig } from "@luxero/api-email/config";
@@ -5,8 +6,10 @@ import { AdminEmergencyEmail } from "@luxero/api-email/templates/admin-emergency
 import { EmailVerificationEmail } from "@luxero/api-email/templates/email-verification";
 import { MagicLinkSignInEmail } from "@luxero/api-email/templates/magic-link-sign-in";
 import { PasswordResetEmail } from "@luxero/api-email/templates/password-reset";
+import { WelcomeEmail } from "@luxero/api-email/templates/welcome";
 import { getCurrentContext } from "@luxero/api-infra/env";
 import { render } from "@react-email/render";
+import { isGuestProfileEmail, type HookAuthUser } from "@luxero/auth-admin/auth-hooks";
 
 async function resolveUserName(email: string): Promise<string> {
   try {
@@ -152,4 +155,43 @@ export async function sendEmergencyOtpEmail({
     logEmailFailure("admin emergency OTP email", error);
     throw error;
   }
+}
+
+export async function sendWelcomeEmail({ email }: { email: string }): Promise<void> {
+  try {
+    const { frontendUrl } = getCurrentContext();
+    const settings = await getEmailConfig();
+    const userName = await resolveUserName(email);
+
+    const html = await render(
+      WelcomeEmail({
+        userName,
+        settings,
+        frontendUrl,
+      })
+    );
+
+    await sendEmail({
+      to: email,
+      subject: "Welcome to Luxero — you're in!",
+      html,
+      text: `Hi ${userName}, welcome to Luxero! Your email is verified. Browse competitions: ${frontendUrl}/competitions`,
+    });
+  } catch (error) {
+    logEmailFailure("welcome email", error);
+  }
+}
+
+export async function trySendWelcomeEmail(user: HookAuthUser): Promise<void> {
+  if (user.isAnonymous || !user.emailVerified || isGuestProfileEmail(user.email)) return;
+  if (user.role === "admin" || user.role === "manager") return;
+
+  await dbConnect();
+  const claimed = await Profile.findOneAndUpdate(
+    { _id: user.id, welcomeEmailSentAt: { $exists: false } },
+    { $set: { welcomeEmailSentAt: new Date() } }
+  ).lean();
+  if (!claimed) return;
+
+  await sendWelcomeEmail({ email: user.email });
 }

@@ -72,34 +72,6 @@ export function EmailVerificationEmail({
           secure.
         </Text>
       </Section>
-      {!isSignIn ? (
-        <>
-          <Hr className={emailStyles.divider.className} />
-          <Text className="mb-[16px] text-[17px] font-semibold text-[#FFFFFF]">
-            What&apos;s Next?
-          </Text>
-          <Text className={emailStyles.paragraph.className}>
-            <span className="font-semibold text-[#D4AF37]">1. Browse Competitions</span>
-            <br />
-            Explore luxury prizes from tech to dream experiences.
-          </Text>
-          <Text className={emailStyles.paragraph.className}>
-            <span className="font-semibold text-[#D4AF37]">2. Get Your Tickets</span>
-            <br />
-            Answer a skill question and secure your entries.
-          </Text>
-          <Text className={emailStyles.paragraph.className}>
-            <span className="font-semibold text-[#D4AF37]">3. Win Big</span>
-            <br />
-            Live draws, instant notifications, insured delivery.
-          </Text>
-          <Section className="my-[24px] text-center">
-            <Button href={`${frontendUrl}/competitions`} className={emailStyles.button.className}>
-              Start Browsing Competitions
-            </Button>
-          </Section>
-        </>
-      ) : null}
       <Text className={emailStyles.paragraph.className}>
         Good luck!
         <br />

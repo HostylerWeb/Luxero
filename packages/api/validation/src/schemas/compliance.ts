@@ -89,6 +89,13 @@ export const processOverrideRequestSchema = z.object({
   adminNote: z.string().trim().min(1).optional(),
 });
 
+export const adminLiftSelfExclusionSchema = z.object({
+  reason: reasonSchema,
+  acknowledgePermanent: z.boolean().optional(),
+});
+
+export type AdminLiftSelfExclusionInput = z.infer<typeof adminLiftSelfExclusionSchema>;
+
 export type AdminComplianceOverrideInput = z.infer<typeof adminComplianceOverrideSchema>;
 export type AdminUserProfilePatchInput = z.infer<typeof adminUserProfilePatchSchema>;
 export type AdminComplianceSettingsUpdateInput = z.infer<

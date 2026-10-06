@@ -11,7 +11,7 @@ import { error, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { sendPushNotification } from "@luxero/api-server/lib/push";
 import { requireAdmin } from "@luxero/api-server/middleware/auth";
-import { processOverrideRequestSchema } from "@luxero/api-validation";
+import { processOverrideRequestSchema, adminLiftSelfExclusionSchema } from "@luxero/api-validation";
 import { getEnv } from "@luxero/env/server";
 import { render } from "@react-email/render";
 import { Hono } from "hono";
@@ -19,6 +19,53 @@ import { Hono } from "hono";
 const app = new Hono();
 
 app.use("*", requireAdmin);
+
+async function sendSelfExclusionLiftEmail(
+  profile: { email: string; firstName?: string | null; lastName?: string | null },
+  action: "approved" | "rejected",
+  adminNote?: string
+): Promise<{ emailSent: boolean; emailError?: string }> {
+  const clientUrl = getEnv("CLIENT_APP_URL")?.trim() || getCurrentContext().frontendUrl;
+  const userEmail = profile.email;
+  if (!userEmail) {
+    return { emailSent: false, emailError: "User has no email address" };
+  }
+  const userName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "there";
+  try {
+    const emailSettings = await getEmailConfig();
+    const emailHtml = await render(
+      SelfExclusionOverrideActionEmail({
+        userName,
+        action,
+        adminNote: adminNote ?? undefined,
+        settings: emailSettings,
+        frontendUrl: clientUrl,
+      })
+    );
+    const result = await sendEmail({
+      to: userEmail,
+      subject:
+        action === "approved"
+          ? "Your self-exclusion has been lifted — Luxero"
+          : "Your override request has been reviewed — Luxero",
+      html: emailHtml,
+    });
+    if (!result.success) {
+      console.error(
+        `Failed to send self-exclusion ${action} email to ${userEmail}:`,
+        result.error
+      );
+      return { emailSent: false, emailError: result.error || "Email send failed" };
+    }
+    return { emailSent: true };
+  } catch (emailErr) {
+    console.error(`Failed to send self-exclusion ${action} email:`, emailErr);
+    return {
+      emailSent: false,
+      emailError: emailErr instanceof Error ? emailErr.message : "Email send error",
+    };
+  }
+}
 
 // GET / — list all self-excluded users with their override request (if any)
 app.get("/", async (c) => {
@@ -120,53 +167,6 @@ app.patch("/:userId/process", async (c) => {
       return error(c, ErrorCodes.NOT_FOUND, "Profile not found", 404);
     }
 
-    const clientUrl = getEnv("CLIENT_APP_URL")?.trim() || getCurrentContext().frontendUrl;
-    const userEmail = profile.email;
-    const userName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "there";
-
-    async function sendOverrideEmail(
-      action: "approved" | "rejected",
-      recipientEmail: string
-    ): Promise<{ emailSent: boolean; emailError?: string }> {
-      if (!recipientEmail) {
-        return { emailSent: false, emailError: "User has no email address" };
-      }
-      try {
-        const emailSettings = await getEmailConfig();
-        const emailHtml = await render(
-          SelfExclusionOverrideActionEmail({
-            userName,
-            action,
-            adminNote: adminNote ?? undefined,
-            settings: emailSettings,
-            frontendUrl: clientUrl,
-          })
-        );
-        const result = await sendEmail({
-          to: recipientEmail,
-          subject:
-            action === "approved"
-              ? "Your self-exclusion has been lifted — Luxero"
-              : "Your override request has been reviewed — Luxero",
-          html: emailHtml,
-        });
-        if (!result.success) {
-          console.error(
-            `Failed to send self-exclusion ${action} email to ${recipientEmail}:`,
-            result.error
-          );
-          return { emailSent: false, emailError: result.error || "Email send failed" };
-        }
-        return { emailSent: true };
-      } catch (emailErr) {
-        console.error(`Failed to send self-exclusion ${action} email:`, emailErr);
-        return {
-          emailSent: false,
-          emailError: emailErr instanceof Error ? emailErr.message : "Email send error",
-        };
-      }
-    }
-
     let emailStatus: { emailSent: boolean; emailError?: string } = { emailSent: true };
 
     if (action === "approve") {
@@ -198,7 +198,7 @@ app.patch("/:userId/process", async (c) => {
         },
       });
 
-      emailStatus = await sendOverrideEmail("approved", userEmail);
+      emailStatus = await sendSelfExclusionLiftEmail(profile, "approved", adminNote);
     } else {
       await SelfExclusionOverrideRequest.findByIdAndUpdate(request._id, {
         $set: {
@@ -209,7 +209,7 @@ app.patch("/:userId/process", async (c) => {
         },
       });
 
-      emailStatus = await sendOverrideEmail("rejected", userEmail);
+      emailStatus = await sendSelfExclusionLiftEmail(profile, "rejected", adminNote);
     }
 
     return success(c, { processed: true, ...emailStatus });
@@ -224,6 +224,79 @@ app.patch("/:userId/process", async (c) => {
       operation: "admin.selfExclusionOverrides.process",
     });
     console.error("Error processing override request:", err);
+    return error(c, ErrorCodes.INTERNAL_ERROR, "Internal server error", 500);
+  }
+});
+
+// PATCH /:userId/lift — admin removes self-exclusion without a user override request
+app.patch("/:userId/lift", async (c) => {
+  try {
+    const targetUserId = c.req.param("userId");
+    const actorId = c.get("userId")!;
+    const body = await c.req.json();
+    await dbConnect();
+
+    const parsed = adminLiftSelfExclusionSchema.safeParse(body);
+    if (!parsed.success) {
+      return error(
+        c,
+        ErrorCodes.VALIDATION_ERROR,
+        parsed.error.issues.map((e) => e.message).join(", "),
+        400
+      );
+    }
+
+    const profile = await Profile.findById(targetUserId)
+      .select("email firstName lastName selfExcluded selfExcludedUntil")
+      .lean();
+
+    if (!profile) {
+      return error(c, ErrorCodes.NOT_FOUND, "Profile not found", 404);
+    }
+
+    const isPermanent = profile.selfExcluded && !profile.selfExcludedUntil;
+    if (isPermanent && !parsed.data.acknowledgePermanent) {
+      return error(
+        c,
+        ErrorCodes.VALIDATION_ERROR,
+        "Permanent self-exclusion requires acknowledgePermanent",
+        400
+      );
+    }
+
+    await liftSelfExclusion(targetUserId, {
+      actorId,
+      reason: parsed.data.reason,
+      source: "admin",
+      acknowledgePermanent: isPermanent ? true : undefined,
+      onLifted: (uid) => {
+        void sendPushNotification(
+          {
+            title: "Self-exclusion lifted",
+            body: "Your self-exclusion has been lifted by an admin.",
+            type: "system",
+            url: "/dashboard",
+            tag: `self-exclusion-${uid}`,
+          },
+          { userId: uid }
+        ).catch(() => {});
+      },
+    });
+
+    const emailStatus = await sendSelfExclusionLiftEmail(profile, "approved", parsed.data.reason);
+
+    return success(c, { lifted: true, ...emailStatus });
+  } catch (err: unknown) {
+    if (err instanceof ComplianceError) {
+      return error(c, err.code, err.message, err.status);
+    }
+    captureRouteError(err, {
+      requestId: c.get("requestId"),
+      path: c.req.path,
+      userId: c.get("userId") ?? null,
+      operation: "admin.selfExclusionOverrides.lift",
+    });
+    console.error("Error lifting self-exclusion:", err);
     return error(c, ErrorCodes.INTERNAL_ERROR, "Internal server error", 500);
   }
 });

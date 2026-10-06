@@ -14,6 +14,7 @@
 import "./types";
 
 import { ensureComplianceSettings } from "@luxero/api-compliance/settings";
+import { AVATAR_MAX_BYTES } from "@luxero/api-server/lib/avatar/process-upload";
 import { ensureMediaConverterSettings } from "@luxero/api-server/lib/media-converter/settings";
 import { dbConnect } from "@luxero/api-db";
 import { PaymentMethod } from "@luxero/api-db/models";
@@ -337,15 +338,25 @@ app.use("*", async (c, next) => {
   if (!Number.isFinite(contentLength)) return next();
 
   const isAuthPath = c.req.path.startsWith("/api/auth/");
-  const maxBytes = isAuthPath ? 5 * 1024 * 1024 : 100 * 1024;
+  const isAvatarUpload =
+    c.req.method === "POST" && c.req.path === "/api/me/profile/avatar";
+  const avatarMaxBytes = AVATAR_MAX_BYTES + 256 * 1024;
+  const maxBytes = isAuthPath
+    ? 5 * 1024 * 1024
+    : isAvatarUpload
+      ? avatarMaxBytes
+      : 100 * 1024;
   if (contentLength > maxBytes) {
+    const message = isAuthPath
+      ? "Request body exceeds 5MB limit for auth endpoints"
+      : isAvatarUpload
+        ? `Profile photo must be ${AVATAR_MAX_BYTES / 1024 / 1024}MB or smaller`
+        : "Request body exceeds 100KB limit";
     return c.json(
       {
         error: {
           code: ErrorCodes.VALIDATION_ERROR,
-          message: isAuthPath
-            ? "Request body exceeds 5MB limit for auth endpoints"
-            : "Request body exceeds 100KB limit",
+          message,
         },
       },
       413

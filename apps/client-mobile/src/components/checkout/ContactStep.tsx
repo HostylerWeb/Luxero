@@ -24,7 +24,11 @@ export function ContactStep({
   showBack = false,
 }: ContactStepProps) {
   const { t } = useTranslation();
-  const isValid = email.trim() !== "" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValid =
+    email.trim() !== "" &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+    phone.trim().length >= 5 &&
+    phone.trim().length <= 30;
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,7 +47,9 @@ export function ContactStep({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="phone">{t("checkout.contact.phoneLabel")}</Label>
+          <Label htmlFor="phone">
+            {t("checkout.contact.phoneLabel")} <span className="text-red-400">*</span>
+          </Label>
           <Input
             id="phone"
             type="tel"
@@ -52,6 +58,7 @@ export function ContactStep({
             onChange={(e) => onPhoneChange(e.target.value)}
             className="h-9"
             autoComplete="tel"
+            required
           />
         </div>
       </div>

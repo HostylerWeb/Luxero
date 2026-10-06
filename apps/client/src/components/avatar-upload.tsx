@@ -17,6 +17,22 @@ import { Spinner } from "./ui/spinner";
 import { UserAvatar } from "./user-avatar";
 
 const MAX_SIZE_BYTES = 2 * 1024 * 1024;
+const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_EXT = new Set(["jpg", "jpeg", "png", "webp"]);
+
+function normalizeMime(type: string): string {
+  const lower = type.trim().toLowerCase();
+  return lower === "image/jpg" ? "image/jpeg" : lower;
+}
+
+function isAllowedAvatarFile(file: File): boolean {
+  if (file.name.includes("\0") || file.name.includes("/") || file.name.includes("\\")) {
+    return false;
+  }
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  if (!ext || !ALLOWED_EXT.has(ext)) return false;
+  return ALLOWED_MIME.has(normalizeMime(file.type || ""));
+}
 
 export interface AvatarUploadProps {
   value?: string;
@@ -55,7 +71,7 @@ export function AvatarUpload({
     async (file: File) => {
       setError(null);
 
-      if (!file.type.startsWith("image/")) {
+      if (!isAllowedAvatarFile(file)) {
         setError(t("avatar.chooseImage"));
         return;
       }
@@ -77,7 +93,7 @@ export function AvatarUpload({
 
   const handleFiles = useCallback(
     (files: FileList | File[]) => {
-      const file = Array.from(files).find((f) => f.type.startsWith("image/"));
+      const file = Array.from(files).find((f) => isAllowedAvatarFile(f));
       if (file) void validateAndUpload(file);
     },
     [validateAndUpload]
@@ -202,7 +218,7 @@ export function AvatarUpload({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                 className="hidden"
                 disabled={isBusy}
                 onChange={(e) => {

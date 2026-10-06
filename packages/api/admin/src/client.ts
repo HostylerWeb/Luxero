@@ -116,8 +116,10 @@ export const api = {
       const config: Record<string, unknown> = {};
       if (options?.timeout) config.timeout = options.timeout;
       if (body instanceof FormData) {
-        config.headers = { "X-Request-ID": crypto.randomUUID(), ...options?.headers };
-        const res = await apiAxios.post<ApiResponse<T>>(path, body, config);
+        const res = await apiAxios.post<ApiResponse<T>>(path, body, {
+          timeout: options?.timeout,
+          headers: options?.headers,
+        });
         return res.data;
       }
       if (options?.headers) config.headers = options.headers;

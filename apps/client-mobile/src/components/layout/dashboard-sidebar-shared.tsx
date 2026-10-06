@@ -70,6 +70,7 @@ export function useDashboardNavGroups(): DashboardNavGroup[] {
 
   const OVERVIEW_ITEMS: DashboardNavItem[] = [
     { to: "/dashboard", label: t("header.dashboard.overview"), icon: LayoutDashboard, end: true },
+    { to: "/dashboard/profile", label: t("header.dashboard.profile"), icon: User },
   ];
 
   const ACTIVITY_ITEMS: DashboardNavItem[] = [
@@ -90,7 +91,6 @@ export function useDashboardNavGroups(): DashboardNavGroup[] {
             },
           ]
         : []),
-      { to: "/dashboard/profile", label: t("header.dashboard.profile"), icon: User },
     ];
 
     return [

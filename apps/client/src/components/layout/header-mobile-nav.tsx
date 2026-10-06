@@ -58,9 +58,18 @@ type HeaderMobileNavContextValue = {
 
 const HeaderMobileNavContext = createContext<HeaderMobileNavContextValue | null>(null);
 
+const noopMobileNav: HeaderMobileNavContextValue = {
+  open: false,
+  setOpen: () => {},
+  toggle: () => {},
+};
+
 export function useHeaderMobileNav() {
   const context = useContext(HeaderMobileNavContext);
   if (!context) {
+    if (import.meta.env.DEV) {
+      return noopMobileNav;
+    }
     throw new Error("useHeaderMobileNav must be used within HeaderMobileNavProvider");
   }
   return context;

@@ -34,5 +34,24 @@ export function useSelfExclusionOverrideMutations() {
     },
   });
 
-  return { processOverrideMutation };
+  const liftSelfExclusionMutation = useMutation({
+    mutationFn: ({
+      userId,
+      reason,
+      acknowledgePermanent,
+    }: {
+      userId: string;
+      reason: string;
+      acknowledgePermanent?: boolean;
+    }) =>
+      api.patch<{ lifted: boolean; emailSent: boolean; emailError?: string }>(
+        `/api/admin/self-exclusion-overrides/${userId}/lift`,
+        { reason, acknowledgePermanent }
+      ),
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.admin.selfExcludedUsers() });
+    },
+  });
+
+  return { processOverrideMutation, liftSelfExclusionMutation };
 }

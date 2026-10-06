@@ -75,6 +75,7 @@ export interface IProfile extends Document {
   subscriptionStatus: "active" | "cancelled" | "none";
   subscriptionTier: "25" | "50" | "100" | null;
   isGuestCheckout?: boolean;
+  welcomeEmailSentAt?: Date;
   awardLock?: IAwardLock;
   createdAt: Date;
   updatedAt: Date;
@@ -159,6 +160,7 @@ const ProfileSchema = new Schema<IProfile>(
     subscriptionStatus: { type: String, enum: ["active", "cancelled", "none"], default: "none" },
     subscriptionTier: { type: String, enum: ["25", "50", "100", null], default: null },
     isGuestCheckout: { type: Boolean, default: false },
+    welcomeEmailSentAt: { type: Date },
     awardLock: {
       token: { type: String },
       lockedAt: { type: Date },

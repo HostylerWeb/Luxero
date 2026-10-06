@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosError } from "axios";
+import axios, { type AxiosInstance, type AxiosError, AxiosHeaders } from "axios";
 
 export interface ApiAxiosOptions {
   baseURL: string;
@@ -34,6 +34,14 @@ export function createApiAxios(options: ApiAxiosOptions): AxiosInstance {
   });
 
   instance.interceptors.request.use((config) => {
+    if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+      const headers = AxiosHeaders.from(config.headers);
+      headers.delete("Content-Type");
+      headers.delete("content-type");
+      config.headers = headers;
+    } else {
+      config.headers = AxiosHeaders.from(config.headers);
+    }
     config.headers.set("X-Request-ID", crypto.randomUUID());
     if (typeof document !== "undefined") {
       const clickId = document.cookie.match(/(?:^|; )_aff_clickid=([^;]*)/)?.[1];

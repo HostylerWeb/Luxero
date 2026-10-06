@@ -1,70 +1,68 @@
+import type { IEmailSettings } from "@luxero/api-db/models/EmailSettings";
 import { Button, Hr, Link, Section, Text } from "@react-email/components";
-import type { EmailTemplateProps } from "../types";
 import { BaseEmail, emailStyles } from "./base";
 
-export function WelcomeEmail({
-  userName,
-  code,
-  verificationUrl,
-  settings,
-  frontendUrl,
-}: EmailTemplateProps) {
+type WelcomeEmailProps = {
+  userName: string;
+  settings?: IEmailSettings;
+  frontendUrl?: string;
+};
+
+export function WelcomeEmail({ userName, settings, frontendUrl }: WelcomeEmailProps) {
   const supportAddress = settings?.supportAddress ?? "support@luxero.win";
+  const competitionsUrl = `${frontendUrl ?? ""}/competitions`;
+  const dashboardUrl = `${frontendUrl ?? ""}/dashboard`;
+
   return (
     <BaseEmail
-      preview={`Welcome to Luxero, ${userName}! Start winning luxury prizes today.`}
+      preview={`Welcome to Luxero, ${userName}! Your email is verified — start winning today.`}
       settings={settings}
       frontendUrl={frontendUrl}
     >
       <Text className={emailStyles.heading.className}>Welcome to Luxero!</Text>
       <Text className={emailStyles.paragraph.className}>Hi {userName},</Text>
       <Text className={emailStyles.paragraph.className}>
-        Thank you for joining Luxero! You&apos;re now part of a community of winners competing for
-        incredible luxury prizes.
+        Thank you for joining Luxero! Your email is verified and your account is ready — you&apos;re
+        now part of a community competing for incredible luxury prizes.
       </Text>
-      <Text className={emailStyles.paragraph.className}>
-        Your account is ready. When you&apos;re ready to verify your email, you can use the code
-        below — there&apos;s no rush, your account works either way.
-      </Text>
-      {code && (
-        <Section className="my-[32px] text-center">
-          <Text className="m-0 mb-[8px] text-[11px] uppercase tracking-widest text-[#A1A1AA]">
-            Your Verification Code
-          </Text>
-          <Text
-            className="m-0 mb-[8px] text-[36px] font-semibold tracking-[0.2em] text-[#D4AF37]"
-            style={{ fontFamily: "ui-monospace, monospace" }}
-          >
-            {code}
-          </Text>
-          <Text className={emailStyles.muted.className}>
-            Or{" "}
-            <Link href={verificationUrl} className="text-[#D4AF37] no-underline">
-              verify via this link
-            </Link>
-          </Text>
-        </Section>
-      )}
+      <Section
+        className="my-[16px] rounded-[8px] border-l-4 border-[#D4AF37] bg-[#0A0A0B] px-[20px] py-[16px]"
+        style={{
+          borderLeftWidth: "4px",
+          borderLeftStyle: "solid",
+          backgroundColor: "rgba(212, 175, 55, 0.1)",
+        }}
+      >
+        <Text className="m-0 text-[14px] leading-[22px] text-[#A1A1AA]">
+          <strong className="text-[#D4AF37]">You&apos;re all set:</strong> Browse competitions,
+          secure your entries, and track everything from your dashboard.
+        </Text>
+      </Section>
       <Hr className={emailStyles.divider.className} />
-      <Text className={emailStyles.subheading.className}>What&apos;s Next?</Text>
+      <Text className="mb-[16px] text-[17px] font-semibold text-[#FFFFFF]">What&apos;s Next?</Text>
       <Text className={emailStyles.paragraph.className}>
         <span className="font-semibold text-[#D4AF37]">1. Browse Competitions</span>
         <br />
-        Explore our active competitions and find prizes you&apos;d love to win.
+        Explore luxury prizes from tech to dream experiences.
       </Text>
       <Text className={emailStyles.paragraph.className}>
-        <span className="font-semibold text-[#D4AF37]">2. Purchase Tickets</span>
+        <span className="font-semibold text-[#D4AF37]">2. Get Your Tickets</span>
         <br />
-        Select the number of tickets you want and answer a simple skill question.
+        Answer a skill question and secure your entries.
       </Text>
       <Text className={emailStyles.paragraph.className}>
-        <span className="font-semibold text-[#D4AF37]">3. Wait for the Draw</span>
+        <span className="font-semibold text-[#D4AF37]">3. Win Big</span>
         <br />
-        Track your entries in your dashboard and watch our live draws.
+        Live draws, instant notifications, insured delivery.
       </Text>
       <Section className="my-[24px] text-center">
-        <Button href={`${frontendUrl}/competitions`} className={emailStyles.button.className}>
+        <Button href={competitionsUrl} className={emailStyles.button.className}>
           Start Browsing Competitions
+        </Button>
+      </Section>
+      <Section className="my-[8px] text-center">
+        <Button href={dashboardUrl} className={emailStyles.button.className}>
+          Go to Your Dashboard
         </Button>
       </Section>
       <Hr className={emailStyles.divider.className} />

@@ -33,13 +33,16 @@ export function CheckoutContactFields({
         {emailError ? <p className="text-sm text-destructive">{emailError}</p> : null}
       </div>
       <div className="space-y-2 sm:col-span-2">
-        <Label htmlFor="checkout-phone">{t("checkout.contact.phoneLabel")}</Label>
+        <Label htmlFor="checkout-phone">
+          {t("checkout.contact.phoneLabel")} <span className="text-red-400">*</span>
+        </Label>
         <Input
           id="checkout-phone"
           type="tel"
           value={phone}
           onChange={(e) => onPhoneChange(e.target.value)}
           placeholder={t("checkout.contact.phonePlaceholder")}
+          required
         />
       </div>
     </div>

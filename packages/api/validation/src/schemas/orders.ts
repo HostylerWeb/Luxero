@@ -25,6 +25,8 @@ export const applyDiscountSchema = z.object({
   codeType: z.enum(["promo", "referral", "pending_referral"]).optional(),
 });
 
+const checkoutPhoneSchema = z.string().trim().min(5, "Phone number is required").max(30);
+
 export const createPaymentSessionSchema = z.object({
   provider: z.string().optional(),
   contact: z
@@ -32,7 +34,7 @@ export const createPaymentSessionSchema = z.object({
       firstName: z.string().optional(),
       lastName: z.string().optional(),
       email: z.string().email().optional(),
-      phone: z.string().optional(),
+      phone: checkoutPhoneSchema,
     })
     .optional(),
   shipping: z

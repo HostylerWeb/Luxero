@@ -72,6 +72,12 @@ function getDashboardMenu(
       event: "nav:dashboard-link",
     },
     {
+      href: "/dashboard/profile",
+      label: t("header.dashboard.profile"),
+      icon: User,
+      event: "nav:profile-link",
+    },
+    {
       href: "/dashboard/tickets",
       label: t("header.dashboard.myTickets"),
       icon: Ticket,
@@ -88,12 +94,6 @@ function getDashboardMenu(
       label: t("header.dashboard.wins"),
       icon: Gift,
       event: "nav:wins-link",
-    },
-    {
-      href: "/dashboard/profile",
-      label: t("header.dashboard.profile"),
-      icon: User,
-      event: "nav:profile-link",
     },
     {
       href: "/dashboard/referrals",

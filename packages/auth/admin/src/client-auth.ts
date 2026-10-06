@@ -1,4 +1,4 @@
-import { sendMagicLinkEmail, sendOtpEmail } from "@luxero/auth-admin/auth-email";
+import { sendMagicLinkEmail, sendOtpEmail, trySendWelcomeEmail } from "@luxero/auth-admin/auth-email";
 import { createGoogleOAuthGuestMergeHook } from "@luxero/auth-admin/auth-google-oauth";
 import { mergeAnonymousAccount } from "@luxero/auth-admin/auth-hooks";
 import { createSignUpProfileAfterHook } from "@luxero/auth-admin/auth-signup-profile";
@@ -112,6 +112,7 @@ export async function getClientAuth() {
         },
       },
       onAPIErrorURL: `${getAppUrl()}/auth/error`,
+      onUserEmailVerified: trySendWelcomeEmail,
     };
     authInstance = betterAuth(buildAuth(config));
   }
