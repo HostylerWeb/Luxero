@@ -1,18 +1,24 @@
 "use client";
 
-import { useWinners } from "@luxero/api-client";
+import { useWinners, useWinnersStats } from "@luxero/api-client";
 
-import { ArrowRight, Calendar, List, MapPin, Ticket, Trophy } from "@luxero/icons";
+import { ArrowRight, Trophy } from "@luxero/icons";
 import type { Winner } from "@luxero/types";
-import { cn, formatDate, getDisplayName, withAssetCacheVersion } from "@luxero/utils";
-import { useEffect, useRef, useState } from "react";
+import { cn } from "@luxero/utils";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useData } from "vike-react/useData";
 import { GoldOutlineButton } from "@/components/buttons";
 import { Link } from "@/components/Link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatNumber, useTranslation } from "@/lib/i18n";
 import { CompetitionEntryListDialog } from "@/components/winners/CompetitionEntryListDialog";
-import { Button } from "@/components/ui/button";
+import {
+  getCompetitionTitle,
+  getWinnerCompetitionId,
+  getWinnerDisplayName,
+} from "@/components/winners/WinnerCard";
+import { WinnerPickTile } from "@/components/winners/WinnerPickTile";
+import { WinnerSpotlight } from "@/components/winners/WinnerSpotlight";
 import type { Data } from "./+data";
 
 type EntryDialogState = {
@@ -22,183 +28,27 @@ type EntryDialogState = {
   winnerDisplayName: string;
 };
 
-function getCompetitionIdObject(winner: Winner) {
-  return typeof winner.competitionId === "object" && winner.competitionId !== null
-    ? winner.competitionId
-    : null;
-}
-
-function getCompetitionTitle(winner: Winner): string {
-  const comp = getCompetitionIdObject(winner);
-  if (comp?.title) return comp.title;
-  return winner.competitionTitle ?? winner.competition?.title ?? "";
-}
-
-function getWinnerCompetitionId(winner: Winner): string | null {
-  if (typeof winner.competitionId === "string" && winner.competitionId.trim()) {
-    return winner.competitionId.trim();
+function formatCompactPrizeValue(value: number, locale: string): string | null {
+  if (value <= 0) return null;
+  if (value >= 1_000_000) {
+    const millions = value / 1_000_000;
+    const formatted = millions % 1 === 0 ? String(millions) : millions.toFixed(1);
+    return `£${formatted}M`;
   }
-  const comp = getCompetitionIdObject(winner);
-  if (comp?._id) return comp._id;
-  return null;
-}
-
-type PopulatedWinnerUser = {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  avatarUrl?: string;
-};
-
-function getPopulatedWinnerUser(winner: Winner): PopulatedWinnerUser | null {
-  const userId = winner.userId as string | PopulatedWinnerUser;
-  if (typeof userId === "object" && userId !== null) {
-    return userId;
+  if (value >= 1_000) {
+    return `£${Math.round(value / 1_000).toLocaleString(locale)}K`;
   }
-  return null;
+  return `£${value.toLocaleString(locale)}`;
 }
 
-function getCompetitionImageForWinner(winner: Winner): string | undefined {
-  const comp = getCompetitionIdObject(winner);
+function WinnersStatCard({ label, value }: { label: string; value: string }) {
   return (
-    winner.prizeImageUrl?.trim() ||
-    comp?.prizeImageUrl?.trim() ||
-    comp?.imageUrl?.trim() ||
-    winner.competition?.prizeImageUrl?.trim() ||
-    winner.competition?.imageUrl?.trim() ||
-    undefined
-  );
-}
-
-function WinnerAvatar({ winner, className }: { winner: Winner; className?: string }) {
-  const userObj = getPopulatedWinnerUser(winner);
-  const profileRaw = winner.avatarUrl?.trim() || userObj?.avatarUrl?.trim();
-  const competitionRaw = getCompetitionImageForWinner(winner);
-
-  const src = profileRaw
-    ? withAssetCacheVersion(profileRaw)
-    : competitionRaw
-      ? withAssetCacheVersion(competitionRaw)
-      : undefined;
-
-  return (
-    <div
-      className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-gold/20 to-gold/5",
-        className
-      )}
-    >
-      {src ? (
-        <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
-      ) : (
-        <Trophy className="h-6 w-6 text-gold/50 sm:h-7 sm:w-7" />
-      )}
+    <div className="min-w-[9rem] flex-1 rounded-2xl border border-gold/15 bg-card/80 px-5 py-4 backdrop-blur-sm sm:min-w-[10rem]">
+      <p className="text-2xl font-bold tracking-tight text-gold sm:text-3xl">{value}</p>
+      <p className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+        {label}
+      </p>
     </div>
-  );
-}
-
-function WinnerCard({
-  winner,
-  featured = false,
-  onSeeEntries,
-}: {
-  winner: Winner;
-  featured?: boolean;
-  onSeeEntries?: () => void;
-}) {
-  const { t, locale } = useTranslation();
-  const userObj = getPopulatedWinnerUser(winner);
-  const displayName =
-    winner.displayName ||
-    getDisplayName(
-      {
-        firstName: userObj?.firstName ?? undefined,
-        lastName: userObj?.lastName ?? undefined,
-      },
-      userObj?.email ?? ""
-    ) ||
-    t("staticPages.winners.anonymousWinner");
-  const competitionTitle = getCompetitionTitle(winner);
-  const drawnDate = formatDate(winner.drawnAt);
-  const competitionId = getWinnerCompetitionId(winner);
-  const showEntriesButton = Boolean(competitionId && onSeeEntries);
-
-  return (
-    <article className="group relative overflow-hidden rounded-[1.5rem] transition-transform duration-300 hover:-translate-y-0.5">
-      <div
-        className={cn(
-          "rounded-[1.5rem] p-1.5 ring-1 transition-colors duration-500",
-          featured ? "bg-gold/10 ring-gold/25" : "bg-white/5 ring-white/10 hover:ring-gold/25"
-        )}
-      >
-        <div className="overflow-hidden rounded-[calc(1.5rem-0.375rem)] bg-card">
-          <div className="flex flex-col p-4 sm:p-5 lg:p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <WinnerAvatar winner={winner} className="h-12 w-12 sm:h-14 sm:w-14" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-lg font-bold text-foreground sm:text-xl md:text-2xl">
-                  {displayName}
-                </p>
-                {winner.location ? (
-                  <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground sm:text-sm">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">{winner.location}</span>
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="space-y-3 rounded-xl border border-gold/10 bg-gradient-to-br from-gold/5 to-transparent p-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {t("staticPages.winners.prizeWon")}
-                </p>
-                <p className="mt-1 text-base font-semibold leading-snug text-foreground sm:text-lg">
-                  {winner.prizeTitle || competitionTitle || t("staticPages.winners.luxuryPrize")}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
-                <span className="inline-flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 shrink-0 text-gold/80" />
-                  {drawnDate}
-                </span>
-                {winner.ticketNumber > 0 ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Ticket className="h-3.5 w-3.5 shrink-0 text-gold/80" />
-                    {t("staticPages.winners.ticketNumber")}
-                    {formatNumber(winner.ticketNumber, locale)}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-
-            {winner.testimonial ? (
-              <blockquote className="mt-4 border-l-2 border-gold/30 pl-4 text-sm italic leading-relaxed text-muted-foreground sm:text-base">
-                &ldquo;{winner.testimonial}&rdquo;
-              </blockquote>
-            ) : null}
-
-            {showEntriesButton ? (
-              <div className="mt-4">
-                <Button
-                  type="button"
-                  variant="gold"
-                  size="sm"
-                  className="w-full"
-                  onClick={onSeeEntries}
-                  data-umami-event="winners:see-entries"
-                  data-umami-event-competition={competitionId ?? undefined}
-                >
-                  <List className="mr-2 h-4 w-4" />
-                  {t("staticPages.winners.seeEntries")}
-                </Button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    </article>
   );
 }
 
@@ -249,28 +99,56 @@ export default function Page() {
   } = useWinners(50, { initialData: { data: data?.winners ?? [] } });
   const winners = winnersResponse?.data ?? [];
 
+  const { data: statsResponse } = useWinnersStats({
+    initialData: data?.winnerStats ? { data: data.winnerStats } : undefined,
+  });
+  const stats = statsResponse?.data;
+
   const [entryDialog, setEntryDialog] = useState<EntryDialogState | null>(null);
+  const [spotlightId, setSpotlightId] = useState<string | null>(null);
+  const spotlightRef = useRef<HTMLElement>(null);
   const consumedEntriesQuery = useRef(false);
+
+  function winnerKey(winner: Winner): string {
+    return winner._id ?? winner.id ?? "";
+  }
+
+  useEffect(() => {
+    if (winners.length === 0) return;
+    setSpotlightId((prev) => {
+      if (prev && winners.some((w) => winnerKey(w) === prev)) return prev;
+      return winnerKey(winners[0]);
+    });
+  }, [winners]);
+
+  const spotlightWinner = useMemo(() => {
+    if (winners.length === 0) return undefined;
+    if (spotlightId) {
+      const match = winners.find((w) => winnerKey(w) === spotlightId);
+      if (match) return match;
+    }
+    return winners[0];
+  }, [winners, spotlightId]);
+
+  const pickList = useMemo(() => {
+    if (!spotlightWinner) return [];
+    const activeKey = winnerKey(spotlightWinner);
+    return winners.filter((w) => winnerKey(w) !== activeKey);
+  }, [winners, spotlightWinner]);
+
+  function selectSpotlight(winner: Winner) {
+    setSpotlightId(winnerKey(winner));
+    spotlightRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function openEntryDialog(winner: Winner) {
     const competitionId = getWinnerCompetitionId(winner);
     if (!competitionId) return;
-    const userObj = getPopulatedWinnerUser(winner);
-    const displayName =
-      winner.displayName ||
-      getDisplayName(
-        {
-          firstName: userObj?.firstName ?? undefined,
-          lastName: userObj?.lastName ?? undefined,
-        },
-        userObj?.email ?? ""
-      ) ||
-      t("staticPages.winners.anonymousWinner");
     setEntryDialog({
       competitionId,
       competitionTitle: getCompetitionTitle(winner),
       highlightTicketNumbers: winner.ticketNumber > 0 ? [winner.ticketNumber] : [],
-      winnerDisplayName: displayName,
+      winnerDisplayName: getWinnerDisplayName(winner, t("staticPages.winners.anonymousWinner")),
     });
   }
 
@@ -306,25 +184,57 @@ export default function Page() {
 
   const hasError = winnersError;
   const hasWinnerData = winners.length > 0;
-  const showHero = !isLoading && hasWinnerData;
+  const totalPrizeLabel = stats ? formatCompactPrizeValue(stats.totalPrizeValue, locale) : null;
+  const showWinnerCount = (stats?.totalWinners ?? 0) > 0;
+  const showPrizeValue = Boolean(totalPrizeLabel);
+  const showStats = showWinnerCount || showPrizeValue;
 
   return (
-    <div className="luxero-container-wide pb-10 animate-fade-in">
-      {showHero ? (
-        <section className="relative overflow-hidden py-8 sm:py-12 lg:py-16">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-gold/10 to-transparent" />
-
-          <div className="relative text-center">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              {t("staticPages.winners.heading")}{" "}
-              <span className="text-gold">{t("staticPages.winners.subheading")}</span>
+    <div className="luxero-container-wide pb-12 animate-fade-in">
+      <section className="relative mb-10 overflow-hidden rounded-[1.75rem] border border-gold/10 bg-gradient-to-br from-gold/[0.07] via-card to-background sm:mb-12">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-gold/10 blur-3xl" />
+        <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-10 lg:p-10">
+          <div className="max-w-2xl">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-gold/85">
+              {t("staticPages.winners.publicGallery")}
+            </p>
+            <h1 className="text-4xl font-bold tracking-tighter leading-none sm:text-5xl lg:text-6xl">
+              <span className="text-gold">{t("staticPages.winners.heading")}</span>{" "}
+              {t("staticPages.winners.subheading")}
             </h1>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
               {t("staticPages.winners.heroDesc")}
             </p>
+            {hasWinnerData ? (
+              <p className="mt-4 text-sm text-muted-foreground/90">
+                {t("staticPages.winners.transparencyNote")}
+              </p>
+            ) : null}
           </div>
-        </section>
-      ) : null}
+
+          {showStats && !isLoading ? (
+            <div className="flex flex-wrap gap-3 lg:max-w-md lg:justify-end">
+              {showWinnerCount ? (
+                <WinnersStatCard
+                  label={t("staticPages.winners.happyWinners")}
+                  value={formatNumber(stats?.totalWinners ?? 0, locale)}
+                />
+              ) : null}
+              {showPrizeValue && totalPrizeLabel ? (
+                <WinnersStatCard
+                  label={t("staticPages.winners.totalPrizesAwarded")}
+                  value={totalPrizeLabel}
+                />
+              ) : null}
+            </div>
+          ) : isLoading ? (
+            <div className="flex gap-3">
+              <Skeleton className="h-[5.5rem] flex-1 rounded-2xl" shimmer />
+              <Skeleton className="h-[5.5rem] flex-1 rounded-2xl" shimmer />
+            </div>
+          ) : null}
+        </div>
+      </section>
 
       {hasError && (
         <div className="mb-10 text-center">
@@ -343,24 +253,78 @@ export default function Page() {
       )}
 
       {isLoading ? (
-        <div className="mb-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-72 rounded-[1.5rem]" shimmer />
-          ))}
+        <div className="mb-12 space-y-6">
+          <Skeleton className="min-h-[22rem] rounded-[1.75rem] sm:min-h-[26rem]" shimmer />
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-24 rounded-2xl sm:h-28" shimmer />
+            ))}
+          </div>
         </div>
-      ) : winners.length > 0 ? (
-        <div className="mb-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-fade-in-stagger">
-          {winners.map((winner, index) => (
-            <WinnerCard
-              key={winner._id}
-              winner={winner}
-              featured={index === 0}
-              onSeeEntries={() => openEntryDialog(winner)}
-            />
-          ))}
+      ) : winners.length > 0 && spotlightWinner ? (
+        <div className="mb-12 space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5">
+            <section ref={spotlightRef} className="lg:col-span-7">
+              <WinnerSpotlight
+                key={winnerKey(spotlightWinner)}
+                winner={spotlightWinner}
+                onSeeEntries={() => openEntryDialog(spotlightWinner)}
+                latestLabel={t("staticPages.winners.latestWinner")}
+                className="animate-fade-in-scale h-full"
+              />
+            </section>
+
+            {pickList.length > 0 ? (
+              <div className="hidden flex-col gap-2.5 sm:gap-3 lg:col-span-5 lg:flex lg:justify-center">
+                {pickList.slice(0, 5).map((winner) => (
+                  <WinnerPickTile
+                    key={winnerKey(winner)}
+                    winner={winner}
+                    onSelect={() => selectSpotlight(winner)}
+                    umamiEvent="winners:spotlight-select"
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          {pickList.length > 0 ? (
+            <div className="space-y-4">
+              <h2
+                className={cn(
+                  "text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground",
+                  pickList.length <= 5 && "lg:hidden"
+                )}
+              >
+                {t("home.winners.recentWinners")}
+              </h2>
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3 animate-fade-in-stagger lg:hidden">
+                {pickList.map((winner) => (
+                  <WinnerPickTile
+                    key={winnerKey(winner)}
+                    winner={winner}
+                    onSelect={() => selectSpotlight(winner)}
+                    umamiEvent="winners:spotlight-select"
+                  />
+                ))}
+              </div>
+              {pickList.length > 5 ? (
+                <div className="hidden grid-cols-2 gap-2.5 sm:gap-3 lg:grid animate-fade-in-stagger">
+                  {pickList.slice(5).map((winner) => (
+                    <WinnerPickTile
+                      key={winnerKey(winner)}
+                      winner={winner}
+                      onSelect={() => selectSpotlight(winner)}
+                      umamiEvent="winners:spotlight-select"
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       ) : !hasError ? (
-        <div className={cn("mb-12", !showHero && "pt-8 sm:pt-10")}>
+        <div className={cn("mb-12")}>
           <WinnersEmptyState />
         </div>
       ) : null}

@@ -1,13 +1,7 @@
-import { ArrowRight, type LucideIcon, Shield, Users, Zap } from "@luxero/icons";
+import { ArrowRight } from "@luxero/icons";
 import { GoldOutlineButton } from "@/components/buttons";
 import { Link } from "@/components/Link";
-import { type TranslationKey, useTranslation } from "@/lib/i18n";
-
-const TRUST_BADGES: { icon: LucideIcon; key: TranslationKey }[] = [
-  { icon: Shield, key: "staticPages.howItWorks.trustBadges.verifiedDraws" },
-  { icon: Users, key: "staticPages.howItWorks.trustBadges.freePostalEntry" },
-  { icon: Zap, key: "staticPages.howItWorks.trustBadges.secureCheckout" },
-];
+import { useTranslation } from "@/lib/i18n";
 
 export function HowItWorksReadyCta() {
   const { t } = useTranslation();
@@ -51,15 +45,6 @@ export function HowItWorksReadyCta() {
             </Link>
           </GoldOutlineButton>
         </div>
-
-        <ul className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 pt-4 text-xs sm:text-sm text-muted-foreground">
-          {TRUST_BADGES.map(({ icon: Icon, key }) => (
-            <li key={key} className="flex items-center gap-2">
-              <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold shrink-0" aria-hidden />
-              <span>{t(key)}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );

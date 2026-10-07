@@ -2,6 +2,11 @@ import type { FaqCategory, FaqItem } from "../content-types";
 
 export const FAQ_CATEGORIES: FaqCategory[] = [
   { id: "general", name: "General" },
+  { id: "competitions", name: "Concursuri" },
+  { id: "instant", name: "Câștiguri instant" },
+  { id: "milestones", name: "Etape și premii bonus" },
+  { id: "responsible", name: "Joc responsabil" },
+  { id: "referrals", name: "Recomandări" },
   { id: "payment", name: "Plată" },
   { id: "delivery", name: "Livrare" },
 ];
@@ -21,7 +26,7 @@ export const FAQS_BY_CATEGORY: Record<string, FaqItem[]> = {
     {
       question: "Când va avea loc extragerea?",
       answer:
-        "Fiecare pagină de concurs arată data și ora programată a extragerii. Extragerile au loc automat odată ce toate biletele sunt vândute sau când numărătoarea inversă ajunge la zero, oricare survine prima.",
+        "Fiecare pagină de concurs arată data și ora programată a extragerii. Data anunțată nu este devansată pentru că biletele se vând repede. Extragerea are loc la momentul anunțat, prin selecție aleatorie verificabilă.",
     },
     {
       question: "Cum voi ști dacă am câștigat?",
@@ -52,6 +57,76 @@ export const FAQS_BY_CATEGORY: Record<string, FaqItem[]> = {
       question: "Pot cumpăra bilete pentru altcineva?",
       answer:
         "Da, poți cumpăra bilete ca cadou. Biletele vor fi atribuite contului tău, dar ne poți notifica după extragere pentru a actualiza detaliile de livrare.",
+    },
+  ],
+  competitions: [
+    {
+      question: "Ce este întrebarea de abilități?",
+      answer:
+        "Unele concursuri cer o întrebare cu variante multiple înainte să poți finaliza participarea. Răspunde corect pentru a încheia comanda. Concursurile care nu afișează o întrebare nu o cer.",
+    },
+    {
+      question: "Unde văd numerele biletelor mele?",
+      answer:
+        "După o achiziție reușită primești un email de confirmare. Participările tale apar și în panoul de control, la Biletele mele.",
+    },
+    {
+      question: "Ce se întâmplă dacă concursul nu se vinde integral?",
+      answer:
+        "Extragerea are loc tot la data și ora anunțate. Biletele nevândute nu anulează premiul și nu mută extragerea mai devreme.",
+    },
+  ],
+  instant: [
+    {
+      question: "Ce este un câștig instant?",
+      answer:
+        "Un câștig instant este un premiu separat, dezvăluit odată cu participarea ta, pe lângă premiul principal. Pagina concursului arată câte premii instant sunt disponibile și câte au fost revendicate.",
+    },
+    {
+      question: "Pot plăti un concurs cu câștig instant cu cardul de credit?",
+      answer:
+        "Nu. Dacă coșul include un concurs cu câștig instant, cardurile de credit nu pot fi folosite. Cardurile de debit, Apple Pay și Google Pay rămân disponibile.",
+    },
+  ],
+  milestones: [
+    {
+      question: "Ce este o etapă (milestone)?",
+      answer:
+        "O etapă este un premiu suplimentar deblocat când un concurs atinge un procent stabilit de bilete vândute. Pagina concursului listează fiecare etapă și dacă a fost atinsă.",
+    },
+    {
+      question: "Cum se acordă premiile bonus?",
+      answer:
+        "Un câștig bonus este înregistrat în contul tău. Echipa noastră îl onorează după confirmare.",
+    },
+  ],
+  responsible: [
+    {
+      question: "Există o limită pentru cheltuielile cu cardul de credit?",
+      answer:
+        "Da. Cheltuielile cu cardul de credit sunt limitate la 250 £ pe lună calendaristică, pentru toate concursurile. Cardurile de debit, Apple Pay și Google Pay nu intră în această limită. La finalizare vezi suma rămasă când limita se aplică.",
+    },
+    {
+      question: "Pot seta propria limită de cheltuieli?",
+      answer:
+        "Da. În panoul de control, deschide Joc responsabil și setează o limită lunară. O limită mai mică se aplică imediat. O limită mai mare se aplică după o perioadă de răcire de 24 de ore.",
+    },
+    {
+      question: "Cum funcționează autoexcluderea?",
+      answer:
+        "Te poți autoexclude pentru 6 luni, 1 an, 5 ani sau permanent din Joc responsabil, în panoul de control. Cât ești exclus, contul este suspendat, emailurile de marketing se opresc și nu poți participa la concursuri. Contactează-ne dacă ai nevoie de ajutor după ce o excludere temporară expiră.",
+    },
+  ],
+  referrals: [
+    {
+      question: "Cum funcționează recomandările?",
+      answer:
+        "Distribuie linkul tău de recomandare din panoul de control. Când un prieten se înscrie cu linkul tău și face o achiziție care se califică, poți primi bilete gratuite.",
+    },
+    {
+      question: "Unde ajung biletele gratuite din recomandări?",
+      answer:
+        "Sunt adăugate în portofelul de bilete din recomandări. La finalizare poți aplica acele bilete pe articolele din coș înainte să plătești.",
     },
   ],
   payment: [

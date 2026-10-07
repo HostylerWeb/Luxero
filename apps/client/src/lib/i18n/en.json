@@ -1519,11 +1519,17 @@
     "howItWorks": {
       "heading": "How It Works",
       "subtitle": "Getting started is easy. Follow these steps to enter our luxury prize competitions.",
+      "glance": "Pick a prize, enter the draw, we draw fairly.",
       "whyLuxero": "Why Luxero",
       "whyChooseLuxero": "Why Choose",
       "yourJourney": "Your journey",
       "fromBrowseToWin": "From browse to win",
-      "stepDescription": "Seven simple steps — online checkout or free postal entry.",
+      "stepDescription": "Six steps from browsing to winning. Skill questions only when a competition requires them.",
+      "altPaths": {
+        "kicker": "Also available",
+        "heading": "Postal entry and referrals",
+        "learnMore": "Learn more"
+      },
       "haveQuestions": "Have Questions?",
       "haveQuestionsDesc": "Check our frequently asked questions for more details about how competitions work.",
       "viewFaq": "View FAQ",

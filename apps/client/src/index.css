@@ -118,6 +118,10 @@
 }
 
 @layer utilities {
+  .font-nav {
+    font-family: "Syne", system-ui, sans-serif;
+  }
+
   .luxero-container {
     width: 100%;
     margin-inline: auto;
@@ -867,4 +871,10 @@
     scrollbar-width: thin;
     scrollbar-color: rgb(var(--gold-rgb) / 0.25) transparent;
   }
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Syne", system-ui, sans-serif;
 }

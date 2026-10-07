@@ -58,7 +58,6 @@ function FeatureCard({ feature, large = false }: { feature: ContentFeature; larg
 
 export function HowItWorksFeatures({ features }: HowItWorksFeaturesProps) {
   const { t } = useTranslation();
-  const [featured, ...rest] = features;
 
   return (
     <section
@@ -81,13 +80,8 @@ export function HowItWorksFeatures({ features }: HowItWorksFeaturesProps) {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-          {featured && (
-            <div className="lg:col-span-2 lg:row-span-2">
-              <FeatureCard feature={featured} large />
-            </div>
-          )}
-          {rest.map((feature) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+          {features.map((feature) => (
             <FeatureCard key={feature.title} feature={feature} />
           ))}
         </div>

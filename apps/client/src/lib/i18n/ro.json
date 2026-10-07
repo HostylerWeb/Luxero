@@ -1519,11 +1519,17 @@
     "howItWorks": {
       "heading": "Cum funcționează",
       "subtitle": "Începerea este ușoară. Urmează acești pași pentru a participa la concursurile noastre cu premii de lux.",
+      "glance": "Alege un premiu, intră în extragere, tragem corect.",
       "whyLuxero": "De ce Luxero",
       "whyChooseLuxero": "De ce să Alegi",
       "yourJourney": "Călătoria ta",
       "fromBrowseToWin": "De la navigare la câștig",
-      "stepDescription": "Șapte pași simpli — finalizare online sau participare gratuită prin poștă.",
+      "stepDescription": "Șase pași de la navigare la câștig. Întrebările de abilități doar când concursul le cere.",
+      "altPaths": {
+        "kicker": "Disponibil și",
+        "heading": "Poștă și recomandări",
+        "learnMore": "Află mai mult"
+      },
       "haveQuestions": "Ai întrebări?",
       "haveQuestionsDesc": "Verifică întrebările noastre frecvente pentru mai multe detalii despre cum funcționează concursurile.",
       "viewFaq": "Vezi întrebările frecvente",

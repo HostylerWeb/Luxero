@@ -17,6 +17,13 @@ export interface HowItWorksStep {
   icon: string;
 }
 
+export interface HowItWorksAltPath {
+  title: string;
+  description: string;
+  icon: string;
+  href: string;
+}
+
 export interface ContentFeature {
   title: string;
   description: string;

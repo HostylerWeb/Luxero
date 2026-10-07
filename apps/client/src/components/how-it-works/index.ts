@@ -1,3 +1,4 @@
+export { HowItWorksAltPaths } from "./HowItWorksAltPaths";
 export { HowItWorksFeatures } from "./HowItWorksFeatures";
 export { HowItWorksHero } from "./HowItWorksHero";
 export { HowItWorksReadyCta } from "./HowItWorksReadyCta";

@@ -15,6 +15,9 @@ export function HowItWorksHero() {
       <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
         {t("staticPages.howItWorks.subtitle")}
       </p>
+      <p className="mt-5 text-sm sm:text-base font-medium text-foreground/90 max-w-xl mx-auto">
+        {t("staticPages.howItWorks.glance")}
+      </p>
     </header>
   );
 }

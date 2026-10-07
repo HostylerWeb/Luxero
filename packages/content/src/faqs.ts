@@ -2,6 +2,11 @@ import type { FaqCategory, FaqItem } from "./content-types";
 
 export const FAQ_CATEGORIES: FaqCategory[] = [
   { id: "general", name: "General" },
+  { id: "competitions", name: "Competitions" },
+  { id: "instant", name: "Instant wins" },
+  { id: "milestones", name: "Milestones & bonus prizes" },
+  { id: "responsible", name: "Responsible play" },
+  { id: "referrals", name: "Referrals" },
   { id: "payment", name: "Payment" },
   { id: "delivery", name: "Shipping & Delivery" },
 ];
@@ -21,7 +26,7 @@ export const FAQS_BY_CATEGORY: Record<string, FaqItem[]> = {
     {
       question: "When will the draw take place?",
       answer:
-        "Each competition page shows the scheduled draw date and time. Draws occur automatically once all tickets are sold or the countdown timer reaches zero, whichever comes first.",
+        "Each competition page shows the scheduled draw date and time. The advertised date is not brought forward because tickets sell quickly. The draw runs when that time is reached, using verifiable random selection.",
     },
     {
       question: "How will I know if I've won?",
@@ -52,6 +57,76 @@ export const FAQS_BY_CATEGORY: Record<string, FaqItem[]> = {
       question: "Can I buy tickets for someone else?",
       answer:
         "Yes, you can purchase tickets as a gift. The tickets will be assigned to your account, but you can notify us after the draw to update delivery details.",
+    },
+  ],
+  competitions: [
+    {
+      question: "What is the skill question?",
+      answer:
+        "Some competitions ask one multiple-choice question before you can complete your entry. Answer it correctly to finish checkout. Competitions that do not show a skill question do not require one.",
+    },
+    {
+      question: "Where do I see my ticket numbers?",
+      answer:
+        "After a successful purchase you receive a confirmation email. Your entries are also listed in your dashboard under My Tickets.",
+    },
+    {
+      question: "What if the competition does not sell out?",
+      answer:
+        "The draw still takes place at the advertised date and time. Unsold tickets do not cancel the prize or move the draw earlier.",
+    },
+  ],
+  instant: [
+    {
+      question: "What is an instant win?",
+      answer:
+        "An instant win is a separate prize revealed with your entry, in addition to the main competition prize. The competition page shows how many instant prizes are available and how many have been claimed.",
+    },
+    {
+      question: "Can I pay for an instant-win competition with a credit card?",
+      answer:
+        "No. If your basket includes an instant-win competition, credit cards cannot be used. Debit cards, Apple Pay, and Google Pay remain available.",
+    },
+  ],
+  milestones: [
+    {
+      question: "What is a milestone?",
+      answer:
+        "A milestone is an extra prize unlocked when a competition reaches a set percentage of tickets sold. The competition page lists each milestone and whether it has been reached.",
+    },
+    {
+      question: "How are bonus prizes paid?",
+      answer:
+        "A bonus win is recorded on your account. Our team fulfils it after the win is confirmed.",
+    },
+  ],
+  responsible: [
+    {
+      question: "Is there a limit on credit card spend?",
+      answer:
+        "Yes. Credit card spend is limited to £250 per calendar month across all competitions. Debit cards, Apple Pay, and Google Pay are not part of this cap. Checkout shows your remaining allowance when the limit applies.",
+    },
+    {
+      question: "Can I set my own spending limit?",
+      answer:
+        "Yes. In your dashboard, open Responsible Play and set a monthly spend limit. A lower limit applies immediately. A higher limit applies after a 24-hour cooling-off period.",
+    },
+    {
+      question: "How does self-exclusion work?",
+      answer:
+        "You can self-exclude for 6 months, 1 year, 5 years, or permanently from Responsible Play in your dashboard. While you are excluded, your account is suspended, marketing emails stop, and you cannot enter competitions. Contact us if you need help after a temporary exclusion expires.",
+    },
+  ],
+  referrals: [
+    {
+      question: "How do referrals work?",
+      answer:
+        "Share your referral link from the dashboard. When a friend joins with your link and makes a qualifying purchase, you can earn free tickets.",
+    },
+    {
+      question: "Where do free referral tickets go?",
+      answer:
+        "They are added to your referral ticket wallet. At checkout you can apply those tickets to items in your basket before you pay.",
     },
   ],
   payment: [

@@ -92,11 +92,11 @@ export async function prefetchHomepageSections(input: PrefetchSectionsInput): Pr
           cache: "public",
         }),
     }),
-    // Recent winners — consumed by WinnersSection via useWinners(5)
+    // Recent winners — homepage shows up to 6
     queryClient.prefetchQuery({
-      queryKey: queryKeys.winners.recent(5),
+      queryKey: queryKeys.winners.recent(6),
       queryFn: () =>
-        serverFetch<unknown>("/api/winners?limit=5", {
+        serverFetch<unknown>("/api/winners?limit=6", {
           cookieHeader: "",
           cache: "public",
         }),

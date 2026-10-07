@@ -396,10 +396,10 @@ export function Header() {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap shrink-0",
+                        "font-nav flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-[15px] font-semibold tracking-tight transition-all whitespace-nowrap shrink-0",
                         active
                           ? "text-gold bg-gold/10"
-                          : "text-muted-foreground hover:text-gold hover:bg-gold/10"
+                          : "text-white hover:text-gold hover:bg-gold/10"
                       )}
                       data-umami-event={`nav:${item.label.toLowerCase().replace(/\s+/g, "-")}-click`}
                     >

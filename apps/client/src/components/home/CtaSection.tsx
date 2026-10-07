@@ -19,10 +19,6 @@ export function CtaSection() {
 
       <div className="luxero-container-wide relative z-10">
         <div className="text-center space-y-6 sm:space-y-8">
-          <div className="inline-flex items-center justify-center space-x-3 mb-4 sm:mb-6">
-            <Zap className="w-6 h-6 text-gold" />
-          </div>
-
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tighter leading-none">
             <span className="text-gold">{ctaContent.title}</span>
           </h2>

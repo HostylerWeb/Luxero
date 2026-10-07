@@ -1,6 +1,7 @@
 import type { Category, Competition, HomepageLayoutSettings, Winner } from "@luxero/types";
 import type { EndingSoonSettings } from "@luxero/utils";
 import type { PageContextServer } from "vike/types";
+import { HOMEPAGE_WINNERS_LIMIT, takeRecentWinners } from "@/lib/home-winners";
 import { serverFetch } from "@/lib/server-fetch";
 
 async function jsonFetch<T>(path: string, cookie: string): Promise<T | null> {
@@ -26,7 +27,7 @@ export async function data(pageContext: PageContextServer) {
     jsonFetch<Competition[]>("/api/competitions?limit=24", ""),
     jsonFetch<Competition[]>("/api/competitions?limit=100", ""),
     jsonFetch<EndingSoonSettings>("/api/ending-soon-settings", ""),
-    jsonFetch<Winner[]>("/api/winners?limit=5", ""),
+    jsonFetch<Winner[]>(`/api/winners?limit=${HOMEPAGE_WINNERS_LIMIT}`, ""),
   ]);
 
   return {
@@ -36,7 +37,7 @@ export async function data(pageContext: PageContextServer) {
     competitions: competitions ?? [],
     allCompetitions: allCompetitions ?? [],
     endingSoonSettings: endingSoonSettings ?? null,
-    winners: winners ?? [],
+    winners: takeRecentWinners(winners ?? []),
   };
 }
 

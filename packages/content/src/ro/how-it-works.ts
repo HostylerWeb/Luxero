@@ -1,4 +1,4 @@
-import type { ContentFeature, HowItWorksStep } from "../content-types";
+import type { ContentFeature, HowItWorksAltPath, HowItWorksStep } from "../content-types";
 
 export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
   {
@@ -16,9 +16,9 @@ export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
   },
   {
     stepNumber: 3,
-    title: "Joc Bazat pe Abilități",
+    title: "Întrebare de abilități (dacă e cazul)",
     description:
-      "Testează-ți cunoștințele cu o provocare rapidă pentru șansa de a câștiga intrări bonus.",
+      "Unele concursuri cer o întrebare cu variante multiple. Răspunde corect pentru a finaliza intrarea.",
     icon: "Gamepad2",
   },
   {
@@ -41,51 +41,38 @@ export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
       "Câștigătorii sunt notificați prin email, iar premiile sunt expediate în termen de 14 zile.",
     icon: "Trophy",
   },
+];
+
+export const HOW_IT_WORKS_ALT_PATHS: HowItWorksAltPath[] = [
   {
-    stepNumber: 7,
-    title: "Recomandă Prietenii",
+    title: "Participare gratuită prin poștă",
     description:
-      "Distribuie câștigul tău și câștigă bilete gratuite pentru fiecare prieten care participă.",
-    icon: "Users",
+      "Preferi să nu plătești online? Trimite o participare gratuită prin poștă pentru orice concurs activ.",
+    icon: "Mail",
+    href: "/free-postal-entry",
   },
   {
-    stepNumber: 8,
-    title: "Participare Gratuită prin Poștă",
-    description:
-      "Preferi să nu plătești online? Trimite o participare gratuită prin poștă pentru orice concurs activ — vezi pagina de Participare gratuită prin poștă pentru detalii.",
-    icon: "Mail",
+    title: "Recomandă prietenii",
+    description: "Distribuie Luxero și câștigă bilete gratuite când prietenii participă.",
+    icon: "Users",
+    href: "/dashboard/referrals",
   },
 ];
 
 export const HOW_IT_WORKS_FEATURES: ContentFeature[] = [
   {
-    title: "Extrageri Verificate Aleatoriu",
+    title: "Extrageri verificate aleatoriu",
     description:
       "Fiecare câștigător este selectat folosind generare certificată de numere aleatoare.",
     icon: "Shield",
   },
   {
-    title: "Premii de Lux Reale",
-    description: "Doar premii autentice de mare valoare de la mărci și retaileri de încredere.",
-    icon: "Gem",
-  },
-  {
-    title: "Notificări Instant",
-    description: "Afli imediat când ai câștigat prin email și în panoul de bord.",
-    icon: "Bell",
-  },
-  {
-    title: "Urmărește-ți Participările",
-    description: "Vezi toate biletele, extragerile și câștigurile în panoul tău personal.",
-    icon: "BarChart3",
-  },
-  {
-    title: "Plăți Securizate",
-    description: "Finalizare securizată cu protecție completă împotriva fraudei și criptare.",
+    title: "Plăți securizate",
+    description: "Checkout criptat cu protecție antifraudă la fiecare comandă.",
     icon: "Lock",
   },
   {
-    title: "Suport Dedicat",
+    title: "Suport dedicat",
     description:
       "Echipa noastră este aici pentru a te ajuta în fiecare zi în timpul programului de lucru.",
     icon: "Headphones",

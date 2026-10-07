@@ -1,4 +1,5 @@
-import type { ContentFeature, HowItWorksStep } from "./content-types";
+import type { ContentFeature, HowItWorksAltPath, HowItWorksStep } from "./content-types";
+
 
 export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
   {
@@ -15,9 +16,9 @@ export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
   },
   {
     stepNumber: 3,
-    title: "Skill Based Game",
+    title: "Skill Question (when required)",
     description:
-      "Test your knowledge with a quick skill-based challenge for a chance to win bonus entries.",
+      "Some competitions ask one multiple-choice question. Answer correctly to complete your entry.",
     icon: "Gamepad2",
   },
   {
@@ -38,18 +39,21 @@ export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
     description: "Winners are notified by email and prizes dispatched within 14 days.",
     icon: "Trophy",
   },
+];
+
+export const HOW_IT_WORKS_ALT_PATHS: HowItWorksAltPath[] = [
   {
-    stepNumber: 7,
-    title: "Refer Friends",
-    description: "Share your win and earn free tickets for every friend who enters.",
-    icon: "Users",
-  },
-  {
-    stepNumber: 8,
     title: "Free Postal Entry",
     description:
-      "Prefer not to pay online? Send a free postal entry for any active competition — see our Free Postal Entry page for details.",
+      "Prefer not to pay online? Send a free postal entry for any active competition.",
     icon: "Mail",
+    href: "/free-postal-entry",
+  },
+  {
+    title: "Refer Friends",
+    description: "Share Luxero and earn free tickets when friends enter.",
+    icon: "Users",
+    href: "/dashboard/referrals",
   },
 ];
 
@@ -60,23 +64,8 @@ export const HOW_IT_WORKS_FEATURES: ContentFeature[] = [
     icon: "Shield",
   },
   {
-    title: "Real Luxury Prizes",
-    description: "Only authentic, high-value prizes from trusted brands and retailers.",
-    icon: "Gem",
-  },
-  {
-    title: "Instant Notifications",
-    description: "Know immediately when you've won via email and your dashboard.",
-    icon: "Bell",
-  },
-  {
-    title: "Track Your Entries",
-    description: "See all your tickets, draws, and wins in your personal dashboard.",
-    icon: "BarChart3",
-  },
-  {
     title: "Secure Payments",
-    description: "Secure checkout with full fraud protection and encryption.",
+    description: "Encrypted checkout with fraud protection on every order.",
     icon: "Lock",
   },
   {

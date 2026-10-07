@@ -64,94 +64,98 @@ export default function ContactPage() {
   }
 
   return (
-    <>
-      <section className="py-8 sm:py-12 border-b border-gold/10">
-        <div className="luxero-container-medium text-center">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-3 text-balance">
+    <div className="luxero-container-content pb-10 lg:pb-14 animate-fade-in">
+      <div className="py-6 lg:py-12">
+        <header className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
+          <div className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center mx-auto mb-5 ring-1 ring-gold/15">
+            <Mail className="w-8 h-8 text-gold" aria-hidden />
+          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4 text-balance">
             {t("staticPages.contact.heading")}
           </h1>
-          <p className="text-muted-foreground text-sm max-w-md mx-auto">{contactHero.subtitle}</p>
-        </div>
-      </section>
+          <p className="text-lg text-muted-foreground leading-relaxed text-pretty">
+            {contactHero.subtitle}
+          </p>
+        </header>
 
-      <section className="py-8 sm:py-10">
-        <div className="luxero-container-medium">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-            {infoCards.map(({ label, value, href, subvalue }) => {
-              const Icon = ICON_MAP[label as keyof typeof ICON_MAP] ?? Mail;
-              return (
-                <div
-                  key={label}
-                  className="bg-card rounded-xl border border-gold/10 p-3 sm:p-4 text-center"
-                >
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gold/10 flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold" />
-                  </div>
-                  <p className="text-[9px] sm:text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-1.5 sm:mb-2">
-                    {label}
-                  </p>
-                  {href ? (
-                    <a
-                      href={href}
-                      className="text-xs sm:text-sm font-semibold text-gold hover:underline block truncate"
-                      data-umami-event="contact:info-link-click"
-                      data-umami-event-type={label}
-                    >
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
+          <aside className="space-y-4">
+            <ul className="rounded-2xl border border-gold/10 bg-card overflow-hidden divide-y divide-gold/10 list-none p-0 m-0">
+              {infoCards.map(({ label, value, href, subvalue }) => {
+                const Icon = ICON_MAP[label as keyof typeof ICON_MAP] ?? Mail;
+                const body = (
+                  <>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground font-semibold">
+                      {label}
+                    </p>
+                    <p className="mt-1 text-sm sm:text-base font-semibold text-foreground leading-snug break-words">
                       {value}
-                    </a>
-                  ) : (
-                    <>
-                      <p className="text-xs sm:text-sm font-semibold text-foreground leading-snug">
-                        {value}
-                      </p>
-                      {subvalue && (
-                        <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 sm:mt-1">
-                          {subvalue}
-                        </p>
+                    </p>
+                    {subvalue ? (
+                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{subvalue}</p>
+                    ) : null}
+                  </>
+                );
+                return (
+                  <li key={label} className="flex gap-4 px-5 py-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold/10">
+                      <Icon className="h-4 w-4 text-gold" aria-hidden />
+                    </div>
+                    <div className="min-w-0">
+                      {href ? (
+                        <a
+                          href={href}
+                          className="block hover:text-gold transition-colors"
+                          data-umami-event="contact:info-link-click"
+                          data-umami-event-type={label}
+                        >
+                          {body}
+                        </a>
+                      ) : (
+                        body
                       )}
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
 
-      <section className="py-6 sm:py-8 border-y border-gold/10">
-        <div className="luxero-container-medium">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                {t("staticPages.contact.followUs")}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
+            <div className="rounded-2xl border border-gold/10 bg-card p-5">
+              <p className="text-sm font-semibold text-foreground">{t("staticPages.contact.followUs")}</p>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">
                 {t("staticPages.contact.followUsSubtitle")}
               </p>
+              <div className="flex flex-wrap gap-2">
+                {SOCIAL_LINKS.map(({ label, href, icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-umami-event="contact:social-follow"
+                    data-umami-event-social={label}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/20 text-xs font-medium text-muted-foreground hover:border-gold/50 hover:text-gold transition-colors"
+                  >
+                    <SocialIcon name={icon} className="size-3.5" />
+                    {label}
+                  </a>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {SOCIAL_LINKS.map(({ label, href, icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-umami-event="contact:social-follow"
-                  data-umami-event-social={label}
-                  className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-gold/20 text-xs font-medium text-muted-foreground hover:border-gold/50 hover:text-gold transition-all duration-200"
-                >
-                  <SocialIcon name={icon} className="size-3.5" />
-                  {label}
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="py-8 sm:py-10">
-        <div className="luxero-container-narrow">
-          <div className="bg-card rounded-xl border border-gold/10 p-5 sm:p-8">
+            <p className="text-xs leading-relaxed text-muted-foreground px-1">
+              {contactFooterNote}{" "}
+              <Link
+                href="/faq"
+                className="text-gold hover:underline font-medium"
+                data-umami-event="contact:faq-link"
+              >
+                {t("staticPages.contact.browseFaq")}
+              </Link>
+            </p>
+          </aside>
+
+          <section className="rounded-2xl border border-gold/10 bg-card p-5 sm:p-8 shadow-sm">
             {successMsg && (
               <div className="mb-5 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
                 {successMsg}
@@ -238,28 +242,9 @@ export default function ContactPage() {
                   : t("staticPages.contact.sendMessage")}
               </GoldButton>
             </form>
-          </div>
+          </section>
         </div>
-      </section>
-
-      <section className="pb-8 sm:pb-10">
-        <div className="luxero-container-narrow">
-          <div className="mx-auto max-w-sm space-y-3 rounded-xl border border-gold/10 bg-card/50 p-4 text-center sm:p-5">
-            <p className="text-xs leading-relaxed text-muted-foreground">{contactFooterNote}</p>
-            <div className="h-px bg-gold/10" />
-            <p className="text-xs text-muted-foreground">
-              {t("staticPages.contact.preferSelfHelp")}{" "}
-              <Link
-                href="/faq"
-                className="text-gold hover:underline whitespace-nowrap font-medium"
-                data-umami-event="contact:faq-link"
-              >
-                {t("staticPages.contact.browseFaq")}
-              </Link>
-            </p>
-          </div>
-        </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 }
