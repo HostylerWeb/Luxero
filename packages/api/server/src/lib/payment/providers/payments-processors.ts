@@ -40,4 +40,14 @@ export const paymentProcessors: PaymentProcessor[] = [
       subscriptions: false,
     },
   },
+  {
+    id: "site_credit",
+    name: "Site Credit Wallet",
+    capabilities: {
+      checkout: false,
+      webhooks: false,
+      refunds: false,
+      subscriptions: false,
+    },
+  },
 ];

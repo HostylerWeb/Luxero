@@ -68,6 +68,7 @@
       "orders": "Orders",
       "wins": "Wins",
       "referrals": "Referrals",
+      "wallet": "Wallet",
       "profile": "Profile",
       "referAndEarn": "Refer & Earn",
       "myActivity": "My activity",
@@ -79,6 +80,8 @@
     },
     "userMenu": {
       "anonymous": "Anonymous",
+      "siteCredit": "Site Credit: {amount}",
+      "siteCreditLoading": "Site Credit: …",
       "notificationPreferences": "Notification preferences",
       "disableNotifications": "Disable notifications",
       "enableNotifications": "Enable notifications"
@@ -685,6 +688,17 @@
     "gamCarePhone": "0808 8020 133",
     "beGambleAware": "begambleaware.org",
     "orVisit": "or visit",
+    "siteCredit": {
+      "walletTitle": "Site Credit Wallet",
+      "walletDescription": "Use your site credit balance toward this order.",
+      "available": "Available: {amount}",
+      "partialPay": "We'll apply {credit} from your site credit. The remaining {cash} will be paid by card.",
+      "applied": "Site credit",
+      "dueToday": "Due today",
+      "fullPayDescription": "Your site credit covers this order in full.",
+      "payWithCredit": "Pay {amount} with site credit",
+      "processing": "Processing…"
+    },
     "choosePayment": "Choose how to pay",
     "choosePaymentDesc": "We support the following payment methods. Pick the one that suits you.",
     "choosePaymentAria": "Choose a payment method",
@@ -1219,6 +1233,43 @@
         "pending": "Pending"
       }
     },
+    "wallet": {
+      "heading": "Wallet",
+      "subtitle": "Your site credit balance and transaction history",
+      "siteCreditWallet": "Site credit wallet",
+      "walletDesc": "Site credit can be used on eligible purchases. Credits and debits appear in your history below.",
+      "available": "Available",
+      "pending": "Pending",
+      "historyTitle": "Transaction history",
+      "dateHeader": "Date",
+      "typeHeader": "Type",
+      "statusHeader": "Status",
+      "amountHeader": "Amount",
+      "balanceAfterHeader": "Balance after",
+      "noteHeader": "Note",
+      "failedToLoad": "Failed to load transactions",
+      "failedToLoadDesc": "Please try again.",
+      "retry": "Retry",
+      "noTransactions": "No transactions yet",
+      "noTransactionsDesc": "Top-ups, purchases, refunds, and admin adjustments will show here.",
+      "loadMore": "Load more",
+      "loadingMore": "Loading…",
+      "transactionTypes": {
+        "top_up": "Top-up",
+        "withdraw": "Withdrawal",
+        "withdraw_reversed": "Withdrawal reversed",
+        "purchase": "Purchase",
+        "purchase_refund": "Purchase refund",
+        "admin_credit": "Credit",
+        "admin_debit": "Debit"
+      },
+      "statusLabels": {
+        "pending": "Pending",
+        "completed": "Completed",
+        "failed": "Failed",
+        "reversed": "Reversed"
+      }
+    },
     "referrals": {
       "heading": "Referrals",
       "subtitle": "Share your code — Friends get discount , you get free tickets !",
@@ -1478,6 +1529,9 @@
     "drawDate": "Draw · {date}",
     "drawDateShort": "Draw: {date}",
     "endsIn": "Ends In",
+    "nextLiveDrawIn": "Next live draw",
+    "nextLiveDrawHint": "Time until the next competition closes for entries.",
+    "nextLiveDrawMultiple": "{count} competitions end at this time — rotating every few seconds.",
     "countdown": {
       "endsIn": "Ends in",
       "endingToday": "Ending today",

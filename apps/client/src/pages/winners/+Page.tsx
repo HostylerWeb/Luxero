@@ -183,7 +183,6 @@ export default function Page() {
   }, [isLoading, winners, t]);
 
   const hasError = winnersError;
-  const hasWinnerData = winners.length > 0;
   const totalPrizeLabel = stats ? formatCompactPrizeValue(stats.totalPrizeValue, locale) : null;
   const showWinnerCount = (stats?.totalWinners ?? 0) > 0;
   const showPrizeValue = Boolean(totalPrizeLabel);
@@ -195,9 +194,6 @@ export default function Page() {
         <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-gold/10 blur-3xl" />
         <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-10 lg:p-10">
           <div className="max-w-2xl">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-gold/85">
-              {t("staticPages.winners.publicGallery")}
-            </p>
             <h1 className="text-4xl font-bold tracking-tighter leading-none sm:text-5xl lg:text-6xl">
               <span className="text-gold">{t("staticPages.winners.heading")}</span>{" "}
               {t("staticPages.winners.subheading")}
@@ -205,11 +201,6 @@ export default function Page() {
             <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
               {t("staticPages.winners.heroDesc")}
             </p>
-            {hasWinnerData ? (
-              <p className="mt-4 text-sm text-muted-foreground/90">
-                {t("staticPages.winners.transparencyNote")}
-              </p>
-            ) : null}
           </div>
 
           {showStats && !isLoading ? (

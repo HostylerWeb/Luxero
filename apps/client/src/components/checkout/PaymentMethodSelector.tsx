@@ -3,15 +3,20 @@
 import type { PaymentProviderId, PaymentProviderInfo } from "@luxero/types";
 import { cn } from "@luxero/utils";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useTranslation } from "@/lib/i18n";
+import { formatCurrency, useTranslation } from "@/lib/i18n";
 import { FreeCheckout } from "./free/FreeCheckout";
+import { SiteCreditFullCheckout } from "./site-credit/SiteCreditFullCheckout";
+import { Wallet } from "@luxero/icons";
+import { Spinner } from "@/components/ui/spinner";
 import { CARD_BRAND_COMPONENT, providerDisplay } from "./providers/display";
 import { checkoutComponents } from "./providers/registry";
 
 const STORAGE_KEY = "luxero:checkout:selected-provider";
+export const SITE_CREDIT_WALLET_CHECKOUT_ID = "site_credit_wallet";
 
 export interface PaymentMethodSelectorCart {
   items: Array<{ competitionId: string; quantity: number; answerIndex: number }>;
@@ -32,6 +37,7 @@ export interface PaymentMethodSelectorCart {
   accountId: string;
   firstName?: string;
   lastName?: string;
+  applySiteCredit?: boolean;
 }
 
 export interface PaymentMethodSelectorProps {
@@ -50,6 +56,14 @@ export interface PaymentMethodSelectorProps {
   onLocalBypass?: () => void;
   localBypassPending?: boolean;
   compliance?: { dob?: string };
+  siteCreditWalletEnabled?: boolean;
+  siteCreditAvailable?: number;
+  siteCreditBalanceLoading?: boolean;
+  siteCreditCurrency?: string;
+  applySiteCredit?: boolean;
+  onApplySiteCreditChange?: (apply: boolean) => void;
+  onSiteCreditFullPay?: () => void;
+  siteCreditFullPayPending?: boolean;
 }
 
 function readStoredSelection(enabledIds: string[]): string | null {
@@ -73,6 +87,10 @@ function clearSelection(): void {
   try {
     window.sessionStorage.removeItem(STORAGE_KEY);
   } catch {}
+}
+
+function isGatewayProviderId(id: string): id is PaymentProviderId {
+  return id in checkoutComponents;
 }
 
 interface ProviderHeaderProps {
@@ -269,6 +287,10 @@ const ProviderCheckoutPanel = memo(function ProviderCheckoutPanel({
     [onProcessingChange, providerId]
   );
 
+  if (!Checkout) {
+    return null;
+  }
+
   return (
     <Checkout
       cart={cart}
@@ -302,9 +324,32 @@ function PaymentMethodSelectorInner({
   onLocalBypass,
   localBypassPending,
   compliance,
+  siteCreditWalletEnabled = false,
+  siteCreditAvailable = 0,
+  siteCreditBalanceLoading = false,
+  siteCreditCurrency = "GBP",
+  applySiteCredit = false,
+  onApplySiteCreditChange,
+  onSiteCreditFullPay,
+  siteCreditFullPayPending,
 }: PaymentMethodSelectorProps) {
-  const { t } = useTranslation();
-  const enabledProviders = useMemo(() => providers.filter((p) => p.enabled), [providers]);
+  const { t, locale } = useTranslation();
+  const enabledProviders = useMemo(
+    () => providers.filter((p) => p.enabled && isGatewayProviderId(p.id)),
+    [providers]
+  );
+  const showSiteCreditOption =
+    siteCreditWalletEnabled &&
+    cart.total > 0 &&
+    (siteCreditBalanceLoading || siteCreditAvailable > 0);
+  const siteCreditApplied = applySiteCredit
+    ? Math.min(siteCreditAvailable, cart.total)
+    : 0;
+  const gatewayDue = Math.max(0, cart.total - siteCreditApplied);
+  const cartWithSiteCredit = useMemo(
+    () => ({ ...cart, applySiteCredit: applySiteCredit && siteCreditApplied > 0 }),
+    [cart, applySiteCredit, siteCreditApplied]
+  );
 
   const defaultProviderId = useMemo(() => {
     const def = enabledProviders.find((p) => p.isDefault);
@@ -313,11 +358,13 @@ function PaymentMethodSelectorInner({
   }, [enabledProviders]);
 
   const [selected, setSelected] = useState<string | null>(null);
+  const [lastGatewayProviderId, setLastGatewayProviderId] = useState<PaymentProviderId | null>(
+    () => (defaultProviderId && isGatewayProviderId(defaultProviderId) ? defaultProviderId : null)
+  );
   const [processingProviderId, setProcessingProviderId] = useState<string | null>(null);
-  const [mountedProviderIds, setMountedProviderIds] = useState<Set<PaymentProviderId>>(() => {
-    const id = defaultProviderId as PaymentProviderId | null;
-    return id ? new Set([id]) : new Set();
-  });
+  const [mountedProviderIds, setMountedProviderIds] = useState<Set<PaymentProviderId>>(
+    () => new Set()
+  );
 
   useEffect(() => {
     if (!defaultProviderId) {
@@ -328,31 +375,67 @@ function PaymentMethodSelectorInner({
     setSelected((prev) => {
       const stored = readStoredSelection(enabledProviders.map((p) => p.id));
       if (stored) return stored;
+      if (prev === SITE_CREDIT_WALLET_CHECKOUT_ID) return prev;
       if (prev && enabledProviders.some((p) => p.id === prev)) return prev;
+      if (showSiteCreditOption) return null;
       return defaultProviderId;
     });
-  }, [defaultProviderId, enabledProviders]);
+  }, [defaultProviderId, enabledProviders, showSiteCreditOption]);
 
-  const activeProviderId = selected ?? defaultProviderId;
+  const activeProviderId =
+    selected ?? (showSiteCreditOption ? null : defaultProviderId);
+
+  const gatewayProviderId = useMemo((): PaymentProviderId | null => {
+    if (activeProviderId && isGatewayProviderId(activeProviderId)) {
+      return activeProviderId;
+    }
+    if (applySiteCredit && showSiteCreditOption && gatewayDue > 0) {
+      const pick =
+        lastGatewayProviderId && isGatewayProviderId(lastGatewayProviderId)
+          ? lastGatewayProviderId
+          : enabledProviders[0]?.id;
+      return pick && isGatewayProviderId(pick) ? pick : null;
+    }
+    if (showSiteCreditOption && !applySiteCredit) {
+      return null;
+    }
+    const fallback = defaultProviderId ?? enabledProviders[0]?.id;
+    return fallback && isGatewayProviderId(fallback) ? fallback : null;
+  }, [
+    activeProviderId,
+    applySiteCredit,
+    showSiteCreditOption,
+    gatewayDue,
+    lastGatewayProviderId,
+    enabledProviders,
+    defaultProviderId,
+  ]);
 
   useEffect(() => {
-    if (!activeProviderId) return;
-    const id = activeProviderId as PaymentProviderId;
+    if (!gatewayProviderId) return;
     setMountedProviderIds((prev) => {
-      if (prev.has(id)) return prev;
+      if (prev.has(gatewayProviderId)) return prev;
       const next = new Set(prev);
-      next.add(id);
+      next.add(gatewayProviderId);
       return next;
     });
-  }, [activeProviderId]);
+  }, [gatewayProviderId]);
 
   const handleSelect = useCallback(
     (next: string) => {
       if (processingProviderId) return;
       setSelected(next);
-      persistSelection(next);
+      if (next === SITE_CREDIT_WALLET_CHECKOUT_ID) {
+        onApplySiteCreditChange?.(true);
+      } else {
+        onApplySiteCreditChange?.(false);
+        persistSelection(next);
+        if (isGatewayProviderId(next)) {
+          setLastGatewayProviderId(next);
+        }
+      }
     },
-    [processingProviderId]
+    [processingProviderId, onApplySiteCreditChange]
   );
 
   const handleProcessingChange = useCallback(
@@ -364,7 +447,7 @@ function PaymentMethodSelectorInner({
   );
 
   const sharedPanelProps = {
-    cart,
+    cart: cartWithSiteCredit,
     isFormValid,
     onBeforePayment,
     onPaymentError,
@@ -400,7 +483,14 @@ function PaymentMethodSelectorInner({
     );
   }
 
-  if (enabledProviders.length === 1) {
+  const paymentMode =
+    applySiteCredit && showSiteCreditOption
+      ? SITE_CREDIT_WALLET_CHECKOUT_ID
+      : (activeProviderId ?? "");
+
+  const cardOnlyMode = !showSiteCreditOption;
+
+  if (cardOnlyMode && enabledProviders.length === 1) {
     const provider = enabledProviders[0]!;
     const providerId = provider.id as PaymentProviderId;
 
@@ -420,35 +510,97 @@ function PaymentMethodSelectorInner({
       </div>
 
       <RadioGroup
-        value={activeProviderId ?? ""}
+        value={paymentMode}
         onValueChange={handleSelect}
         disabled={processingProviderId !== null}
-        className="grid gap-2"
+        className="relative z-20 grid gap-2"
         aria-label={t("checkout.choosePaymentAria")}
       >
+        {showSiteCreditOption ? (
+          <Label
+            htmlFor="pay-site-credit-wallet"
+            className={cn(
+              "flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-colors",
+              paymentMode === SITE_CREDIT_WALLET_CHECKOUT_ID
+                ? "border-gold/60 bg-gold/5"
+                : "border-gold/15 hover:border-gold/30 hover:bg-card"
+            )}
+          >
+            <RadioGroupItem
+              value={SITE_CREDIT_WALLET_CHECKOUT_ID}
+              id="pay-site-credit-wallet"
+              className="mt-1"
+              data-umami-event="checkout:payment-method-select"
+              data-umami-event-provider="site_credit_wallet"
+            />
+            <div className="flex flex-1 flex-col gap-1">
+              <span className="font-medium text-sm">{t("checkout.siteCredit.walletTitle")}</span>
+              <p className="text-xs text-muted-foreground">
+                {t("checkout.siteCredit.walletDescription")}
+              </p>
+              <p className="text-xs font-medium text-primary tabular-nums flex items-center gap-2">
+                {siteCreditBalanceLoading ? (
+                  <>
+                    <Spinner size="sm" aria-hidden />
+                    {t("header.userMenu.siteCreditLoading")}
+                  </>
+                ) : (
+                  t("checkout.siteCredit.available", {
+                    amount: formatCurrency(siteCreditAvailable, locale, siteCreditCurrency),
+                  })
+                )}
+              </p>
+            </div>
+          </Label>
+        ) : null}
         {enabledProviders.map((provider) => (
           <ProviderRadioOption
             key={provider.id}
             provider={provider}
-            isSelected={activeProviderId === provider.id}
+            isSelected={
+              !applySiteCredit && gatewayProviderId === provider.id && isGatewayProviderId(provider.id)
+            }
           />
         ))}
       </RadioGroup>
 
-      <div className="relative mt-2 min-h-[12rem]">
-        {Array.from(mountedProviderIds).map((providerId) => {
-          const isVisible = activeProviderId === providerId;
-          return (
-            <div key={providerId} className={cn(!isVisible && "hidden")} aria-hidden={!isVisible}>
-              <ProviderCheckoutPanel
-                providerId={providerId}
-                isActive={isVisible}
-                {...sharedPanelProps}
-              />
-            </div>
-          );
-        })}
-      </div>
+      {applySiteCredit && gatewayDue > 0 ? (
+        <Alert className="border-gold/25 bg-gold/5">
+          <AlertDescription className="text-sm">
+            {t("checkout.siteCredit.partialPay", {
+              credit: formatCurrency(siteCreditApplied, locale, siteCreditCurrency),
+              cash: formatCurrency(gatewayDue, locale, siteCreditCurrency),
+            })}
+          </AlertDescription>
+        </Alert>
+      ) : null}
+
+      {applySiteCredit && showSiteCreditOption && gatewayDue <= 0 ? (
+        <SiteCreditFullCheckout
+          isFormValid={isFormValid}
+          pending={siteCreditFullPayPending}
+          siteCreditApplied={siteCreditApplied}
+          currency={siteCreditCurrency}
+          onPay={() => onSiteCreditFullPay?.()}
+        />
+      ) : null}
+
+      {gatewayProviderId && (!applySiteCredit || gatewayDue > 0) ? (
+        <div className="relative isolate mt-2 min-h-[12rem]">
+          {Array.from(mountedProviderIds).map((providerId) => {
+            const isVisible = gatewayProviderId === providerId;
+            return (
+              <div key={providerId} className={cn(!isVisible && "hidden")} aria-hidden={!isVisible}>
+                <ProviderCheckoutPanel
+                  providerId={providerId}
+                  isActive={isVisible}
+                  {...sharedPanelProps}
+                />
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

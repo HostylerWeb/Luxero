@@ -68,6 +68,7 @@
       "orders": "Comenzi",
       "wins": "Câștiguri",
       "referrals": "Recomandări",
+      "wallet": "Portofel",
       "profile": "Profil",
       "referAndEarn": "Recomandă și câștigă",
       "myActivity": "Activitatea mea",
@@ -79,6 +80,8 @@
     },
     "userMenu": {
       "anonymous": "Anonim",
+      "siteCredit": "Credit site: {amount}",
+      "siteCreditLoading": "Credit site: …",
       "notificationPreferences": "Preferințe notificări",
       "disableNotifications": "Dezactivează notificările",
       "enableNotifications": "Activează notificările"
@@ -685,6 +688,17 @@
     "gamCarePhone": "0808 8020 133",
     "beGambleAware": "begambleaware.org",
     "orVisit": "sau vizitează",
+    "siteCredit": {
+      "walletTitle": "Portofel credit site",
+      "walletDescription": "Folosește creditul site pentru această comandă.",
+      "available": "Disponibil: {amount}",
+      "partialPay": "Vom aplica {credit} din creditul site. Restul de {cash} se plătește cu cardul.",
+      "applied": "Credit site",
+      "dueToday": "De plată acum",
+      "fullPayDescription": "Creditul site acoperă integral comanda.",
+      "payWithCredit": "Plătește {amount} cu credit site",
+      "processing": "Se procesează…"
+    },
     "choosePayment": "Alege cum să plătești",
     "choosePaymentDesc": "Acceptăm următoarele metode de plată. Alege-o pe cea care ți se potrivește.",
     "choosePaymentAria": "Alege o metodă de plată",
@@ -1219,6 +1233,43 @@
         "pending": "În așteptare"
       }
     },
+    "wallet": {
+      "heading": "Portofel",
+      "subtitle": "Soldul de credit site și istoricul tranzacțiilor",
+      "siteCreditWallet": "Portofel credit site",
+      "walletDesc": "Creditul site poate fi folosit la achiziții eligibile. Creditele și debitările apar în istoricul de mai jos.",
+      "available": "Disponibil",
+      "pending": "În așteptare",
+      "historyTitle": "Istoric tranzacții",
+      "dateHeader": "Data",
+      "typeHeader": "Tip",
+      "statusHeader": "Status",
+      "amountHeader": "Sumă",
+      "balanceAfterHeader": "Sold după",
+      "noteHeader": "Notă",
+      "failedToLoad": "Nu s-au putut încărca tranzacțiile",
+      "failedToLoadDesc": "Încearcă din nou.",
+      "retry": "Reîncearcă",
+      "noTransactions": "Nicio tranzacție încă",
+      "noTransactionsDesc": "Alimentările, achizițiile, rambursările și ajustările vor apărea aici.",
+      "loadMore": "Încarcă mai mult",
+      "loadingMore": "Se încarcă…",
+      "transactionTypes": {
+        "top_up": "Alimentare",
+        "withdraw": "Retragere",
+        "withdraw_reversed": "Retragere anulată",
+        "purchase": "Achiziție",
+        "purchase_refund": "Rambursare achiziție",
+        "admin_credit": "Credit",
+        "admin_debit": "Debit"
+      },
+      "statusLabels": {
+        "pending": "În așteptare",
+        "completed": "Finalizat",
+        "failed": "Eșuat",
+        "reversed": "Anulat"
+      }
+    },
     "referrals": {
       "heading": "Recomandări",
       "subtitle": "Distribuie codul tău — câștigă bilete pe niveluri când prietenii fac achiziții calificate",
@@ -1478,6 +1529,9 @@
     "drawDate": "Extragere · {date}",
     "drawDateShort": "Extragere: {date}",
     "endsIn": "Se încheie în",
+    "nextLiveDrawIn": "Următoarea extragere live",
+    "nextLiveDrawHint": "Timpul rămas până se închid înscrierile la următoarea competiție.",
+    "nextLiveDrawMultiple": "{count} competiții se încheie în același timp — rotim afișarea la câteva secunde.",
     "countdown": {
       "endsIn": "Se încheie în",
       "endingToday": "Se încheie azi",

@@ -70,9 +70,12 @@ export function CustomerProfileSection({ customer }: CustomerProfileSectionProps
   );
 
   return (
-    <section aria-label="Profile summary" className="flex flex-col gap-4">
+    <section
+      aria-label="Profile summary"
+      className="flex flex-col gap-4 rounded-xl border border-border/60 bg-muted/10 p-4 sm:p-5"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-        <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-muted ring-2 ring-gold/20">
+        <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-gold/10 ring-2 ring-gold/25">
           <User className="size-8 text-muted-foreground" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">

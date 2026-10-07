@@ -22,6 +22,7 @@ export interface CreatePendingOrderParams {
   cartId?: string;
   referralBonusTickets?: number;
   referralBalanceUsed?: number;
+  siteCreditApplied?: number;
   shippingAddress?: {
     addressLine1: string;
     addressLine2?: string;
@@ -54,6 +55,8 @@ export async function createPendingCheckoutOrder(params: CreatePendingOrderParam
   });
 
   const totalAmount = Math.max(0, params.subtotal - params.discount);
+  const siteCreditApplied = params.siteCreditApplied ?? 0;
+  const gatewayAmount = Math.max(0, totalAmount - siteCreditApplied);
   const competitionIds = params.items.map((item) => item.competitionId);
 
   const orderNumber = await generateOrderNumber();
@@ -68,6 +71,9 @@ export async function createPendingCheckoutOrder(params: CreatePendingOrderParam
     ...(params.promoCode ? { promoCode: params.promoCode } : {}),
     ...(params.referralCode ? { referralCode: params.referralCode } : {}),
     ...(params.cartId ? { cartId: params.cartId } : {}),
+    ...(siteCreditApplied > 0
+      ? { siteCreditApplied, gatewayAmount }
+      : {}),
   };
 
   const userId = new Types.ObjectId(params.userId);
@@ -221,6 +227,14 @@ export async function createPendingCheckoutOrder(params: CreatePendingOrderParam
 
 export function computeCheckoutTotal(subtotal: number, discount: number): number {
   return Math.max(0, subtotal - discount);
+}
+
+export function computeGatewayChargeAmount(
+  subtotal: number,
+  discount: number,
+  siteCreditApplied = 0
+): number {
+  return Math.max(0, subtotal - discount - siteCreditApplied);
 }
 
 const log = createLogger("app");

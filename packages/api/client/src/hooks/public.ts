@@ -35,6 +35,7 @@ export { useHomepageLayoutSettings } from "./public/homepage-layout-settings";
 export { type ResolvedHomepageSection, useHomepageSections } from "./public/homepage-sections";
 export {
   parsePaymentConfigPayload,
+  parseSiteCreditWalletEnabled,
   parseStripeConfig,
   usePaymentConfig,
   usePaymentProviders,

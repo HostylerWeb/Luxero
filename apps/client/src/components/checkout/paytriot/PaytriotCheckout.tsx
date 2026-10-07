@@ -138,6 +138,7 @@ function PaytriotCheckoutLoading() {
 export function PaytriotCheckout({
   cart,
   isLoading,
+  isActive = true,
   isFormValid,
   onBeforePayment,
   configResponse,
@@ -156,13 +157,17 @@ export function PaytriotCheckout({
   const checkoutMode = paytriotProvider?.checkoutMode ?? "hosted";
 
   const scriptsStatus = useExternalScripts(
-    checkoutMode === "popup"
+    isActive && checkoutMode === "popup"
       ? [
           { url: "/paytriot/paytriot-popup.css", type: "style" as const },
           { url: "/paytriot/paytriot-popup.js", type: "script" as const },
         ]
       : []
   );
+
+  if (isActive === false) {
+    return null;
+  }
 
   if (isLoading) {
     return <PaytriotCheckoutLoading />;
@@ -207,6 +212,7 @@ export function PaytriotCheckout({
         contact: cart.contact,
         shipping: cart.shipping,
         cartId: cart.cartId ?? undefined,
+        ...(cart.applySiteCredit ? { applySiteCredit: true } : {}),
         ...(compliance?.dob ? { compliance: { dob: compliance.dob } } : {}),
       });
       const formHtml = res.data?.formHtml;
@@ -254,6 +260,7 @@ export function PaytriotCheckout({
         contact: cart.contact,
         shipping: cart.shipping,
         cartId: cart.cartId ?? undefined,
+        ...(cart.applySiteCredit ? { applySiteCredit: true } : {}),
         ...(compliance?.dob ? { compliance: { dob: compliance.dob } } : {}),
       });
       const fields = res.data?.fields;

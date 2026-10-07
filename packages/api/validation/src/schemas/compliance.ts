@@ -38,6 +38,7 @@ export const adminComplianceAuditQuerySchema = z.object({
 
 export const adminUserProfilePatchSchema = z.object({
   reason: reasonSchema,
+  email: z.string().trim().email().optional(),
   firstName: z.string().trim().max(100).optional(),
   lastName: z.string().trim().max(100).optional(),
   phone: z.string().trim().max(30).optional(),

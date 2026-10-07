@@ -9,13 +9,16 @@ import {
   useAdminUserReferralStats,
   useAuth,
 } from "@luxero/api-admin";
+import { FileText, Pencil, Shield, User } from "@luxero/icons";
 import type { AdminReferralPurchase, Profile } from "@luxero/types";
 import { getDisplayName } from "@luxero/utils";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { UserCompliancePanel } from "@/components/UserCompliancePanel";
 import { FormSheet } from "@/components/FormSheet";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -44,10 +47,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createZodResolver } from "@/lib/zod-resolver";
 import { CustomerBalanceSection } from "./CustomerBalanceSection";
 import { CustomerComplianceSection } from "./CustomerComplianceSection";
 import { CustomerOrdersSection } from "./CustomerOrdersSection";
+import { CustomerProfileEditPanel } from "./CustomerProfileEditPanel";
 import { CustomerProfileSection } from "./CustomerProfileSection";
 import { CustomerReferralHistory } from "./CustomerReferralHistory";
 import { CustomerReferralSection } from "./CustomerReferralSection";
@@ -67,21 +72,10 @@ function CustomerSheetSkeleton() {
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-64" />
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Skeleton className="h-5 w-16 rounded-full" />
-            <Skeleton className="h-5 w-20 rounded-full" />
-          </div>
         </div>
       </div>
-      <Skeleton className="h-32 w-full rounded-xl" />
-      <div className="grid grid-cols-3 gap-2">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-20 rounded-lg" />
-        ))}
-      </div>
-      {Array.from({ length: 2 }).map((_, i) => (
-        <Skeleton key={i} className="h-28 w-full rounded-xl" />
-      ))}
+      <Skeleton className="h-10 w-full rounded-lg" />
+      <Skeleton className="h-48 w-full rounded-xl" />
     </div>
   );
 }
@@ -93,19 +87,17 @@ export function CustomerSheet({ open, onOpenChange, userId }: CustomerSheetProps
   const { data: referralStatsRes } = useAdminUserReferralStats(userId ?? "");
   const { data: complianceRes, isLoading: complianceLoading } = useAdminUserCompliance(
     userId ?? "",
-    { enabled: !isManager }
+    { enabled: !!userId && open && !isManager }
   );
   const { data: balanceRes, isLoading: balanceLoading } = useAdminUserBalance(userId ?? "", {
-    enabled: !isManager,
+    enabled: !!userId && open && !isManager,
   });
   const { data: referralPurchasesRes, isLoading: referralPurchasesLoading } =
-    useAdminUserReferralPurchases(userId ?? "");
-  const referralPurchases = (referralPurchasesRes?.data ?? []) as AdminReferralPurchase[];
+    useAdminUserReferralPurchases(userId ?? "", { enabled: !!userId && open });
 
+  const referralPurchases = (referralPurchasesRes?.data ?? []) as AdminReferralPurchase[];
   const customer = profileLoading ? null : ((profileRes?.data ?? null) as Profile | null);
   const referralStats = referralStatsRes?.data ?? null;
-
-  const isOverallLoading = profileLoading;
 
   const displayName = customer
     ? getDisplayName(
@@ -119,6 +111,7 @@ export function CustomerSheet({ open, onOpenChange, userId }: CustomerSheetProps
 
   const [reassignUserId, setReassignUserId] = useState<string | null>(null);
   const [reassignDialogOpen, setReassignDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const handleReassignReferral = useCallback((uid: string) => {
     setReassignUserId(uid);
@@ -140,57 +133,116 @@ export function CustomerSheet({ open, onOpenChange, userId }: CustomerSheetProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="grid-rows-[auto_minmax(0,1fr)_auto]" aria-describedby={undefined}>
-        <DialogHeader>
-          <DialogTitle>Customer Details</DialogTitle>
-          <DialogDescription>
-            {isOverallLoading ? "Loading customer information..." : displayName}
-          </DialogDescription>
+      <DialogContent
+        className="flex max-h-[min(90vh,880px)] w-[min(96vw,56rem)] max-w-none flex-col gap-0 p-0"
+        aria-describedby={undefined}
+      >
+        <DialogHeader className="border-b border-border/60 px-6 py-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <DialogTitle className="text-lg">Customer profile</DialogTitle>
+              <DialogDescription className="mt-1 truncate">
+                {profileLoading ? "Loading…" : displayName}
+              </DialogDescription>
+            </div>
+            {customer ? (
+              <div className="flex flex-wrap gap-1.5">
+                {customer.isVerified ? (
+                  <Badge variant="secondary" className="border-gold/30 text-gold">
+                    Verified
+                  </Badge>
+                ) : (
+                  <Badge variant="outline">Unverified</Badge>
+                )}
+                {customer.isGuestCheckout ? <Badge variant="outline">Guest checkout</Badge> : null}
+                {customer.isAdmin ? <Badge variant="outline">Admin</Badge> : null}
+              </div>
+            ) : null}
+          </div>
         </DialogHeader>
 
-        <ScrollArea className="min-h-0">
-          <div className="px-1 py-2">
-            {isOverallLoading ? (
-              <CustomerSheetSkeleton />
-            ) : customer ? (
-              <div className="flex flex-col gap-6">
-                <CustomerProfileSection customer={customer} />
+        <ScrollArea className="min-h-0 flex-1 px-6 py-4">
+          {profileLoading ? (
+            <CustomerSheetSkeleton />
+          ) : customer && userId ? (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0">
+              <TabsList className="mb-4 grid h-auto w-full grid-cols-2 gap-1 p-1 sm:grid-cols-4">
+                <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm">
+                  <User className="size-3.5 shrink-0" aria-hidden="true" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="edit" className="gap-1.5 text-xs sm:text-sm">
+                  <Pencil className="size-3.5 shrink-0" aria-hidden="true" />
+                  Edit
+                </TabsTrigger>
+                <TabsTrigger value="activity" className="gap-1.5 text-xs sm:text-sm">
+                  <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+                  Activity
+                </TabsTrigger>
+                {!isManager ? (
+                  <TabsTrigger value="compliance" className="gap-1.5 text-xs sm:text-sm">
+                    <Shield className="size-3.5 shrink-0" aria-hidden="true" />
+                    Compliance
+                  </TabsTrigger>
+                ) : null}
+              </TabsList>
 
+              <TabsContent value="overview" className="mt-0 flex flex-col gap-6">
+                <CustomerProfileSection customer={customer} />
+                {!isManager ? (
+                  <CustomerBalanceSection
+                    balance={balanceRes?.data ?? null}
+                    isLoading={balanceLoading}
+                  />
+                ) : null}
                 <CustomerReferralSection
                   customer={customer}
                   referralStats={referralStats}
                   onReassignReferral={isManager ? undefined : handleReassignReferral}
                 />
+                {!isManager ? (
+                  <CustomerComplianceSection
+                    compliance={complianceRes?.data ?? null}
+                    isLoading={complianceLoading}
+                  />
+                ) : null}
+              </TabsContent>
 
+              <TabsContent value="edit" className="mt-0">
+                {!isManager ? (
+                  <CustomerProfileEditPanel
+                    userId={userId}
+                    profile={customer}
+                    balance={balanceRes?.data ?? null}
+                    balanceLoading={balanceLoading}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Profile editing is not available for manager accounts.
+                  </p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="activity" className="mt-0 flex flex-col gap-6">
                 <CustomerReferralHistory
                   purchases={referralPurchases}
                   isLoading={referralPurchasesLoading}
                 />
-
-                {!isManager && (
-                  <>
-                    <CustomerBalanceSection
-                      balance={balanceRes?.data ?? null}
-                      isLoading={balanceLoading}
-                    />
-
-                    <CustomerComplianceSection
-                      compliance={complianceRes?.data ?? null}
-                      isLoading={complianceLoading}
-                    />
-                  </>
-                )}
-
                 <CustomerOrdersSection customerId={customer._id} />
-
                 <CustomerWinsSection customerId={customer._id} />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-                <p className="text-sm text-muted-foreground">No customer data available.</p>
-              </div>
-            )}
-          </div>
+              </TabsContent>
+
+              {!isManager ? (
+                <TabsContent value="compliance" className="mt-0 min-w-0">
+                  <UserCompliancePanel userId={userId} hideQuickActions />
+                </TabsContent>
+              ) : null}
+            </Tabs>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+              <p className="text-sm text-muted-foreground">No customer data available.</p>
+            </div>
+          )}
         </ScrollArea>
 
         <FormSheet
@@ -282,7 +334,7 @@ export function CustomerSheet({ open, onOpenChange, userId }: CustomerSheetProps
           </Form>
         </FormSheet>
 
-        <DialogFooter>
+        <DialogFooter className="border-t border-border/60 px-6 py-3">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>

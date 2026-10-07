@@ -3,7 +3,6 @@
 import { Sparkles } from "@luxero/icons";
 import type { CheckoutProviderPanelProps } from "@/components/checkout/providers/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { formatCurrency, useTranslation } from "@/lib/i18n";
@@ -18,34 +17,20 @@ export interface LocalCheckoutProps extends CheckoutProviderPanelProps {
 export function LocalCheckout({
   cart,
   isFormValid,
+  isActive = true,
   onLocalBypass,
   localBypassPending,
 }: LocalCheckoutProps) {
   const { t, locale } = useTranslation();
+
+  if (isActive === false) {
+    return null;
+  }
   const disabled = !isFormValid || localBypassPending === true;
   const amount = cart.total;
 
   return (
     <div className="flex flex-col gap-4" data-testid="local-checkout">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge
-          variant="outline"
-          className="border-gold/40 bg-gold/10 text-gold uppercase tracking-wide text-[10px] font-semibold"
-        >
-          {t("checkout.localBypass.testMode")}
-        </Badge>
-        {!isFormValid ? (
-          <Badge variant="secondary">{t("checkout.localBypass.fillFieldsFirst")}</Badge>
-        ) : null}
-      </div>
-
-      <Alert className="border-gold/25 bg-gold/5">
-        <Sparkles className="size-4 text-gold" aria-hidden />
-        <AlertDescription className="text-foreground/85">
-          {t("checkout.localBypass.infoAlert")}
-        </AlertDescription>
-      </Alert>
-
       {!isFormValid ? (
         <Alert>
           <AlertDescription>{t("checkout.localBypass.formInvalidAlert")}</AlertDescription>

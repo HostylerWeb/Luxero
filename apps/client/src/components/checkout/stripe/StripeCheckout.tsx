@@ -134,6 +134,7 @@ export function StripeCheckout({
         contact: cart.contact,
         shipping: cart.shipping,
         cartId: cart.cartId ?? undefined,
+        ...(cart.applySiteCredit ? { applySiteCredit: true } : {}),
         ...(compliance?.dob ? { compliance: { dob: compliance.dob } } : {}),
       });
       const nextSessionId = res.data?.sessionId;

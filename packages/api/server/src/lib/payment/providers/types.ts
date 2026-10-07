@@ -55,6 +55,9 @@ export interface CreateSessionParams {
 
   /** Checkout UI mode: hosted redirect or popup overlay. */
   checkoutMode?: "hosted" | "popup";
+
+  /** GBP site credit applied toward this checkout (charged via gateway separately). */
+  siteCreditApplied?: number;
 }
 
 export interface CreateSessionResult {

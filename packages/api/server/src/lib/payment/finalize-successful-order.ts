@@ -13,6 +13,7 @@ import { clearCheckoutCartFromMetadata } from "@luxero/api-tickets/load-cart";
 import { formatOrderNumber } from "@luxero/utils";
 import { Types } from "mongoose";
 import { buildFulfillmentDeps } from "./build-fulfillment-deps";
+import { debitSiteCreditForOrder } from "./debit-site-credit-for-order";
 import { fireOrderPurchaseConversion } from "./fire-order-conversion";
 import { rollbackOrderFulfillment } from "./rollback-order-fulfillment";
 
@@ -176,11 +177,22 @@ export async function finalizeSuccessfulOrder(params: {
     });
     const _result = await withMongoTransactionOptional(
       async (txnSession) => {
+      const siteCreditApplied = Number(metadata.siteCreditApplied ?? 0);
+      if (siteCreditApplied > 0) {
+        await debitSiteCreditForOrder({
+          userId,
+          orderId: order._id.toString(),
+          amount: siteCreditApplied,
+          session: txnSession ?? undefined,
+        });
+      }
+
       log.debug("[finalize] calling processOrderFulfillment", {
         orderId: order._id.toString(),
         competitionIds,
         itemCount: items.length,
         referralBalanceUsed,
+        siteCreditApplied,
       });
       const fulfillmentResult = await processOrderFulfillment({
         orderId: order._id.toString(),

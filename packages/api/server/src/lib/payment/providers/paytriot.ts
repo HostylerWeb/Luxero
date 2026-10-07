@@ -14,6 +14,7 @@ import {
 import { incrementCounter } from "@luxero/api-server/lib/observability/metrics";
 import {
   computeCheckoutTotal,
+  computeGatewayChargeAmount,
   createPendingCheckoutOrder,
 } from "@luxero/api-tickets/create-session";
 import { releasePromoCodeUsage } from "@luxero/api-tickets/promo-codes";
@@ -149,10 +150,16 @@ export const paytriotAdapter: PaymentProviderAdapter = {
       merchantSecretLength: merchantSecret.length,
     });
 
-    const totalAmount = computeCheckoutTotal(params.subtotal, params.discount);
+    const siteCreditApplied = params.siteCreditApplied ?? 0;
+    const totalAmount = computeGatewayChargeAmount(
+      params.subtotal,
+      params.discount,
+      siteCreditApplied
+    );
     log.info("[paytriot.createSession] totalAmount", {
       subtotal: params.subtotal,
       discount: params.discount,
+      siteCreditApplied,
       totalAmount,
     });
 
@@ -539,6 +546,7 @@ export const paytriotAdapter: PaymentProviderAdapter = {
       cartId: params.cartId,
       referralBonusTickets: params.referralBonusTickets,
       referralBalanceUsed: params.referralBalanceUsed,
+      siteCreditApplied: siteCreditApplied > 0 ? siteCreditApplied : undefined,
       isGuestCheckout: params.isGuestCheckout,
       orderEmail: params.orderEmail,
     });

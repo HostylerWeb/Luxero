@@ -56,6 +56,7 @@ export const createPaymentSessionSchema = z.object({
       dob: z.string().optional(),
     })
     .optional(),
+  applySiteCredit: z.boolean().optional(),
 });
 
 export const updateOrderStatusSchema = z

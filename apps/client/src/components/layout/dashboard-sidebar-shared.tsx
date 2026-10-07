@@ -19,6 +19,7 @@ import {
   Ticket,
   Trophy,
   User,
+  Wallet,
 } from "@luxero/icons";
 import type { ApiResponse, PublicComplianceSettings } from "@luxero/types";
 import { getDisplayName, getProfileInitials } from "@luxero/utils";
@@ -89,6 +90,7 @@ export function useDashboardNavGroups(): DashboardNavGroup[] {
 
   return useMemo(() => {
     const accountItems: DashboardNavItem[] = [
+      { to: "/dashboard/wallet", label: t("header.dashboard.wallet"), icon: Wallet },
       { to: "/dashboard/referrals", label: t("header.dashboard.referrals"), icon: Gift },
       ...(showResponsiblePlay
         ? [

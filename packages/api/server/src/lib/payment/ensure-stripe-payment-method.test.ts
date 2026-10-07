@@ -141,12 +141,35 @@ describe("ensureStripePaymentMethod", () => {
     expect(__mocks.__invalidateByChannelSafe).not.toHaveBeenCalled();
   });
 
-  test("syncs enabled/isDefault/environment when the existing doc is stale", async () => {
+  test("keeps an admin-disabled method disabled when credentials exist", async () => {
     __mocks.__paymentMethodFindOne.mockReturnValue({
       lean: async () => ({
         _id: "pm_stripe",
         provider: "stripe",
-        enabled: true,
+        enabled: false,
+        isDefault: false,
+        environment: "sandbox",
+      }),
+    });
+
+    await ensureStripePaymentMethod();
+
+    expect(__mocks.__paymentMethodFindOneAndUpdate).not.toHaveBeenCalled();
+  });
+
+  test("updates environment without changing the admin enabled flag", async () => {
+    __mocks.__getEnv.mockImplementation((key: string) => {
+      const env: Record<string, string> = {
+        STRIPE_TEST_SECRET_KEY: "sk_test_xxx",
+        STRIPE_ENVIRONMENT: "live",
+      };
+      return env[key];
+    });
+    __mocks.__paymentMethodFindOne.mockReturnValue({
+      lean: async () => ({
+        _id: "pm_stripe",
+        provider: "stripe",
+        enabled: false,
         isDefault: false,
         environment: "sandbox",
       }),
@@ -157,16 +180,8 @@ describe("ensureStripePaymentMethod", () => {
     expect(__mocks.__paymentMethodFindOneAndUpdate).toHaveBeenCalledWith(
       { provider: "stripe" },
       {
-        $set: {
-          enabled: true,
-          isDefault: true,
-          environment: "sandbox",
-        },
+        $set: { environment: "live" },
       }
-    );
-    expect(__mocks.__invalidateByChannelSafe).toHaveBeenCalledWith(
-      "payment-config",
-      "payment-providers"
     );
   });
 });

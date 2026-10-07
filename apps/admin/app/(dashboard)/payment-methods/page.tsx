@@ -44,6 +44,8 @@ function getProviderAvatar(provider: string): string {
       return "LC";
     case "paytriot":
       return "PT";
+    case "site_credit":
+      return "SC";
     default:
       return provider.slice(0, 2).toUpperCase();
   }
@@ -105,6 +107,42 @@ function PaymentMethodCard({
           else toast.error(`${method.name} test failed`);
         },
       }
+    );
+  }
+
+  if (method.provider === "site_credit") {
+    return (
+      <Card>
+        <CardContent className="flex flex-col gap-4 p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-xs font-semibold text-primary">
+                {getProviderAvatar(method.provider)}
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-foreground">{method.name}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Lets customers pay with GBP site credit at checkout. Any shortfall is charged via
+                  your active card gateway.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                {method.enabled ? "Enabled" : "Disabled"}
+              </span>
+              <Switch
+                checked={method.enabled}
+                onCheckedChange={(enabled) => {
+                  onToggleRequest(method.provider, enabled);
+                }}
+                data-umami-event="payment:toggle-enabled"
+                data-umami-event-provider={method.provider}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 

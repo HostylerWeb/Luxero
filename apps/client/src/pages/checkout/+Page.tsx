@@ -10,6 +10,7 @@ import {
   goToCheckoutSuccess,
   resolveContextualErrorWithCompliance,
   useAuth,
+  useBalance,
   useCart,
   useCartDiscount,
   useCartItems,
@@ -22,6 +23,7 @@ import {
   useMyProfile,
   usePaymentConfig,
   usePaymentProviders,
+  parseSiteCreditWalletEnabled,
   useSyncProfileAddressIfChanged,
 } from "@luxero/api-client";
 import { Lock } from "@luxero/icons";
@@ -295,6 +297,23 @@ function CheckoutPageContent() {
   const { data: configResponse, error: configError } = usePaymentConfig({
     initialData: ssrData?.paymentConfig ? ({ data: ssrData.paymentConfig } as any) : undefined,
   });
+
+  const paymentConfigPayload = configResponse?.data ?? ssrData?.paymentConfig ?? undefined;
+  const siteCreditWalletEnabled =
+    !isGuest && parseSiteCreditWalletEnabled(paymentConfigPayload);
+  const { data: balanceResponse, isLoading: siteCreditBalanceLoading } = useBalance({
+    enabled: !isGuest && siteCreditWalletEnabled,
+    initialData: ssrData?.balance ? { data: ssrData.balance } : undefined,
+  });
+  const siteCreditAvailable = balanceResponse?.data?.available ?? 0;
+  const siteCreditCurrency = balanceResponse?.data?.currency ?? "GBP";
+  const [applySiteCredit, setApplySiteCredit] = useState(false);
+
+  const siteCreditApplied =
+    applySiteCredit && siteCreditWalletEnabled
+      ? Math.min(siteCreditAvailable, total)
+      : 0;
+  const gatewayDue = Math.max(0, total - siteCreditApplied);
 
   const createCheckoutSession = useCreateCheckoutSession();
   const syncProfileAddressIfChanged = useSyncProfileAddressIfChanged();
@@ -617,59 +636,76 @@ function CheckoutPageContent() {
     await syncProfileBeforePayment();
   }, [buyingPower, itemsQuery, syncProfileBeforePayment]);
 
-  const handleLocalBypass = useCallback(async () => {
-    if (isSubmittingRef.current) return;
-    isSubmittingRef.current = true;
-    setPaymentError(null);
+  const completeLocalCheckout = useCallback(
+    async (withSiteCredit: boolean) => {
+      if (isSubmittingRef.current) return;
+      isSubmittingRef.current = true;
+      setPaymentError(null);
 
-    try {
-      await syncProfileBeforePayment();
-    } catch {
-      return;
-    }
+      try {
+        await syncProfileBeforePayment();
+      } catch {
+        isSubmittingRef.current = false;
+        return;
+      }
 
-    try {
-      const res = await createCheckoutSession.mutateAsync({
-        provider: "local",
-        contact,
-        shipping: address,
-        cartId: cartId ?? undefined,
-        ...(isGuest ? { compliance: { dob } } : {}),
-      });
-      if (!res.data?.sessionId) throw new Error("Failed to create checkout session");
-      goToCheckoutSuccess({
-        provider: "local",
-        sessionId: res.data.sessionId,
-        orderId: res.data.orderId,
-        navigate: (url: string) => navigate(url, { overwriteLastHistoryEntry: true }),
-      });
-    } catch (err: unknown) {
-      isSubmittingRef.current = false;
-      setPaymentError(
-        err instanceof Error && err.name === ApiResponseError.name
-          ? getPaymentContextualError(err as ApiResponseError, t("checkout.orderFailed"), features)
-          : err instanceof Error
-            ? { message: err.message }
-            : { message: t("checkout.orderFailed") }
-      );
-    }
-  }, [
-    address,
-    cartId,
-    contact,
-    createCheckoutSession,
-    features,
-    syncProfileBeforePayment,
-    isGuest,
-    user?.id,
-    user?.isAnonymous,
-    isFormValid,
-    dob,
-  ]);
+      try {
+        const res = await createCheckoutSession.mutateAsync({
+          provider: "local",
+          contact,
+          shipping: address,
+          cartId: cartId ?? undefined,
+          ...(withSiteCredit ? { applySiteCredit: true } : {}),
+          ...(isGuest ? { compliance: { dob } } : {}),
+        });
+        if (!res.data?.sessionId) throw new Error("Failed to create checkout session");
+        goToCheckoutSuccess({
+          provider: "local",
+          sessionId: res.data.sessionId,
+          orderId: res.data.orderId,
+          navigate: (url: string) => navigate(url, { overwriteLastHistoryEntry: true }),
+        });
+      } catch (err: unknown) {
+        isSubmittingRef.current = false;
+        setPaymentError(
+          err instanceof Error && err.name === ApiResponseError.name
+            ? getPaymentContextualError(err as ApiResponseError, t("checkout.orderFailed"), features)
+            : err instanceof Error
+              ? { message: err.message }
+              : { message: t("checkout.orderFailed") }
+        );
+      }
+    },
+    [
+      address,
+      cartId,
+      contact,
+      createCheckoutSession,
+      features,
+      syncProfileBeforePayment,
+      isGuest,
+      user?.id,
+      user?.isAnonymous,
+      isFormValid,
+      dob,
+      t,
+      locale,
+    ]
+  );
+
+  const handleLocalBypass = useCallback(() => {
+    void completeLocalCheckout(false);
+  }, [completeLocalCheckout]);
+
+  const handleSiteCreditFullPay = useCallback(() => {
+    void completeLocalCheckout(true);
+  }, [completeLocalCheckout]);
 
   const effectiveAuthLoading = authLoading && !pageContext.user;
   const isCheckoutLoading =
-    effectiveAuthLoading || profileLoading || cartLoading || eligibilityLoading;
+    effectiveAuthLoading ||
+    (cartLoading && !cartInitialData) ||
+    (profileLoading && !ssrData?.profile);
   const checkoutLoadingLabel = t("common.loading");
 
   return (
@@ -832,7 +868,7 @@ function CheckoutPageContent() {
                     </div>
                   ) : null}
 
-                  <div className="flex min-h-[14rem] flex-col gap-6 border-t border-gold/10 pt-6">
+                  <div className="relative z-10 flex min-h-[14rem] flex-col gap-6 border-t border-gold/10 pt-6">
                     {providersError ? (
                       <CheckoutErrorBanner error={FRONTEND_CONTEXTUAL_ERRORS.providerUnavailable} />
                     ) : (
@@ -849,6 +885,14 @@ function CheckoutPageContent() {
                         onLocalBypass={handleLocalBypass}
                         localBypassPending={isSubmitting}
                         compliance={{ dob }}
+                        siteCreditWalletEnabled={siteCreditWalletEnabled}
+                        siteCreditAvailable={siteCreditAvailable}
+                        siteCreditBalanceLoading={siteCreditBalanceLoading}
+                        siteCreditCurrency={siteCreditCurrency}
+                        applySiteCredit={applySiteCredit}
+                        onApplySiteCreditChange={setApplySiteCredit}
+                        onSiteCreditFullPay={handleSiteCreditFullPay}
+                        siteCreditFullPayPending={isSubmitting}
                       />
                     )}
                   </div>
@@ -863,7 +907,12 @@ function CheckoutPageContent() {
           </div>
 
           <div className="lg:col-span-1">
-            <OrderSummary />
+            <OrderSummary
+              applySiteCredit={applySiteCredit && siteCreditWalletEnabled}
+              siteCreditApplied={siteCreditApplied}
+              gatewayDue={gatewayDue}
+              siteCreditCurrency={siteCreditCurrency}
+            />
           </div>
         </div>
       )}

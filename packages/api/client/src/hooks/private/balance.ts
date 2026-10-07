@@ -1,14 +1,17 @@
 import type { ApiResponse, Balance, BalanceTransaction } from "@luxero/types";
-import { useQuery } from "@tanstack/react-query";
+import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { api } from "../../client";
 import { STALE_TIME_USER } from "../../constants";
 import { queryKeys } from "../../keys";
 
-export function useBalance() {
+export function useBalance(
+  options?: Pick<UseQueryOptions<ApiResponse<Balance>>, "enabled" | "initialData">
+) {
   return useQuery<ApiResponse<Balance>>({
     queryKey: queryKeys.my.balance(),
     queryFn: () => api.get<Balance>("/api/balance"),
     staleTime: STALE_TIME_USER,
+    ...options,
   });
 }
 

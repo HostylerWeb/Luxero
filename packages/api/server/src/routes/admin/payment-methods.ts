@@ -11,6 +11,7 @@ import { captureRouteError } from "@luxero/api-infra/sentry";
 import { mapInternalCapabilitiesToPublic } from "@luxero/api-server/lib/payment/capabilities";
 import { ensureLocalPaymentMethod, isLocalPaymentMethodEnabled } from "@luxero/api-server/lib/payment/ensure-local-payment-method";
 import { ensurePaytriotPaymentMethod } from "@luxero/api-server/lib/payment/ensure-paytriot-payment-method";
+import { ensureSiteCreditPaymentMethod } from "@luxero/api-server/lib/payment/ensure-site-credit-payment-method";
 import { ensureStripePaymentMethod } from "@luxero/api-server/lib/payment/ensure-stripe-payment-method";
 import { hasProviderEnvCredentials } from "@luxero/api-server/lib/payment/payment-method-credentials";
 import { getAdapter, paymentProcessors } from "@luxero/api-server/lib/payment/providers";
@@ -46,18 +47,20 @@ function sanitizePaymentMethod(method: {
     isDefault: method.isDefault,
     environment: method.environment ?? "sandbox",
     checkoutMode: (method.checkoutMode ?? "hosted") as "hosted" | "popup",
-    hasCredentials: hasProviderEnvCredentials(method.provider),
+    hasCredentials:
+      method.provider === "site_credit" ? true : hasProviderEnvCredentials(method.provider),
     priceIds: method.priceIds,
     updatedAt: method.updatedAt,
   };
 }
 
-const ACTIVE_PROVIDERS = ["local", "stripe", "paytriot"];
+const ACTIVE_PROVIDERS = ["local", "stripe", "paytriot", "site_credit"];
 
 async function bootstrapPaymentMethods(): Promise<void> {
   await ensureLocalPaymentMethod();
   await ensurePaytriotPaymentMethod();
   await ensureStripePaymentMethod();
+  await ensureSiteCreditPaymentMethod();
   await PaymentMethod.deleteMany({
     provider: { $nin: ACTIVE_PROVIDERS },
   } as any);

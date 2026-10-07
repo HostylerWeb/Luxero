@@ -2,6 +2,7 @@
 
 import {
   api,
+  useBalance,
   useCartCount,
   useProfileAvatar,
   usePushSubscription,
@@ -22,6 +23,7 @@ import {
   Ticket,
   Trophy,
   User,
+  Wallet,
   X,
 } from "@luxero/icons";
 import type { User as UserType } from "@luxero/types";
@@ -46,7 +48,7 @@ import { Marquee } from "@/components/ui/marquee";
 import { UserAvatar } from "@/components/user-avatar";
 import { useUserState } from "@/hooks";
 import { useProfileInitialData } from "@/hooks/useProfileInitialData";
-import { type TranslationKey, useLogicalPathname, useTranslation } from "@/lib/i18n";
+import { formatCurrency, type TranslationKey, useLogicalPathname, useTranslation } from "@/lib/i18n";
 
 import { DASHBOARD_SCROLL_ID } from "./header-layout";
 import { useHeaderMobileNav } from "./header-mobile-nav";
@@ -96,6 +98,12 @@ function getDashboardMenu(
       event: "nav:wins-link",
     },
     {
+      href: "/dashboard/wallet",
+      label: t("header.dashboard.wallet"),
+      icon: Wallet,
+      event: "nav:wallet-link",
+    },
+    {
       href: "/dashboard/referrals",
       label: t("header.dashboard.referAndEarn"),
       icon: Gift,
@@ -129,7 +137,7 @@ function UserDropdown({
   onLogout: () => void;
   hideDashboardLinks: boolean;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const profileInitialData = useProfileInitialData();
   const { profile } = useProfileAvatar({ initialData: profileInitialData });
   const avatarSource = profile?.avatarUrl ?? profileInitialData?.data?.avatarUrl;
@@ -181,6 +189,20 @@ function UserDropdown({
 
   const DASHBOARD_MENU = getDashboardMenu(t);
 
+  const { data: balanceRes, isLoading: balanceLoading } = useBalance({
+    enabled: isOpen,
+  });
+  const siteCreditLabel =
+    balanceLoading && isOpen
+      ? t("header.userMenu.siteCreditLoading")
+      : t("header.userMenu.siteCredit", {
+          amount: formatCurrency(
+            balanceRes?.data?.available ?? 0,
+            locale,
+            balanceRes?.data?.currency ?? "GBP"
+          ),
+        });
+
   return (
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -216,6 +238,9 @@ function UserDropdown({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{displayName}</p>
                 <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+                <p className="truncate text-xs font-medium text-primary/90 tabular-nums">
+                  {siteCreditLabel}
+                </p>
               </div>
             </div>
           </DropdownMenuLabel>

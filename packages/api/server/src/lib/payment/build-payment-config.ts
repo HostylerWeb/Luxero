@@ -71,5 +71,10 @@ export function buildPublicPaymentConfig(params: {
     }
   }
 
+  const siteCreditMethod = methods.find((m) => m.provider === "site_credit");
+  if (siteCreditMethod?.enabled) {
+    config.siteCreditWallet = { enabled: true };
+  }
+
   return config;
 }

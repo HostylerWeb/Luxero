@@ -747,7 +747,7 @@ function CartView() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-red-400 hover:text-red-300 w-fit h-8 px-2"
+                          className="text-red-400 hover:bg-transparent hover:text-red-400 w-fit h-8 px-2"
                           onClick={() => handleRemoveItem(item.competitionId)}
                           data-umami-event="cart:remove-item"
                           data-umami-event-id={item.competitionId}
@@ -807,7 +807,7 @@ function CartView() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-red-400 hover:text-red-300 h-8 sm:h-10 px-2 sm:px-3"
+                            className="text-red-400 hover:bg-transparent hover:text-red-400 h-8 sm:h-10 px-2 sm:px-3"
                             onClick={() => handleRemoveItem(item.competitionId)}
                             data-umami-event="cart:remove-item"
                             data-umami-event-id={item.competitionId}

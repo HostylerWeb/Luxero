@@ -32,7 +32,7 @@ export function CustomerBalanceSection({ balance, isLoading }: CustomerBalanceSe
         <CardContent className="flex flex-col gap-2 px-5 py-5">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <Wallet className="size-4 text-gold" aria-hidden="true" />
-            Wallet
+            Site credit
           </div>
           <p className="text-2xl font-bold tabular-nums">£{Number(balance.available).toFixed(2)}</p>
           {balance.pending > 0 ? (

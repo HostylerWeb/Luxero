@@ -2,7 +2,7 @@ import { withMongoTransactionOptional } from "@luxero/api-infra/mongo-capabiliti
 import type { PaymentMethodCredentials } from "@luxero/types";
 import mongoose, { Schema } from "mongoose";
 
-export type PaymentProvider = "local" | "stripe" | "paytriot";
+export type PaymentProvider = "local" | "stripe" | "paytriot" | "site_credit";
 
 /**
  * Per-provider credentials. Mongoose storage is `Mixed` (any shape), but the
@@ -29,7 +29,7 @@ const PaymentMethodSchema = new Schema<IPaymentMethod>(
       type: String,
       required: true,
       unique: true,
-      enum: ["local", "paytriot", "stripe"],
+      enum: ["local", "paytriot", "stripe", "site_credit"],
     },
     name: { type: String, required: true },
     enabled: { type: Boolean, default: false },

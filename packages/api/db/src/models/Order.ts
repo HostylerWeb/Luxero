@@ -99,10 +99,6 @@ OrderSchema.index({ providerSessionId: 1 });
 OrderSchema.index({ provider: 1, status: 1 });
 OrderSchema.index({ userId: 1, idempotencyKey: 1 }, { unique: true });
 OrderSchema.index({ status: 1, createdAt: -1 }, { partialFilterExpression: { deletedAt: null } });
-OrderSchema.index(
-  { status: 1, updatedAt: -1 },
-  { partialFilterExpression: { deletedAt: null, status: "failed" } }
-);
 // Order TTL indexes (pending / completed / failed) are applied at startup via
 // ensureOrderRetentionIndexes() so retention days are env-configurable.
 

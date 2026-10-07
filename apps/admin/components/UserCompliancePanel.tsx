@@ -17,6 +17,13 @@ import {
   ShieldAlert,
   Wallet,
 } from "@luxero/icons";
+import {
+  buildProfileFormFromProfile,
+  buildProfilePatchFromDiff,
+  EMPTY_PROFILE_FORM,
+  PROFILE_FIELD_LABELS,
+  type ProfileFormState,
+} from "@/components/customer/customer-profile-edit-shared";
 import type {
   AdminComplianceOverrideAction,
   AdminUserComplianceState,
@@ -89,92 +96,6 @@ const ACTION_LABELS: Record<string, string> = Object.fromEntries(
   OVERRIDE_ACTIONS.map(({ value, label }) => [value, label])
 );
 
-const PROFILE_FIELD_LABELS: Record<string, string> = {
-  firstName: "First name",
-  lastName: "Last name",
-  phone: "Phone",
-  dateOfBirth: "Date of birth",
-  addressLine1: "Address line 1",
-  addressLine2: "Address line 2",
-  city: "City",
-  postcode: "Postcode",
-  country: "Country",
-};
-
-type ProfileFormState = {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  dateOfBirth: string;
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  postcode: string;
-  country: string;
-  marketingConsent: boolean;
-};
-
-const EMPTY_PROFILE_FORM: ProfileFormState = {
-  firstName: "",
-  lastName: "",
-  phone: "",
-  dateOfBirth: "",
-  addressLine1: "",
-  addressLine2: "",
-  city: "",
-  postcode: "",
-  country: "",
-  marketingConsent: false,
-};
-
-function formatDateInputValue(value: string | undefined): string {
-  if (!value) return "";
-  return String(value).slice(0, 10);
-}
-
-function buildProfileFormFromProfile(profile: Profile): ProfileFormState {
-  return {
-    firstName: profile.firstName ?? "",
-    lastName: profile.lastName ?? "",
-    phone: profile.phone ?? "",
-    dateOfBirth: formatDateInputValue(profile.dateOfBirth),
-    addressLine1: profile.addressLine1 ?? "",
-    addressLine2: profile.addressLine2 ?? "",
-    city: profile.city ?? "",
-    postcode: profile.postcode ?? "",
-    country: profile.country ?? "",
-    marketingConsent: profile.marketingConsent ?? false,
-  };
-}
-
-function buildProfilePatchFromDiff(
-  current: ProfileFormState,
-  initial: ProfileFormState
-): Omit<AdminUserProfilePatch, "reason"> {
-  const patch: Omit<AdminUserProfilePatch, "reason"> = {};
-
-  for (const key of Object.keys(current) as (keyof ProfileFormState)[]) {
-    const currentValue =
-      key === "dateOfBirth" ? formatDateInputValue(current.dateOfBirth) : current[key];
-    const initialValue =
-      key === "dateOfBirth" ? formatDateInputValue(initial.dateOfBirth) : initial[key];
-
-    if (currentValue !== initialValue) {
-      if (key === "dateOfBirth") {
-        patch.dateOfBirth = current.dateOfBirth
-          ? new Date(`${current.dateOfBirth}T00:00:00.000Z`).toISOString()
-          : undefined;
-      } else if (key === "marketingConsent") {
-        patch.marketingConsent = current.marketingConsent;
-      } else {
-        patch[key] = current[key];
-      }
-    }
-  }
-
-  return patch;
-}
-
 function showFormValidationError(setError: (message: string) => void, message: string) {
   setError(message);
   toast.error(message);
@@ -186,6 +107,8 @@ function seedSpendLimitFromCompliance(compliance: AdminUserComplianceState): str
 
 interface UserCompliancePanelProps {
   userId: string;
+  /** Hide profile/balance shortcut buttons when editing is on the customer sheet. */
+  hideQuickActions?: boolean;
 }
 
 function formatAuditValue(value: unknown): string {
@@ -257,7 +180,7 @@ function AuditTimelineSkeleton() {
   );
 }
 
-export function UserCompliancePanel({ userId }: UserCompliancePanelProps) {
+export function UserCompliancePanel({ userId, hideQuickActions }: UserCompliancePanelProps) {
   const { data: complianceResponse, isLoading } = useAdminUserCompliance(userId);
   const { data: auditResponse, isLoading: auditLoading } = useAdminComplianceAudit(userId);
   const { data: profileResponse } = useAdminUser(userId);
@@ -547,35 +470,44 @@ export function UserCompliancePanel({ userId }: UserCompliancePanelProps) {
 
   return (
     <div className="min-w-0 flex flex-col gap-4">
-      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
-        <Button
-          type="button"
-          variant="gold"
-          className="w-full sm:w-auto"
-          onClick={() => setOverrideOpen(true)}
-        >
-          <Shield data-icon="inline-start" />
-          Edit Compliance Override
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full sm:w-auto"
-          onClick={() => setProfileOpen(true)}
-        >
-          <Pencil data-icon="inline-start" />
-          Edit profile
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full sm:w-auto"
-          onClick={() => setBalanceOpen(true)}
-        >
-          <Wallet data-icon="inline-start" />
-          Adjust balance
-        </Button>
-      </div>
+      {!hideQuickActions ? (
+        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
+          <Button
+            type="button"
+            variant="gold"
+            className="w-full sm:w-auto"
+            onClick={() => setOverrideOpen(true)}
+          >
+            <Shield data-icon="inline-start" />
+            Edit Compliance Override
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => setProfileOpen(true)}
+          >
+            <Pencil data-icon="inline-start" />
+            Edit profile
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => setBalanceOpen(true)}
+          >
+            <Wallet data-icon="inline-start" />
+            Adjust balance
+          </Button>
+        </div>
+      ) : (
+        <div className="flex justify-end">
+          <Button type="button" variant="gold" onClick={() => setOverrideOpen(true)}>
+            <Shield data-icon="inline-start" />
+            Compliance override
+          </Button>
+        </div>
+      )}
 
       <Tabs defaultValue="overview" className="min-w-0">
         <TabsList className="grid h-auto w-full grid-cols-2 gap-1 p-1">
@@ -948,6 +880,16 @@ export function UserCompliancePanel({ userId }: UserCompliancePanelProps) {
         <FieldGroup>
           <FieldSet className="gap-4 rounded-xl border border-border/70 p-4">
             <FieldLegend variant="label">Personal details</FieldLegend>
+            <Field>
+              <FieldLabel htmlFor="profile-email">{PROFILE_FIELD_LABELS.email}</FieldLabel>
+              <Input
+                id="profile-email"
+                type="email"
+                value={profileForm.email}
+                onChange={(e) => setProfileForm((f) => ({ ...f, email: e.target.value }))}
+                autoComplete="off"
+              />
+            </Field>
             {(["firstName", "lastName", "phone"] as const).map((field) => (
               <Field key={field}>
                 <FieldLabel htmlFor={`profile-${field}`}>{PROFILE_FIELD_LABELS[field]}</FieldLabel>

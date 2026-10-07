@@ -15,6 +15,7 @@ import {
 } from "@luxero/api-payment-core";
 import {
   computeCheckoutTotal,
+  computeGatewayChargeAmount,
   createPendingCheckoutOrder,
   generateOrderNumber,
 } from "@luxero/api-tickets/create-session";
@@ -22,6 +23,7 @@ import { clearCheckoutCartFromMetadata } from "@luxero/api-tickets/load-cart";
 import { releasePromoCodeUsage } from "@luxero/api-tickets/promo-codes";
 import { Types } from "mongoose";
 import { buildFulfillmentDeps, reserveCheckoutPromoCode } from "../build-fulfillment-deps";
+import { debitSiteCreditForOrder } from "../debit-site-credit-for-order";
 import { fireOrderPurchaseConversion } from "../fire-order-conversion";
 import { getProviderCurrency } from "./_shared/currency";
 import { getSessionStatusFromOrder } from "./_shared/order-helpers";
@@ -79,9 +81,15 @@ export const localAdapter: PaymentProviderAdapter = {
     }
 
     const sessionId = `local_${randomBytes(16).toString("hex")}`;
-    const totalAmount = computeCheckoutTotal(
+    const siteCreditApplied = params.siteCreditApplied ?? 0;
+    const orderTotal = computeCheckoutTotal(
       Number(params.subtotal) || 0,
       Number(params.discount) || 0
+    );
+    const totalAmount = computeGatewayChargeAmount(
+      Number(params.subtotal) || 0,
+      Number(params.discount) || 0,
+      siteCreditApplied
     );
 
     const competitionIds: string[] = [];
@@ -108,6 +116,7 @@ export const localAdapter: PaymentProviderAdapter = {
       cartId: params.cartId,
       referralBonusTickets: params.referralBonusTickets,
       referralBalanceUsed: params.referralBalanceUsed,
+      siteCreditApplied: siteCreditApplied > 0 ? siteCreditApplied : undefined,
       isGuestCheckout: params.isGuestCheckout,
       orderEmail: params.orderEmail,
     });
@@ -126,7 +135,8 @@ export const localAdapter: PaymentProviderAdapter = {
         competitionIds: competitionIds.join(","),
         items: JSON.stringify(params.items),
         ...(params.promoCode ? { promoCode: params.promoCode } : {}),
-        ...(totalAmount <= 0 ? { freeEntry: true } : {}),
+        ...(totalAmount <= 0 && siteCreditApplied <= 0 ? { freeEntry: true } : {}),
+        ...(siteCreditApplied > 0 ? { siteCreditApplied, gatewayAmount: totalAmount } : {}),
       };
 
       log.debug(
@@ -143,6 +153,14 @@ export const localAdapter: PaymentProviderAdapter = {
       const guestProfile = await Profile.findById(params.userId).lean();
       const deps = buildFulfillmentDeps({ isGuest: guestProfile?.isGuestCheckout });
 
+      if (siteCreditApplied > 0) {
+        await debitSiteCreditForOrder({
+          userId: params.userId,
+          orderId,
+          amount: siteCreditApplied,
+        });
+      }
+
       const fulfillmentItems = getItemsFromOrder({ metadata });
       log.debug(
         `[local.createSession] calling processOrderFulfillment orderId=${orderId} items=${JSON.stringify(fulfillmentItems)}`
@@ -156,7 +174,7 @@ export const localAdapter: PaymentProviderAdapter = {
         items: fulfillmentItems,
         subtotal: params.subtotal,
         discountAmount: params.discount,
-        total: totalAmount,
+        total: orderTotal,
         metadata,
         logPrefix: "Local",
         deps,

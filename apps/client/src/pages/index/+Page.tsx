@@ -103,6 +103,7 @@ export default function Page() {
         categories={categories}
         competitionsByCategory={competitionsByCategory}
         endingSoon={endingSoon}
+        allCompetitions={allCompetitions}
       />
       <WinnersSection winners={winners} />
       <BuiltDifferentSection />

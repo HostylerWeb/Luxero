@@ -15,6 +15,7 @@ import {
   useMyProfile,
   useMyReferrals,
   useUpdateCartItem,
+  playSiteSound,
 } from "@luxero/api-client";
 import {
   ChevronDown,
@@ -356,6 +357,7 @@ export default function Page() {
       onSuccess: () => {
         setIsAdding(false);
         toast.success(t("competitions.detail.cartUpdated"));
+        playSiteSound("add");
       },
       onError: (err) => {
         const contextual = resolveContextualErrorFromUnknown(

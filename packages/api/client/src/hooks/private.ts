@@ -1,6 +1,7 @@
 export { useBalance, useBalanceTransactions } from "./private/balance";
 export { type DashboardData, useDashboardData } from "./private/dashboard";
 export {
+  useInfiniteMyBalanceTransactions,
   useInfiniteMyBonusAwardWins,
   useInfiniteMyInstantPrizeWins,
   useInfiniteMyOrders,

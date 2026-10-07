@@ -1,5 +1,5 @@
 import type { Stripe } from "@stripe/stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 
 const stripePromises: Record<string, Promise<Stripe | null>> = {};
 

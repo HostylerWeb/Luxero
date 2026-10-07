@@ -11,6 +11,7 @@ import {
 } from "@luxero/api-payment-stripe";
 import {
   computeCheckoutTotal,
+  computeGatewayChargeAmount,
   createPendingCheckoutOrder,
 } from "@luxero/api-tickets/create-session";
 import { Types } from "mongoose";
@@ -156,7 +157,12 @@ export const stripeAdapter: PaymentProviderAdapter = {
     });
 
     if (params.idempotencyKey) {
-      const totalAmount = computeCheckoutTotal(params.subtotal, params.discount);
+      const siteCreditApplied = params.siteCreditApplied ?? 0;
+      const gatewayAmount = computeGatewayChargeAmount(
+        params.subtotal,
+        params.discount,
+        siteCreditApplied
+      );
 
       const existingOrder = await Order.findOne({
         userId: new Types.ObjectId(params.userId),
@@ -167,8 +173,11 @@ export const stripeAdapter: PaymentProviderAdapter = {
 
       if (existingOrder?.providerSessionId) {
         const sessionId = existingOrder.providerSessionId;
-        const storedTotal = existingOrder.total ?? 0;
-        const totalsMatch = Math.abs(storedTotal - totalAmount) < 0.01;
+        const storedGateway =
+          Number((existingOrder.metadata as Record<string, unknown> | undefined)?.gatewayAmount) ||
+          existingOrder.total ||
+          0;
+        const totalsMatch = Math.abs(storedGateway - gatewayAmount) < 0.01;
         if (totalsMatch && (await isReusableSession(sessionId))) {
           log.debug(`[stripe.createSession] pendingOrderExists=true, returning existing session`);
           return {
@@ -187,8 +196,13 @@ export const stripeAdapter: PaymentProviderAdapter = {
       }
     }
 
-    const totalAmount = computeCheckoutTotal(params.subtotal, params.discount);
-    const totalInCents = Math.round(totalAmount * 100);
+    const siteCreditApplied = params.siteCreditApplied ?? 0;
+    const gatewayAmount = computeGatewayChargeAmount(
+      params.subtotal,
+      params.discount,
+      siteCreditApplied
+    );
+    const totalInCents = Math.round(gatewayAmount * 100);
 
     const client = getStripeClient();
     const intent = await client.createPaymentIntent({
@@ -227,6 +241,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
         cartId: params.cartId,
         referralBonusTickets: params.referralBonusTickets,
         referralBalanceUsed: params.referralBalanceUsed,
+        siteCreditApplied: siteCreditApplied > 0 ? siteCreditApplied : undefined,
         isGuestCheckout: params.isGuestCheckout,
         orderEmail: params.orderEmail,
       });

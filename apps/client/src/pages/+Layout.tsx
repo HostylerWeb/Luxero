@@ -1,7 +1,7 @@
-import { AuthProvider } from "@luxero/api-client";
+import { AuthProvider, playSiteSound } from "@luxero/api-client";
 import type { PublicComplianceSettings, SessionUser } from "@luxero/types";
 import { useEffect } from "react";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import { usePageContext } from "vike-react/usePageContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { HeaderMobileNavProvider } from "@/components/layout/header-mobile-nav";
@@ -30,6 +30,14 @@ export default function Layout({
 
   useEffect(() => {
     initHydrationDiffDetector();
+    const toastApi = toast as typeof toast & { __errorSound?: boolean };
+    if (toastApi.__errorSound) return;
+    toastApi.__errorSound = true;
+    const original = toast.error.bind(toast);
+    toast.error = ((message, options) => {
+      playSiteSound("error");
+      return original(message, options);
+    }) as typeof toast.error;
   }, []);
 
   return (

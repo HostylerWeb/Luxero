@@ -33,6 +33,11 @@ import {
   ensurePaytriotPaymentMethod,
   getPaytriotCredentials,
 } from "@luxero/api-server/lib/payment/ensure-paytriot-payment-method";
+import {
+  ensureSiteCreditPaymentMethod,
+  isSiteCreditWalletEnabled,
+} from "@luxero/api-server/lib/payment/ensure-site-credit-payment-method";
+import { resolveSiteCreditForCheckout } from "@luxero/api-server/lib/payment/site-credit-checkout";
 import { ensureStripePaymentMethod } from "@luxero/api-server/lib/payment/ensure-stripe-payment-method";
 import { getAdapter, paymentProcessors } from "@luxero/api-server/lib/payment/providers";
 import { dispatchWebhook } from "@luxero/api-server/lib/payment/providers/_shared/webhook-helpers";
@@ -145,7 +150,8 @@ app.post(
     try {
       await dbConnect();
       const body = c.get("body") as CreatePaymentSessionInput;
-      const { provider, contact, shipping, cartId, idempotencyKey, compliance } = body;
+      const { provider, contact, shipping, cartId, idempotencyKey, compliance, applySiteCredit } =
+        body;
       const userId = c.get("userId")!;
       const { frontendUrl } = getCurrentContext();
 
@@ -380,12 +386,30 @@ app.post(
       );
       const competitionIds = items.map((item) => item.competitionId);
 
-      // A £0-payable cart (free entry, fully wallet-funded, or 100% promo)
-      // cannot go through a gateway — Paytriot rejects a zero amount. Route it
-      // through the local fulfillment path instead, even when the local payment
-      // method is disabled. Compliance (order-value policy) has already run
-      // before this point and may have rejected the zero-total checkout.
-      const isZeroTotal = cartTotal <= 0;
+      await ensureSiteCreditPaymentMethod();
+      const siteCreditWalletEnabled = await isSiteCreditWalletEnabled();
+      const wantsSiteCredit =
+        Boolean(applySiteCredit) && siteCreditWalletEnabled && !user?.isAnonymous;
+      const { siteCreditApplied, gatewayTotal } = await resolveSiteCreditForCheckout({
+        userId: orderUserId,
+        cartTotal,
+        applySiteCredit: wantsSiteCredit,
+      });
+
+      if (wantsSiteCredit && siteCreditApplied <= 0 && cartTotal > 0) {
+        return error(
+          c,
+          ErrorCodes.INSUFFICIENT_BALANCE,
+          "You do not have enough site credit for this order",
+          400
+        );
+      }
+
+      // A £0-payable cart (free entry, fully wallet-funded, 100% promo, or fully
+      // site-credit-funded) cannot go through a gateway — Paytriot rejects a zero
+      // amount. Route it through the local fulfillment path instead, even when the
+      // local payment method is disabled.
+      const isZeroTotal = gatewayTotal <= 0;
       let selectedProvider: string;
       let adapter: PaymentProviderAdapter;
       let checkoutMode: "hosted" | "popup" | undefined;
@@ -481,7 +505,7 @@ app.post(
           cartTotal,
           competitionIds,
           blockCardPayment: willChargeCard,
-          projectedCreditSpend: willChargeCard ? cartTotal : 0,
+          projectedCreditSpend: willChargeCard ? gatewayTotal : 0,
         });
         instantWinInCart = complianceResult.instantWinInCart;
       } catch (err: unknown) {
@@ -517,6 +541,7 @@ app.post(
         orderEmail,
         referralBonusTickets,
         referralBalanceUsed,
+        siteCreditApplied: siteCreditApplied > 0 ? siteCreditApplied : undefined,
         frontendUrl,
         userPhone: contact?.phone,
         shippingAddress: shipping,
@@ -567,6 +592,9 @@ app.post(
         gatewayUrl: result.gatewayUrl,
         instantWinInCart,
         compliance: complianceHints,
+        siteCreditApplied: siteCreditApplied > 0 ? siteCreditApplied : undefined,
+        gatewayTotal,
+        cartTotal,
       });
     } catch (err: unknown) {
       const raw = err instanceof Error ? err.message : "Failed to create checkout session";
@@ -657,7 +685,9 @@ app.get("/providers", async (c) => {
       methods.map((m) => [m.provider, m])
     );
 
-    const providers = paymentProcessors.map((p) => {
+    const providers = paymentProcessors
+      .filter((p) => p.id !== "site_credit")
+      .map((p) => {
       const method = methodsByProvider.get(p.id);
       const dbEnabled = Boolean(method?.enabled);
       return {

@@ -16,6 +16,7 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "../../client";
+import { playSiteSound } from "../../lib/site-sounds";
 import { queryKeys } from "../../keys";
 import {
   applyCartOptimistic,
@@ -260,6 +261,7 @@ export function useRemoveCartItem(): UseMutationResult<
       cartDebug("[FS-DEBUG-FE][cart.remove.success] itemsCount:", response?.data?.items?.length);
       qc.setQueryData(queryKeys.cart(), response);
       toastAutoAdjustments(response?.data?.autoAdjustments);
+      playSiteSound("remove");
     },
     onSettled: () => {
       cartDebug("");

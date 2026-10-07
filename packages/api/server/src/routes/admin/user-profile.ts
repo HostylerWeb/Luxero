@@ -13,6 +13,7 @@ const app = new Hono();
 app.use("*", requireAdmin);
 
 const PROFILE_FIELDS = [
+  "email",
   "firstName",
   "lastName",
   "phone",
@@ -64,6 +65,18 @@ app.patch("/:id/profile", async (c) => {
       }
     }
 
+    if (typeof updates.email === "string") {
+      const normalized = updates.email.trim().toLowerCase();
+      const duplicate = await Profile.findOne({
+        email: normalized,
+        _id: { $ne: targetUserId },
+      }).lean();
+      if (duplicate) {
+        return error(c, ErrorCodes.VALIDATION_ERROR, "Email is already in use", 409);
+      }
+      updates.email = normalized;
+    }
+
     if (dateOfBirth !== undefined) {
       updates.dateOfBirth = new Date(dateOfBirth);
     }
@@ -75,6 +88,11 @@ app.patch("/:id/profile", async (c) => {
     const before = snapshotProfileFields(profile.toObject() as unknown as Record<string, unknown>);
 
     await Profile.findByIdAndUpdate(targetUserId, { $set: updates });
+    if (typeof updates.email === "string") {
+      const { getMongoDb } = await import("@luxero/auth-admin/auth-mongo");
+      const { updateAuthUserFields } = await import("@luxero/api-server/lib/auth-user-sync");
+      await updateAuthUserFields(getMongoDb(), targetUserId, { email: updates.email });
+    }
     const updated = await Profile.findById(targetUserId).lean();
     if (!updated) {
       return error(c, ErrorCodes.NOT_FOUND, "Profile not found", 404);

@@ -41,6 +41,13 @@ export function parsePaymentConfigPayload(
   return payload as PaymentConfigResponse["config"];
 }
 
+export function parseSiteCreditWalletEnabled(payload: unknown): boolean {
+  const config = parsePaymentConfigPayload(payload);
+  const wallet = config?.siteCreditWallet;
+  if (!wallet || typeof wallet !== "object") return false;
+  return Boolean((wallet as { enabled?: boolean }).enabled);
+}
+
 export function parseStripeConfig(payload: unknown): StripePublicConfig | undefined {
   const config = parsePaymentConfigPayload(payload);
   const stripe = config?.stripe;

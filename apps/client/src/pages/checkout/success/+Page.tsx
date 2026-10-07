@@ -2,6 +2,7 @@
 
 import {
   invalidateCheckoutSuccessQueries,
+  playSiteSound,
   useAuth,
   useCartDiscount,
   useCheckout,
@@ -230,11 +231,18 @@ function CheckoutSuccessPageContent() {
   const clearedPersistedRef = useRef(false);
 
   const [instantWins, setInstantWins] = useState<InstantWinData[]>([]);
+  const winSoundPlayedRef = useRef(false);
   const [modalTotalTickets, setModalTotalTickets] = useState(0);
   const [showInstantWinModal, setShowInstantWinModal] = useState(false);
   const [cartClearWarning, setCartClearWarning] = useState<string | null>(null);
 
   const orderId = storeOrderId ?? urlOrderId;
+
+  useEffect(() => {
+    if (winSoundPlayedRef.current || instantWins.length === 0) return;
+    winSoundPlayedRef.current = true;
+    playSiteSound("win");
+  }, [instantWins.length]);
 
   const {
     data: orderResponse,

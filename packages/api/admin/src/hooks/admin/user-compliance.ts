@@ -36,6 +36,7 @@ export function useAdminUserComplianceMutations(userId: string) {
     void qc.invalidateQueries({ queryKey: queryKeys.admin.userCompliance(userId) });
     void qc.invalidateQueries({ queryKey: queryKeys.admin.userComplianceAudit(userId) });
     void qc.invalidateQueries({ queryKey: queryKeys.admin.user(userId) });
+    void qc.invalidateQueries({ queryKey: queryKeys.admin.userBalance(userId) });
   };
 
   const overrideMutation = useMutation({

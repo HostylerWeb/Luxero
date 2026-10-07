@@ -51,6 +51,7 @@ const UNAMI_NAV_MAP: Record<string, string> = {
   "/dashboard/tickets": "dashboard:nav-tickets",
   "/dashboard/orders": "dashboard:nav-orders",
   "/dashboard/wins": "dashboard:nav-wins",
+  "/dashboard/wallet": "dashboard:nav-wallet",
   "/dashboard/referrals": "dashboard:nav-referrals",
   "/dashboard/responsible-play": "dashboard:nav-responsible-play",
   "/dashboard/profile": "dashboard:nav-profile",

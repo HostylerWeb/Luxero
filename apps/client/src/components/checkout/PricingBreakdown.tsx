@@ -24,6 +24,9 @@ export interface PricingBreakdownProps {
   referralDiscountPercent?: number | null;
   walletTicketsTotal?: number | null;
   walletDiscountAmount?: number | null;
+  siteCreditApplied?: number | null;
+  gatewayDue?: number | null;
+  siteCreditCurrency?: string;
   showLineItems?: boolean;
   showShipping?: boolean;
 }
@@ -81,6 +84,9 @@ export function PricingBreakdown({
   showShipping = true,
   walletTicketsTotal,
   walletDiscountAmount,
+  siteCreditApplied,
+  gatewayDue,
+  siteCreditCurrency = "GBP",
   discountRequiresAuth,
   ...discountProps
 }: PricingBreakdownProps) {
@@ -166,6 +172,15 @@ export function PricingBreakdown({
           </div>
         ) : null}
 
+        {(siteCreditApplied ?? 0) > 0 ? (
+          <div className="flex justify-between text-sm text-green-400 gap-3">
+            <span className="min-w-0 truncate">{t("checkout.siteCredit.applied")}</span>
+            <span className="tabular-nums shrink-0">
+              -{formatCurrency(siteCreditApplied ?? 0, locale, siteCreditCurrency)}
+            </span>
+          </div>
+        ) : null}
+
         {showShipping && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">{t("checkout.shipping")}</span>
@@ -177,8 +192,14 @@ export function PricingBreakdown({
       <Separator />
 
       <div className="flex justify-between font-semibold text-lg">
-        <span>{t("checkout.total")}</span>
-        <span className="text-gold tabular-nums">{formatCurrency(total, locale)}</span>
+        <span>
+          {gatewayDue != null && gatewayDue < total
+            ? t("checkout.siteCredit.dueToday")
+            : t("checkout.total")}
+        </span>
+        <span className="text-gold tabular-nums">
+          {formatCurrency(gatewayDue != null && gatewayDue < total ? gatewayDue : total, locale)}
+        </span>
       </div>
     </>
   );

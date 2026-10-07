@@ -121,6 +121,7 @@ export interface CreatePaymentSessionRequest {
   idempotencyKey?: string;
   contact?: CreatePaymentSessionContact;
   shipping?: CreatePaymentSessionShipping;
+  applySiteCredit?: boolean;
 }
 
 import type { CheckoutComplianceHints } from "./compliance";
@@ -136,6 +137,9 @@ export interface CreatePaymentSessionResponse {
   gatewayUrl?: string;
   instantWinInCart?: boolean;
   compliance?: CheckoutComplianceHints;
+  siteCreditApplied?: number;
+  gatewayTotal?: number;
+  cartTotal?: number;
 }
 
 export type PaymentSessionStatusValue = "pending" | "processing" | "completed" | "failed";

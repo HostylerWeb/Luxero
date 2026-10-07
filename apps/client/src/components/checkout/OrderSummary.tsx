@@ -1,24 +1,40 @@
 "use client";
 
 import {
+  useApplyCartDiscount,
   useAuth,
   useCartDiscount,
   useCartItems,
   useCartTotals,
   useCartWallet,
   useMyProfile,
+  useRemoveCartDiscount,
 } from "@luxero/api-client";
-import { AlertTriangle, Lock, ShieldCheck } from "@luxero/icons";
-import { memo } from "react";
+import { Lock, ShieldCheck } from "@luxero/icons";
+import { memo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
+import { showContextualErrorToast } from "@/lib/contextual-error-toast";
 import { useTranslation } from "@/lib/i18n";
 import { PricingBreakdown } from "./PricingBreakdown";
 import { WalletTicketsPanel } from "./WalletTicketsPanel";
 
-export const OrderSummary = memo(function OrderSummary() {
+export type OrderSummaryProps = {
+  applySiteCredit?: boolean;
+  siteCreditApplied?: number;
+  gatewayDue?: number;
+  siteCreditCurrency?: string;
+};
+
+export const OrderSummary = memo(function OrderSummary({
+  applySiteCredit = false,
+  siteCreditApplied = 0,
+  gatewayDue,
+  siteCreditCurrency = "GBP",
+}: OrderSummaryProps = {}) {
   const { t } = useTranslation();
   const { user, isAnonymous } = useAuth();
   const isGuest = user?.isAnonymous ?? isAnonymous;
@@ -67,6 +83,29 @@ export const OrderSummary = memo(function OrderSummary() {
     (referralLocked || pendingReferralCode === profileReferralCode);
   const referralApplying =
     isFirstOrder && Boolean(profileReferralCode) && !pendingReferralCode && !promoCode;
+  const [discountInput, setDiscountInput] = useState("");
+  const [discountError, setDiscountError] = useState<string | null>(null);
+  const applyDiscount = useApplyCartDiscount();
+  const removeDiscount = useRemoveCartDiscount();
+  const appliedCode = pendingReferralCode ?? promoCode;
+
+  function handleApplyDiscount() {
+    if (!discountInput.trim()) return;
+    setDiscountError(null);
+    applyDiscount.mutate(
+      { code: discountInput },
+      {
+        onSuccess: (res) => {
+          if (res?.data?.valid && res.data.code) {
+            setDiscountInput("");
+          } else {
+            setDiscountError(res?.data?.error ?? t("cart.toasts.invalidCode"));
+          }
+        },
+        onError: (err) => showContextualErrorToast(err, t("cart.toasts.failedToApply")),
+      }
+    );
+  }
 
   if (showCartPlaceholder) {
     return (
@@ -124,8 +163,66 @@ export const OrderSummary = memo(function OrderSummary() {
           referralDiscountPercent={pendingReferralDiscountPercent}
           walletTicketsTotal={walletTicketsTotal}
           walletDiscountAmount={walletDiscountAmount}
+          siteCreditApplied={applySiteCredit ? siteCreditApplied : 0}
+          gatewayDue={applySiteCredit ? gatewayDue : undefined}
+          siteCreditCurrency={siteCreditCurrency}
           discountRequiresAuth={discountRequiresAuthValue && isGuest ? true : undefined}
         />
+
+        {appliedCode && !showLockedReferral ? (
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-gold/20 px-3 py-2">
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">
+                {pendingReferralCode ? t("cart.referralApplied") : t("cart.promoApplied")}
+              </p>
+              <p className="truncate text-sm font-semibold uppercase">{appliedCode}</p>
+            </div>
+            {!referralLocked ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  removeDiscount.mutate(undefined, {
+                    onError: (err) =>
+                      showContextualErrorToast(err, t("cart.toasts.failedToRemove")),
+                  })
+                }
+                disabled={removeDiscount.isPending}
+              >
+                {t("cart.remove")}
+              </Button>
+            ) : null}
+          </div>
+        ) : !showLockedReferral && !referralApplying ? (
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <Input
+                placeholder={t("cart.discountCode")}
+                value={discountInput}
+                disabled={applyDiscount.isPending}
+                onChange={(e) => {
+                  setDiscountInput(e.target.value.toUpperCase());
+                  setDiscountError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleApplyDiscount();
+                }}
+                className="h-9 font-medium uppercase tracking-wide"
+                aria-invalid={Boolean(discountError)}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="shrink-0"
+                disabled={applyDiscount.isPending || !discountInput.trim()}
+                onClick={handleApplyDiscount}
+              >
+                {applyDiscount.isPending ? t("cart.applying") : t("cart.apply")}
+              </Button>
+            </div>
+            {discountError ? <p className="text-xs font-medium text-red-500">{discountError}</p> : null}
+          </div>
+        ) : null}
 
         {showLockedReferral ? (
           <div className="space-y-2 rounded-lg border border-green-500/30 bg-green-500/5 px-3 py-2">
@@ -166,35 +263,6 @@ export const OrderSummary = memo(function OrderSummary() {
                 {t("checkout.encryptedProtectedDesc")}
               </p>
             </div>
-          </div>
-        </div>
-
-        <Separator />
-
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/20">
-          <AlertTriangle className="size-4 text-gold flex-shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-semibold text-xs text-foreground">{t("checkout.skillBased")}</p>
-            <p className="text-xs text-muted-foreground">
-              {t("checkout.age18plus")}{" "}
-              <a
-                href="tel:08088020133"
-                className="text-gold hover:underline"
-                data-umami-event="checkout:gamcare-phone"
-              >
-                {t("checkout.gamCarePhone")}
-              </a>{" "}
-              {t("checkout.orVisit")}{" "}
-              <a
-                href="https://www.begambleaware.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gold hover:underline"
-                data-umami-event="checkout:begambleaware-link"
-              >
-                {t("checkout.beGambleAware")}
-              </a>
-            </p>
           </div>
         </div>
       </CardContent>

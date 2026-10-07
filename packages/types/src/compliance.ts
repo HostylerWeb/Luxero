@@ -125,6 +125,7 @@ export interface ComplianceAuditEntry {
 
 export interface AdminUserProfilePatch {
   reason: string;
+  email?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;

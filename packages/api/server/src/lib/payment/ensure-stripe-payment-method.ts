@@ -41,19 +41,11 @@ export async function ensureStripePaymentMethod(): Promise<void> {
     return;
   }
 
-  const needsSync =
-    existing.enabled !== hasCreds ||
-    existing.isDefault !== hasCreds ||
-    existing.environment !== environment;
-  if (needsSync) {
+  if (existing.environment !== environment) {
     await PaymentMethod.findOneAndUpdate(
       { provider: "stripe" },
       {
-        $set: {
-          enabled: hasCreds,
-          isDefault: hasCreds,
-          environment,
-        },
+        $set: { environment },
       }
     );
     void invalidateByChannelSafe(CH.paymentConfig, CH.paymentProviders).catch(() => {});

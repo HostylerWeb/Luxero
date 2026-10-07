@@ -1,5 +1,6 @@
 import type { CompetitionBuyingPower } from "@luxero/api-client";
 import type {
+  Balance,
   PaymentConfigResponse,
   PaymentProviderInfo,
   Profile,
@@ -16,12 +17,17 @@ async function jsonFetch<T>(path: string, cookie: string): Promise<T | null> {
 export async function data(pageContext: PageContextServer) {
   const cookie = pageContext.headers?.cookie ?? "";
   const user = pageContext.user;
+  const fetchBalance =
+    user && user.isAnonymous === false
+      ? jsonFetch<Balance>("/api/balance", cookie)
+      : Promise.resolve(null);
 
-  const [profile, providers, paymentConfig, saferPlay] = await Promise.all([
+  const [profile, providers, paymentConfig, saferPlay, balance] = await Promise.all([
     jsonFetch<Profile>("/api/me/profile", cookie),
     jsonFetch<PaymentProviderInfo[]>("/api/payments/providers", cookie),
     jsonFetch<PaymentConfigResponse>("/api/public/payment-config", cookie),
     user ? jsonFetch<SaferPlayState>("/api/me/safer-play", cookie) : Promise.resolve(null),
+    fetchBalance,
   ]);
 
   let buyingPower: Record<string, CompetitionBuyingPower> | null = null;
@@ -37,7 +43,7 @@ export async function data(pageContext: PageContextServer) {
     }
   }
 
-  return { profile, providers, paymentConfig, saferPlay, buyingPower };
+  return { profile, providers, paymentConfig, saferPlay, buyingPower, balance };
 }
 
 export type Data = Awaited<ReturnType<typeof data>>;

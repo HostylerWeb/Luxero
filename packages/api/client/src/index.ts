@@ -1,3 +1,4 @@
+export { playSiteSound } from "./lib/site-sounds";
 export { authClient } from "@luxero/auth-client";
 export * from "./auth/actions";
 export {

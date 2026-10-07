@@ -56,13 +56,14 @@ function CountdownFace({
   headerKey,
   t,
   className,
+  urgent,
 }: {
   timeLeft: TimeLeft;
   headerKey: string;
   t: (key: string) => string;
   className?: string;
+  urgent: boolean;
 }) {
-  const urgent = timeLeft.days === 0;
   const summary = `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`;
 
   return (
@@ -129,6 +130,7 @@ export function CompetitionCardCountdown({
         timeLeft={PLACEHOLDER}
         headerKey="home.countdown.endsIn"
         t={t}
+        urgent={false}
         className={cn(className, "opacity-90")}
       />
     );
@@ -149,5 +151,13 @@ export function CompetitionCardCountdown({
       : "home.countdown.endingToday"
     : "home.countdown.endsIn";
 
-  return <CountdownFace timeLeft={timeLeft} headerKey={headerKey} t={t} className={className} />;
+  return (
+    <CountdownFace
+      timeLeft={timeLeft}
+      headerKey={headerKey}
+      t={t}
+      urgent={urgent}
+      className={className}
+    />
+  );
 }
