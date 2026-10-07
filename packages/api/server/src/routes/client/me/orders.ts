@@ -21,6 +21,14 @@ app.use("*", auth);
 
 type UnknownRecord = Record<string, unknown>;
 
+function resolveCompetitionImageUrl(competition: UnknownRecord): string | undefined {
+  const prize =
+    typeof competition.prizeImageUrl === "string" ? competition.prizeImageUrl.trim() : "";
+  if (prize) return prize;
+  const image = typeof competition.imageUrl === "string" ? competition.imageUrl.trim() : "";
+  return image || undefined;
+}
+
 export function mapOrderItem(item: UnknownRecord) {
   const competition = item.competitionId as UnknownRecord | string | undefined;
   const competitionId =
@@ -30,8 +38,8 @@ export function mapOrderItem(item: UnknownRecord) {
             (competition._id as { toString: () => string } | undefined)?.toString?.() ??
             String(competition._id ?? ""),
           title: typeof competition.title === "string" ? competition.title : undefined,
-          prizeImageUrl:
-            typeof competition.prizeImageUrl === "string" ? competition.prizeImageUrl : undefined,
+          prizeImageUrl: resolveCompetitionImageUrl(competition),
+          slug: typeof competition.slug === "string" ? competition.slug : undefined,
         }
       : String(competition ?? "");
 
@@ -61,9 +69,9 @@ app.get("/", async (c) => {
 
     const orderIds = orders.map((o) => o._id);
     const orderItems = await OrderItem.find({ orderId: { $in: orderIds } })
-      .populate<{ competitionId: { title: string; prizeImageUrl?: string } }>(
+      .populate<{ competitionId: { title: string; prizeImageUrl?: string; imageUrl?: string } }>(
         "competitionId",
-        "title prizeImageUrl"
+        "title prizeImageUrl imageUrl slug"
       )
       .lean();
 
@@ -144,9 +152,9 @@ app.get("/:id", async (c) => {
     );
 
     const orderItems = await OrderItem.find({ orderId: order._id })
-      .populate<{ competitionId: { title: string; prizeImageUrl?: string; slug?: string } }>(
+      .populate<{ competitionId: { title: string; prizeImageUrl?: string; imageUrl?: string; slug?: string } }>(
         "competitionId",
-        "title prizeImageUrl slug"
+        "title prizeImageUrl imageUrl slug"
       )
       .lean();
 
@@ -227,10 +235,34 @@ app.get("/:id", async (c) => {
       instantPrizeWins: instantWinsByEntryId[e._id] || [],
     }));
 
+    const ticketNumbersByCompetitionId = new Map<string, number[]>();
+    for (const ticket of tickets) {
+      const compKey = ticket.competitionId.toString();
+      const list = ticketNumbersByCompetitionId.get(compKey) ?? [];
+      list.push(ticket.number);
+      ticketNumbersByCompetitionId.set(compKey, list);
+    }
+    for (const list of ticketNumbersByCompetitionId.values()) {
+      list.sort((a, b) => a - b);
+    }
+
+    const itemsWithTickets = orderItems.map((item) => {
+      const mapped = mapOrderItem(item as unknown as UnknownRecord) as UnknownRecord;
+      const compRef = mapped.competitionId;
+      const compKey =
+        typeof compRef === "object" && compRef !== null && "_id" in compRef
+          ? String((compRef as { _id: string })._id)
+          : String(compRef ?? "");
+      const fromDb = Array.isArray(item.ticketNumbers) ? item.ticketNumbers : [];
+      const fromTickets = ticketNumbersByCompetitionId.get(compKey) ?? [];
+      const ticketNumbers = fromDb.length > 0 ? fromDb : fromTickets;
+      return { ...mapped, ticketNumbers };
+    });
+
     log.debug(`[me.orders.get] EXIT: orderId=${id} entriesCount=${entriesWithWins.length}`);
     return success(c, {
       ...order,
-      items: orderItems.map((item) => mapOrderItem(item as unknown as UnknownRecord)),
+      items: itemsWithTickets,
       entries: entriesWithWins,
     });
   } catch (err: unknown) {

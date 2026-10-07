@@ -136,8 +136,12 @@ app.post(
       }
 
       let transaction;
+      const pendingTopUpId = new mongoose.Types.ObjectId();
+      const topUpIdempotencyKey =
+        idempotencyKey ?? `top-up-pending:${pendingTopUpId.toString()}`;
       try {
         transaction = await BalanceTransaction.create({
+          _id: pendingTopUpId,
           userId: new mongoose.Types.ObjectId(userId),
           type: "top_up",
           amount,
@@ -145,7 +149,7 @@ app.post(
           balanceAfter: balanceSnapshot.available + amount,
           status: "pending",
           note: `Top-up initiated: £${amount.toFixed(2)}`,
-          ...(idempotencyKey ? { idempotencyKey } : {}),
+          idempotencyKey: topUpIdempotencyKey,
         });
       } catch (err: unknown) {
         if (
@@ -251,7 +255,9 @@ app.post(
         return error(c, ErrorCodes.INSUFFICIENT_BALANCE, "Insufficient available balance", 400);
       }
 
+      const withdrawTxId = new mongoose.Types.ObjectId();
       const transaction = await BalanceTransaction.create({
+        _id: withdrawTxId,
         userId: new mongoose.Types.ObjectId(userId),
         type: "withdraw",
         amount,
@@ -260,6 +266,7 @@ app.post(
         status: "pending",
         withdrawReference: reference,
         note: `Withdrawal requested: £${amount.toFixed(2)}`,
+        idempotencyKey: `withdraw-pending:${withdrawTxId.toString()}`,
       });
 
       await ComplianceAuditLog.create({

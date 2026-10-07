@@ -65,6 +65,12 @@ export function formatNumber(n: number, options?: Intl.NumberFormatOptions): str
   return new Intl.NumberFormat(locale, options).format(n);
 }
 
+/** GBP-style amounts stored as decimal pounds — round to 2dp to avoid float drift at checkout. */
+export function roundCurrency(amount: number): number {
+  if (!Number.isFinite(amount)) return 0;
+  return Math.round(amount * 100) / 100;
+}
+
 export function formatCurrency(
   n: number,
   currencyOrOptions?: string | { currency?: string; fromPence?: boolean }

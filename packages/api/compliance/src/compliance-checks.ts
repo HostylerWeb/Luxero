@@ -102,17 +102,9 @@ async function assertPersonalSpendLimit(
   profile: IProfile,
   settings: IComplianceSettings,
   cartTotal: number,
-  completedOrderCount: number
+  _completedOrderCount: number
 ): Promise<void> {
   if (!settings.personalSpendLimitsEnabled) return;
-
-  if (completedOrderCount >= 1 && profile.monthlySpendLimit == null) {
-    throw new ComplianceError(
-      ErrorCodes.PERSONAL_SPEND_LIMIT_EXCEEDED,
-      "Please set a monthly spend limit in Responsible Play before making another purchase.",
-      403
-    );
-  }
 
   if (profile.monthlySpendLimit == null) return;
 

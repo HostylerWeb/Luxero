@@ -19,9 +19,11 @@ import { withFallback } from "vike-react-query";
 import { GoldOutlineButton } from "@/components/buttons";
 import { type InstantWinData, InstantWinModal } from "@/components/checkout/InstantWinModal";
 import { Link } from "@/components/Link";
-import { TicketNumberPill } from "@/components/shared/TicketNumberPill";
+import {
+  CheckoutSuccessTickets,
+  CheckoutSuccessTicketsSkeleton,
+} from "@/components/checkout/CheckoutSuccessTickets";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "@/lib/i18n";
 
@@ -483,21 +485,11 @@ function CheckoutSuccessPageContent() {
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-balance">
                 {t("checkout.success.purchaseComplete")}
               </h1>
-              <p className="text-muted-foreground text-lg mb-2">
+              <p className="text-muted-foreground text-lg mb-8">
                 {t("checkout.success.completedDesc")}
               </p>
-              {orderId ? (
-                <p className="text-sm text-muted-foreground mb-8">
-                  {t("checkout.success.orderConfirmed")}
-                </p>
-              ) : null}
-
               {showOrderSkeleton ? (
-                <div className="mb-8 space-y-2" role="status" aria-busy="true">
-                  <span className="sr-only">{t("common.loading")}</span>
-                  <Skeleton className="mx-auto h-4 w-48" />
-                  <Skeleton className="mx-auto h-4 w-64" />
-                </div>
+                <div role="status" className="sr-only">{t("common.loading")}</div>
               ) : null}
 
               {cartClearWarning ? (
@@ -511,40 +503,9 @@ function CheckoutSuccessPageContent() {
               ) : null}
 
               {showOrderSkeleton ? (
-                <Card className="border-gold/20 mb-8 text-left">
-                  <CardContent className="p-6 space-y-4">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-16 w-full" />
-                  </CardContent>
-                </Card>
+                <CheckoutSuccessTicketsSkeleton />
               ) : orderData?.items && orderData.items.length > 0 ? (
-                <Card className="border-gold/20 mb-8 text-left bg-card/70 backdrop-blur-sm">
-                  <CardContent className="p-6 space-y-4">
-                    <h2 className="font-semibold flex items-center gap-2">
-                      <Ticket className="w-4 h-4 text-gold" />
-                      {t("checkout.success.yourTickets")}
-                    </h2>
-                    {orderData.items.map((item) => (
-                      <div key={item._id} className="space-y-1.5">
-                        <p className="font-medium text-sm">
-                          {typeof item.competitionId === "object"
-                            ? (item.competitionId.title ?? t("checkout.success.competition"))
-                            : t("checkout.success.competition")}
-                        </p>
-                        <p className="text-sm font-bold text-gold">
-                          {t("checkout.success.ticketsPurchased", {
-                            count: item.quantity,
-                          })}
-                        </p>
-                        <div className="flex flex-wrap gap-x-3 gap-y-2 justify-center">
-                          {(item.ticketNumbers ?? []).map((num) => (
-                            <TicketNumberPill key={num} value={num} />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                <CheckoutSuccessTickets items={orderData.items} entries={orderData.entries} />
               ) : null}
 
               <Card className="border-gold/20 mb-8 text-left bg-card/70 backdrop-blur-sm">

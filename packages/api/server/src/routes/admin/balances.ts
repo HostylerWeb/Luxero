@@ -201,7 +201,9 @@ app.post("/adjust", async (c) => {
 
     const transactionType = amount > 0 ? "admin_credit" : "admin_debit";
 
+    const transactionId = new mongoose.Types.ObjectId();
     const transaction = await BalanceTransaction.create({
+      _id: transactionId,
       userId: new mongoose.Types.ObjectId(userId),
       type: transactionType,
       amount: Math.abs(amount),
@@ -209,6 +211,7 @@ app.post("/adjust", async (c) => {
       balanceAfter,
       status: "completed",
       note: note.trim(),
+      idempotencyKey: `admin-adjust:${transactionId.toString()}`,
     });
     void invalidateUser(balanceUserId).catch(() => {});
     void invalidateByChannelSafe(CH.competitionBuyingPower, CH.competitionsBuyingPowerBatch).catch(

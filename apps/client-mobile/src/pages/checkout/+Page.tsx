@@ -224,7 +224,6 @@ function CheckoutPageContent() {
   const {
     isLoading: eligibilityLoading,
     ageVerificationRequired,
-    spendLimitRequired,
     selfExcluded,
   } = useCheckoutEligibility();
 
@@ -446,7 +445,7 @@ function CheckoutPageContent() {
 
   const isSubmitting = createCheckoutSession.isPending;
   const guestCheckoutBlocked = isGuest && !features.guestCheckoutEnabled;
-  const complianceBlocked = ageVerificationRequired || spendLimitRequired || selfExcluded;
+  const complianceBlocked = ageVerificationRequired || selfExcluded;
   const orderValueBlocked =
     (total === 0 && !features.allowZeroSubtotalOrders) ||
     (features.minimumOrderValue > 0 && total < features.minimumOrderValue);
@@ -723,15 +722,6 @@ function CheckoutPageContent() {
                     <CheckoutErrorBanner
                       error={applyComplianceFeaturesToContextualError(
                         FRONTEND_CONTEXTUAL_ERRORS.ageVerificationRequired,
-                        features
-                      )}
-                    />
-                  ) : null}
-
-                  {spendLimitRequired ? (
-                    <CheckoutErrorBanner
-                      error={applyComplianceFeaturesToContextualError(
-                        FRONTEND_CONTEXTUAL_ERRORS.spendLimitRequired,
                         features
                       )}
                     />

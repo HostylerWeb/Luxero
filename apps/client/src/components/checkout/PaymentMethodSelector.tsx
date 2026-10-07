@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { roundCurrency } from "@luxero/utils";
 import { formatCurrency, useTranslation } from "@/lib/i18n";
 import { FreeCheckout } from "./free/FreeCheckout";
 import { SiteCreditFullCheckout } from "./site-credit/SiteCreditFullCheckout";
@@ -342,10 +343,11 @@ function PaymentMethodSelectorInner({
     siteCreditWalletEnabled &&
     cart.total > 0 &&
     (siteCreditBalanceLoading || siteCreditAvailable > 0);
+  const cartTotal = roundCurrency(cart.total);
   const siteCreditApplied = applySiteCredit
-    ? Math.min(siteCreditAvailable, cart.total)
+    ? roundCurrency(Math.min(siteCreditAvailable, cartTotal))
     : 0;
-  const gatewayDue = Math.max(0, cart.total - siteCreditApplied);
+  const gatewayDue = roundCurrency(Math.max(0, cartTotal - siteCreditApplied));
   const cartWithSiteCredit = useMemo(
     () => ({ ...cart, applySiteCredit: applySiteCredit && siteCreditApplied > 0 }),
     [cart, applySiteCredit, siteCreditApplied]

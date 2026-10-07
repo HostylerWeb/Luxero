@@ -697,7 +697,8 @@
       "dueToday": "Due today",
       "fullPayDescription": "Your site credit covers this order in full.",
       "payWithCredit": "Pay {amount} with site credit",
-      "processing": "Processing…"
+      "processing": "Processing…",
+      "insufficientForOrder": "You do not have enough site credit for this order. Refresh the page or choose a card payment method."
     },
     "choosePayment": "Choose how to pay",
     "choosePaymentDesc": "We support the following payment methods. Pick the one that suits you.",
@@ -790,7 +791,7 @@
       "doNotRetry": "Important: do not retry",
       "errorDesc": "Something went wrong with your payment. Please contact support if you think there was an issue.",
       "invalidLinkDesc": "This confirmation link is missing required payment details. Check your email or orders dashboard for your receipt.",
-      "completedDesc": "Your order has been confirmed and your tickets are now active.",
+      "completedDesc": "Your order has been confirmed. Your tickets have been added to your account.",
       "processingDesc": "We're confirming your payment. This usually takes a few seconds.",
       "processingDetail": "Your payment is being verified. You'll receive a confirmation email shortly.",
       "whatsNextSteps": {
@@ -818,6 +819,9 @@
       "orderFetchError": "We couldn't load your order details. Your tickets are confirmed — check your dashboard for full details.",
       "competition": "Competition",
       "ticketsPurchased": "{count} ticket{plural} purchased",
+      "seeTicket": "See ticket",
+      "seeTickets": "See tickets",
+      "ticketsProcessing": "Your ticket numbers are being assigned. Check your dashboard in a moment.",
       "winningTicket": "Winning ticket",
       "winningTicketAria": "{title}, winning ticket #{ticket}",
       "congratulations": "Congratulations!",

@@ -53,6 +53,7 @@ export {
   formatNumber,
   formatPercentage,
   formatRelativeTime,
+  roundCurrency,
 } from "./format-utils";
 export type {
   NavHomepageSection,

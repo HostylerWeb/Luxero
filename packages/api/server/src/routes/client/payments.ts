@@ -14,6 +14,7 @@ import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { error, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { createLogger } from "@luxero/api-logger";
+import { roundCurrency } from "@luxero/utils";
 import type { PaytriotResponse } from "@luxero/api-payment-paytriot";
 import {
   createStripeClient,
@@ -36,6 +37,7 @@ import {
 import {
   ensureSiteCreditPaymentMethod,
   isSiteCreditWalletEnabled,
+  SITE_CREDIT_PROVIDER,
 } from "@luxero/api-server/lib/payment/ensure-site-credit-payment-method";
 import { resolveSiteCreditForCheckout } from "@luxero/api-server/lib/payment/site-credit-checkout";
 import { ensureStripePaymentMethod } from "@luxero/api-server/lib/payment/ensure-stripe-payment-method";
@@ -380,9 +382,8 @@ app.post(
         cartItems: cartItemsForPromo,
       });
 
-      const cartTotal = Math.max(
-        0,
-        (Number(effectivePaidSubtotal) || 0) - (Number(serverDiscount) || 0)
+      const cartTotal = roundCurrency(
+        Math.max(0, (Number(effectivePaidSubtotal) || 0) - (Number(serverDiscount) || 0))
       );
       const competitionIds = items.map((item) => item.competitionId);
 
@@ -409,7 +410,7 @@ app.post(
       // site-credit-funded) cannot go through a gateway — Paytriot rejects a zero
       // amount. Route it through the local fulfillment path instead, even when the
       // local payment method is disabled.
-      const isZeroTotal = gatewayTotal <= 0;
+      const isZeroTotal = roundCurrency(gatewayTotal) <= 0;
       let selectedProvider: string;
       let adapter: PaymentProviderAdapter;
       let checkoutMode: "hosted" | "popup" | undefined;
@@ -422,7 +423,9 @@ app.post(
         await ensureLocalPaymentMethod();
         await ensurePaytriotPaymentMethod();
         await ensureStripePaymentMethod();
-        const methods = filterEnabledPaymentMethods(await PaymentMethod.find({ enabled: true }).lean());
+        const methods = filterEnabledPaymentMethods(
+          await PaymentMethod.find({ enabled: true }).lean()
+        ).filter((m) => m.provider !== SITE_CREDIT_PROVIDER);
         if (methods.length === 0) {
           return error(
             c,
@@ -465,10 +468,10 @@ app.post(
           | undefined;
       }
 
-      const userEmail = c.get("email");
       const profile = await Profile.findById(orderUserId).lean();
+      const accountEmail = c.get("email") ?? profile?.email ?? "";
 
-      if (!userEmail && !user?.isAnonymous) {
+      if (!accountEmail && !user?.isAnonymous) {
         return error(
           c,
           ErrorCodes.CHECKOUT_ERROR,
@@ -491,7 +494,7 @@ app.post(
         promoCode: serverPromoCode ?? "<none>",
         referralCode: serverReferralCode ?? "<none>",
         userId,
-        userEmail: contact?.email ?? userEmail ?? "",
+        userEmail: contact?.email ?? accountEmail,
         shippingCity: shipping?.city ?? "<none>",
         idempotencyKey: idempotencyKey ? `${idempotencyKey.slice(0, 12)}...` : "<none>",
       });
@@ -505,7 +508,11 @@ app.post(
           cartTotal,
           competitionIds,
           blockCardPayment: willChargeCard,
-          projectedCreditSpend: willChargeCard ? gatewayTotal : 0,
+          projectedCreditSpend: willChargeCard
+          ? gatewayTotal
+          : siteCreditApplied > 0
+            ? siteCreditApplied
+            : 0,
         });
         instantWinInCart = complianceResult.instantWinInCart;
       } catch (err: unknown) {
@@ -517,8 +524,8 @@ app.post(
 
       const complianceHints = await getCheckoutComplianceHints(orderUserId, competitionIds);
 
-      const formEmail = contact?.email ?? userEmail ?? "";
-      const orderEmail = contact?.email ?? userEmail ?? "";
+      const formEmail = contact?.email ?? accountEmail;
+      const orderEmail = contact?.email ?? accountEmail;
 
       const remoteAddress =
         c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -598,6 +605,14 @@ app.post(
       });
     } catch (err: unknown) {
       const raw = err instanceof Error ? err.message : "Failed to create checkout session";
+      if (raw === "INSUFFICIENT_SITE_CREDIT") {
+        return error(
+          c,
+          ErrorCodes.INSUFFICIENT_BALANCE,
+          "You do not have enough site credit for this order",
+          400
+        );
+      }
       if (raw.startsWith("TICKETS_SOLD_OUT:")) {
         return error(c, ErrorCodes.TICKETS_SOLD_OUT, raw.replace("TICKETS_SOLD_OUT:", ""), 400);
       }

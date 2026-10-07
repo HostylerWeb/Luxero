@@ -630,13 +630,6 @@ export async function buildSaferPlayState(userId: string) {
 
   const enforcementActive = isComplianceEnforcementActive(settings);
   const creditCardMonthlyLimitEnabled = enforcementActive && settings.creditCardMonthlyLimitEnabled;
-  const spendLimitRequired =
-    enforcementActive &&
-    settings.personalSpendLimitsEnabled &&
-    !profile.isGuestCheckout &&
-    completedOrderCount >= 1 &&
-    profile.monthlySpendLimit == null;
-
   return {
     monthlySpendLimit: profile.monthlySpendLimit ?? null,
     pendingMonthlySpendLimit: profile.pendingMonthlySpendLimit ?? null,
@@ -657,7 +650,7 @@ export async function buildSaferPlayState(userId: string) {
     selfExclusionEnabled: enforcementActive && settings.selfExclusionEnabled,
     selfExclusionMinMonths: settings.selfExclusionMinMonths,
     completedOrderCount,
-    spendLimitRequired,
+    spendLimitRequired: false,
   };
 }
 

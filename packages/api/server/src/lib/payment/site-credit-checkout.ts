@@ -1,4 +1,5 @@
 import { Balance } from "@luxero/api-db/models";
+import { roundCurrency } from "@luxero/utils";
 import { Types } from "mongoose";
 
 export async function resolveSiteCreditForCheckout(params: {
@@ -6,7 +7,7 @@ export async function resolveSiteCreditForCheckout(params: {
   cartTotal: number;
   applySiteCredit: boolean;
 }): Promise<{ siteCreditApplied: number; gatewayTotal: number }> {
-  const cartTotal = Math.max(0, params.cartTotal);
+  const cartTotal = roundCurrency(Math.max(0, params.cartTotal));
   if (!params.applySiteCredit || cartTotal <= 0) {
     return { siteCreditApplied: 0, gatewayTotal: cartTotal };
   }
@@ -14,8 +15,8 @@ export async function resolveSiteCreditForCheckout(params: {
   const balance = await Balance.findOne({ userId: new Types.ObjectId(params.userId) })
     .select("available")
     .lean();
-  const available = balance?.available ?? 0;
-  const siteCreditApplied = Math.min(available, cartTotal);
-  const gatewayTotal = Math.max(0, cartTotal - siteCreditApplied);
+  const available = roundCurrency(balance?.available ?? 0);
+  const siteCreditApplied = roundCurrency(Math.min(available, cartTotal));
+  const gatewayTotal = roundCurrency(Math.max(0, cartTotal - siteCreditApplied));
   return { siteCreditApplied, gatewayTotal };
 }

@@ -697,7 +697,8 @@
       "dueToday": "De plată acum",
       "fullPayDescription": "Creditul site acoperă integral comanda.",
       "payWithCredit": "Plătește {amount} cu credit site",
-      "processing": "Se procesează…"
+      "processing": "Se procesează…",
+      "insufficientForOrder": "Nu ai suficient credit de site pentru această comandă. Reîmprospătează pagina sau alege plata cu cardul."
     },
     "choosePayment": "Alege cum să plătești",
     "choosePaymentDesc": "Acceptăm următoarele metode de plată. Alege-o pe cea care ți se potrivește.",
@@ -790,7 +791,7 @@
       "doNotRetry": "Important: nu reîncerca",
       "errorDesc": "Ceva nu a funcționat cu plata ta. Contactează suportul dacă crezi că a fost o problemă.",
       "invalidLinkDesc": "Acest link de confirmare nu conține detaliile necesare de plată. Verifică emailul sau panoul de comenzi pentru chitanța ta.",
-      "completedDesc": "Comanda ta a fost confirmată, iar biletele tale sunt acum active.",
+      "completedDesc": "Comanda ta a fost confirmată. Biletele tale au fost adăugate în contul tău.",
       "processingDesc": "Confirmăm plata ta. De obicei, durează câteva secunde.",
       "processingDetail": "Plata ta este verificată. Vei primi un email de confirmare în scurt timp.",
       "whatsNextSteps": {
@@ -818,6 +819,9 @@
       "orderFetchError": "Nu am putut încărca detaliile comenzii tale. Biletele tale sunt confirmate — verifică panoul de bord pentru detalii complete.",
       "competition": "Concurs",
       "ticketsPurchased": "{count} bilet{plural} cumpărat{plural}",
+      "seeTicket": "Vezi biletul",
+      "seeTickets": "Vezi biletele",
+      "ticketsProcessing": "Numerele biletelor sunt în curs de alocare. Verifică tabloul de bord în câteva momente.",
       "winningTicket": "Bilet câștigător",
       "winningTicketAria": "{title}, bilet câștigător #{ticket}",
       "congratulations": "Felicitări!",

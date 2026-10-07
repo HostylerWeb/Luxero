@@ -17,7 +17,7 @@ export function useCreateCheckoutSession() {
   return useMutation<
     ApiResponse<CreatePaymentSessionResponse>,
     Error,
-    CreatePaymentSessionRequest & { provider: PaymentProviderId }
+    CreatePaymentSessionRequest & { provider?: PaymentProviderId }
   >({
     mutationFn: async (params) => {
       const userId = getSessionSnapshot().user?.id;

@@ -1,6 +1,11 @@
 import { Balance, BalanceTransaction } from "@luxero/api-db/models";
+import { isDuplicateKeyError } from "@luxero/api-infra/mongo-errors";
 import type { ClientSession } from "mongoose";
 import { Types } from "mongoose";
+
+export function siteCreditPurchaseIdempotencyKey(orderId: string): string {
+  return `site-credit-purchase:${orderId}`;
+}
 
 export async function debitSiteCreditForOrder(params: {
   userId: string;
@@ -12,10 +17,12 @@ export async function debitSiteCreditForOrder(params: {
   if (amount <= 0) return;
 
   const orderOid = new Types.ObjectId(params.orderId);
+  const idempotencyKey = siteCreditPurchaseIdempotencyKey(params.orderId);
   let existingQuery = BalanceTransaction.findOne({
-    orderId: orderOid,
-    type: "purchase",
-    status: "completed",
+    $or: [
+      { orderId: orderOid, type: "purchase", status: "completed" },
+      { userId: new Types.ObjectId(params.userId), idempotencyKey },
+    ],
   });
   if (params.session) existingQuery = existingQuery.session(params.session);
   const existing = await existingQuery;
@@ -44,18 +51,32 @@ export async function debitSiteCreditForOrder(params: {
     throw new Error("INSUFFICIENT_SITE_CREDIT");
   }
 
-  await BalanceTransaction.create(
-    [
-      {
-        userId: userOid,
-        type: "purchase",
-        amount,
-        balanceBefore,
-        balanceAfter,
-        status: "completed",
-        orderId: orderOid,
-      },
-    ],
-    sessionOpts
-  );
+  try {
+    await BalanceTransaction.create(
+      [
+        {
+          userId: userOid,
+          type: "purchase",
+          amount,
+          balanceBefore,
+          balanceAfter,
+          status: "completed",
+          orderId: orderOid,
+          idempotencyKey,
+        },
+      ],
+      sessionOpts
+    );
+  } catch (err: unknown) {
+    if (isDuplicateKeyError(err)) {
+      const dup = await BalanceTransaction.findOne({ userId: userOid, idempotencyKey }).lean();
+      if (dup) return;
+    }
+    await Balance.findOneAndUpdate(
+      { userId: userOid },
+      { $inc: { available: amount } },
+      sessionOpts
+    );
+    throw err;
+  }
 }

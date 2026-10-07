@@ -21,6 +21,22 @@ describe("orders route contract mapping", () => {
     });
   });
 
+  test("falls back to imageUrl when prizeImageUrl is missing", () => {
+    const competitionId = new Types.ObjectId();
+    const mapped = mapOrderItem({
+      competitionId: {
+        _id: competitionId,
+        title: "Cupra",
+        imageUrl: "https://img/hero.png",
+      },
+      quantity: 1,
+    });
+
+    expect(mapped.competitionId).toMatchObject({
+      prizeImageUrl: "https://img/hero.png",
+    });
+  });
+
   test("handles bare ObjectId competition id without crashing contract mapping", () => {
     const competitionId = new Types.ObjectId();
     const mapped = mapOrderItem({

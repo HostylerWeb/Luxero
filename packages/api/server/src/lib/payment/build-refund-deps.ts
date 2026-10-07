@@ -95,6 +95,7 @@ export function buildRefundDeps() {
         balanceAfter: available + amount,
         status: "completed",
         orderId,
+        idempotencyKey: `site-credit-purchase-refund:${orderId}`,
       });
       await Balance.updateOne({ userId }, { $inc: { available: amount } });
     },

@@ -28,6 +28,7 @@ import {
 } from "@luxero/api-client";
 import { Lock } from "@luxero/icons";
 import type { ApiResponse, ProfileAddress, PublicComplianceSettings } from "@luxero/types";
+import { roundCurrency } from "@luxero/utils";
 import { DEFAULT_PROFILE_ADDRESS } from "@luxero/types";
 import { cn } from "@luxero/utils";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -263,7 +264,7 @@ function CheckoutPageContent() {
       discountRequiresAuth: false,
     },
   } = useCartDiscount(cartOpts);
-  const { data: cart = null } = useCart(cartOpts);
+  const { data: cart = null, refetch: refetchCart } = useCart(cartOpts);
   const cartId = cart?.data?.id ?? null;
   const { promoCode, discountAmount: promoDiscountAmount, pendingReferralCode } = discount;
   const discountRequiresAuth = discount.discountRequiresAuth ?? false;
@@ -285,7 +286,6 @@ function CheckoutPageContent() {
   const {
     isLoading: eligibilityLoading,
     ageVerificationRequired,
-    spendLimitRequired,
     selfExcluded,
   } = useCheckoutEligibility({
     saferPlayInitialData: ssrData?.saferPlay ? { data: ssrData.saferPlay } : undefined,
@@ -301,19 +301,24 @@ function CheckoutPageContent() {
   const paymentConfigPayload = configResponse?.data ?? ssrData?.paymentConfig ?? undefined;
   const siteCreditWalletEnabled =
     !isGuest && parseSiteCreditWalletEnabled(paymentConfigPayload);
-  const { data: balanceResponse, isLoading: siteCreditBalanceLoading } = useBalance({
+  const {
+    data: balanceResponse,
+    isLoading: siteCreditBalanceLoading,
+    refetch: refetchBalance,
+  } = useBalance({
     enabled: !isGuest && siteCreditWalletEnabled,
     initialData: ssrData?.balance ? { data: ssrData.balance } : undefined,
   });
-  const siteCreditAvailable = balanceResponse?.data?.available ?? 0;
+  const siteCreditAvailable = roundCurrency(balanceResponse?.data?.available ?? 0);
   const siteCreditCurrency = balanceResponse?.data?.currency ?? "GBP";
   const [applySiteCredit, setApplySiteCredit] = useState(false);
 
+  const orderTotal = roundCurrency(total);
   const siteCreditApplied =
     applySiteCredit && siteCreditWalletEnabled
-      ? Math.min(siteCreditAvailable, total)
+      ? roundCurrency(Math.min(siteCreditAvailable, orderTotal))
       : 0;
-  const gatewayDue = Math.max(0, total - siteCreditApplied);
+  const gatewayDue = roundCurrency(Math.max(0, orderTotal - siteCreditApplied));
 
   const createCheckoutSession = useCreateCheckoutSession();
   const syncProfileAddressIfChanged = useSyncProfileAddressIfChanged();
@@ -533,7 +538,7 @@ function CheckoutPageContent() {
 
   const isSubmitting = createCheckoutSession.isPending;
   const guestCheckoutBlocked = isGuest && !features.guestCheckoutEnabled;
-  const complianceBlocked = ageVerificationRequired || spendLimitRequired || selfExcluded;
+  const complianceBlocked = ageVerificationRequired || selfExcluded;
   const orderValueBlocked =
     (total === 0 && !features.allowZeroSubtotalOrders) ||
     (features.minimumOrderValue > 0 && total < features.minimumOrderValue);
@@ -643,19 +648,56 @@ function CheckoutPageContent() {
       setPaymentError(null);
 
       try {
-        await syncProfileBeforePayment();
+        await validateCartBeforePayment();
       } catch {
         isSubmittingRef.current = false;
         return;
       }
 
+      let shouldApplySiteCredit =
+        withSiteCredit ||
+        (applySiteCredit && siteCreditWalletEnabled && siteCreditApplied > 0);
+      let freshGatewayDue = gatewayDue;
+
+      if (shouldApplySiteCredit) {
+        const [cartRes, balRes] = await Promise.all([refetchCart(), refetchBalance()]);
+        const freshTotal = roundCurrency(cartRes.data?.data?.total ?? orderTotal);
+        const freshAvailable = roundCurrency(balRes.data?.data?.available ?? siteCreditAvailable);
+        const freshApplied = roundCurrency(Math.min(freshAvailable, freshTotal));
+        freshGatewayDue = roundCurrency(Math.max(0, freshTotal - freshApplied));
+
+        if (withSiteCredit && freshApplied <= 0 && freshTotal > 0) {
+          isSubmittingRef.current = false;
+          setPaymentError({
+            code: "INSUFFICIENT_BALANCE",
+            message: t("checkout.siteCredit.insufficientForOrder"),
+          });
+          return;
+        }
+
+        if (withSiteCredit && freshGatewayDue > 0) {
+          isSubmittingRef.current = false;
+          setPaymentError({
+            message: t("checkout.siteCredit.partialPay", {
+              credit: formatCurrency(freshApplied, locale, siteCreditCurrency),
+              cash: formatCurrency(freshGatewayDue, locale, siteCreditCurrency),
+            }),
+          });
+          return;
+        }
+
+        shouldApplySiteCredit = freshApplied > 0 || withSiteCredit;
+      }
+
+      const siteCreditCoversOrder = shouldApplySiteCredit && freshGatewayDue <= 0;
+
       try {
         const res = await createCheckoutSession.mutateAsync({
-          provider: "local",
+          ...(siteCreditCoversOrder ? {} : { provider: "local" as const }),
           contact,
           shipping: address,
           cartId: cartId ?? undefined,
-          ...(withSiteCredit ? { applySiteCredit: true } : {}),
+          ...(shouldApplySiteCredit ? { applySiteCredit: true } : {}),
           ...(isGuest ? { compliance: { dob } } : {}),
         });
         if (!res.data?.sessionId) throw new Error("Failed to create checkout session");
@@ -678,15 +720,21 @@ function CheckoutPageContent() {
     },
     [
       address,
+      applySiteCredit,
       cartId,
       contact,
       createCheckoutSession,
       features,
-      syncProfileBeforePayment,
+      gatewayDue,
       isGuest,
-      user?.id,
-      user?.isAnonymous,
-      isFormValid,
+      siteCreditApplied,
+      siteCreditWalletEnabled,
+      validateCartBeforePayment,
+      refetchBalance,
+      refetchCart,
+      orderTotal,
+      siteCreditAvailable,
+      siteCreditCurrency,
       dob,
       t,
       locale,
@@ -827,15 +875,6 @@ function CheckoutPageContent() {
                     <CheckoutErrorBanner
                       error={applyComplianceFeaturesToContextualError(
                         FRONTEND_CONTEXTUAL_ERRORS.ageVerificationRequired,
-                        features
-                      )}
-                    />
-                  ) : null}
-
-                  {spendLimitRequired ? (
-                    <CheckoutErrorBanner
-                      error={applyComplianceFeaturesToContextualError(
-                        FRONTEND_CONTEXTUAL_ERRORS.spendLimitRequired,
                         features
                       )}
                     />
