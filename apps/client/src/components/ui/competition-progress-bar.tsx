@@ -333,12 +333,27 @@ export function CompetitionProgressBar({
     <div className={cn("space-y-2", className)}>
       {(isDetail || isEntries) && (
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-2">
-            <span className="font-medium text-foreground text-[15px]">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="font-bold text-foreground text-[15px]">
               {t("progressBar.ticketsSold")}
             </span>
-            <span className="text-xs tabular-nums text-muted-foreground">
+            <span
+              className={cn(
+                "text-xs tabular-nums",
+                isDetail ? "text-foreground" : "text-muted-foreground"
+              )}
+            >
               {ticketsSold.toLocaleString()} / {maxTickets.toLocaleString()}
+              {isDetail ? (
+                <>
+                  {" "}
+                  (
+                  {pct >= 100
+                    ? t("progressBar.soldOut")
+                    : t("progressBar.pctSold", { pct: Math.round(pct) })}
+                  )
+                </>
+              ) : null}
             </span>
           </div>
           {countdownLabel ? (
@@ -362,7 +377,7 @@ export function CompetitionProgressBar({
         t={t}
       />
 
-      {(percentageBelow || isDetail) && (
+      {percentageBelow && !isDetail ? (
         <div className="flex justify-center">
           <span className="text-lg font-bold tabular-nums text-gold">
             {pct >= 100
@@ -370,7 +385,7 @@ export function CompetitionProgressBar({
               : t("progressBar.pctSold", { pct: Math.round(pct) })}
           </span>
         </div>
-      )}
+      ) : null}
 
       {!isDetail && !isEntries && !isCard && !percentageBelow ? (
         <p className="text-[10px] tabular-nums text-muted-foreground">

@@ -19,8 +19,8 @@ import {
   Video,
 } from "@luxero/icons";
 import { formatDistanceToNow } from "date-fns";
-import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AssetImage } from "@/components/AssetImage";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -1108,13 +1108,11 @@ function GridTile({
           </div>
         )}
         {isImage && !imgError ? (
-          <Image
+          <AssetImage
             src={asset.url}
             alt={filename}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 50vw, 25vw"
-            unoptimized
             onError={() => setImgError(true)}
           />
         ) : (
@@ -1307,13 +1305,11 @@ function ListRow({
       )}
       <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-muted">
         {isImage && !imgError ? (
-          <Image
+          <AssetImage
             src={asset.url}
             alt={filename}
             fill
             className="object-cover"
-            sizes="40px"
-            unoptimized
             onError={() => setImgError(true)}
           />
         ) : (

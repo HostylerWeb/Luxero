@@ -54,11 +54,21 @@ export function useMyProfile(options?: { enabled?: boolean; initialData?: ApiRes
   });
 }
 
-export function useProfileAvatar(options?: { enabled?: boolean }) {
+export function useProfileAvatar(options?: {
+  enabled?: boolean;
+  initialData?: ApiResponse<Profile>;
+}) {
   const { user, isAnonymous } = useAuth();
-  const enabled = (options?.enabled ?? true) && Boolean(user) && !isAnonymous;
-  const { data: profileResponse, isLoading } = useMyProfile({ enabled });
-  const profile = profileResponse?.data;
+  const hasInitialProfile = Boolean(options?.initialData?.data);
+  const enabled =
+    (options?.enabled ?? true) &&
+    !isAnonymous &&
+    (Boolean(user) || hasInitialProfile);
+  const { data: profileResponse, isLoading } = useMyProfile({
+    enabled,
+    initialData: options?.initialData,
+  });
+  const profile = profileResponse?.data ?? options?.initialData?.data;
 
   const avatarUrl = useMemo(
     () => withAssetCacheVersion(profile?.avatarUrl, profile?.updatedAt),

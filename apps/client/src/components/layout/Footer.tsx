@@ -1,5 +1,6 @@
 "use client";
 
+import { useComplianceFeatures } from "@luxero/api-client";
 import {
   CARD_BRAND_COMPONENT,
   CARD_BRANDS,
@@ -8,7 +9,8 @@ import {
   SocialIcon,
 } from "@luxero/icons";
 import { cn, SOCIAL_LINKS } from "@luxero/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePageContext } from "vike-react/usePageContext";
 import { Link } from "@/components/Link";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,8 +48,8 @@ function getQuickLinks(
       label: t("header.nav.competitions"),
       umami: "footer:competitions-click",
     },
-    { href: "/entries", label: t("header.nav.entries"), umami: "footer:entries-click" },
     { href: "/winners", label: t("header.nav.winners"), umami: "footer:winners-click" },
+    { href: "/entries", label: t("header.nav.entries"), umami: "footer:entries-click" },
     {
       href: "/how-it-works",
       label: t("header.nav.howItWorks"),
@@ -58,11 +60,21 @@ function getQuickLinks(
 }
 
 function getSupportLinks(
-  t: (key: TranslationKey, params?: Record<string, string | number>) => string
+  t: (key: TranslationKey, params?: Record<string, string | number>) => string,
+  showResponsiblePlay: boolean
 ) {
   return [
     { href: "/faq", label: t("footer.faq"), umami: "footer:faq-click" },
     { href: "/contact", label: t("footer.contactUs"), umami: "footer:contact-click" },
+    ...(showResponsiblePlay
+      ? [
+          {
+            href: "/responsible-play",
+            label: t("header.nav.responsiblePlay"),
+            umami: "footer:responsible-play-click",
+          },
+        ]
+      : []),
   ] as const;
 }
 
@@ -131,6 +143,10 @@ function PaymentLogos() {
 
 export function Footer() {
   const { t, locale, setLocale } = useTranslation();
+  const pageContext = usePageContext();
+  const complianceData = (pageContext as { complianceFeaturesData?: unknown }).complianceFeaturesData;
+  const features = useComplianceFeatures({ initialData: complianceData ?? undefined });
+  const showResponsiblePlay = features.publicResponsiblePlayPage;
   const [dismissed, setDismissed] = useState(false);
   const [installed, setInstalled] = useState(false);
 
@@ -157,7 +173,10 @@ export function Footer() {
 
   const year = new Date().getFullYear();
   const QUICK_LINKS = getQuickLinks(t);
-  const SUPPORT_LINKS = getSupportLinks(t);
+  const SUPPORT_LINKS = useMemo(
+    () => getSupportLinks(t, showResponsiblePlay),
+    [t, showResponsiblePlay]
+  );
   const LEGAL_LINKS = getLegalLinks(t);
 
   return (

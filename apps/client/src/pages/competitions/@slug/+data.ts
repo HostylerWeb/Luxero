@@ -11,6 +11,8 @@ export async function data(pageContext: PageContextServer) {
   const cookie = pageContext.headers?.cookie ?? "";
   const slug = pageContext.routeParams?.slug as string | undefined;
 
+  const serverNow = Date.now();
+
   if (!slug) {
     return {
       competition: null,
@@ -18,6 +20,7 @@ export async function data(pageContext: PageContextServer) {
       instantPrizes: null,
       bonusAwards: null,
       bonusAwardWins: null,
+      serverNow,
     };
   }
 
@@ -34,6 +37,7 @@ export async function data(pageContext: PageContextServer) {
       instantPrizes: null,
       bonusAwards: null,
       bonusAwardWins: null,
+      serverNow,
     };
   }
 
@@ -58,6 +62,7 @@ export async function data(pageContext: PageContextServer) {
     instantPrizes: instantPrizesRes?.data ?? [],
     bonusAwards: bonusAwardsRes?.data ?? [],
     bonusAwardWins: bonusAwardWinsRes?.data ?? [],
+    serverNow,
   };
 }
 

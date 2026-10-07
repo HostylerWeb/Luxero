@@ -4,15 +4,20 @@ import { useEntryCompetitions } from "@luxero/api-client";
 
 import { ArrowRight, Ticket } from "@luxero/icons";
 import type { ApiResponse, EntryCompetition } from "@luxero/types";
-import { useEffect } from "react";
-import { prefetch } from "vike/client/router";
+import { useEffect, useRef, useState } from "react";
 import { useData } from "vike-react/useData";
 import { GoldButton } from "@/components/buttons";
 import { CompetitionCard } from "@/components/home/CompetitionCard";
 import { Link } from "@/components/Link";
 import { Badge } from "@/components/ui/badge";
+import { CompetitionEntryListDialog } from "@/components/winners/CompetitionEntryListDialog";
 import { useTranslation } from "@/lib/i18n";
 import type { Data } from "./+data";
+
+type EntryListDialogState = {
+  competitionId: string;
+  competitionTitle: string;
+};
 
 export default function EntriesPage() {
   const { t } = useTranslation();
@@ -28,18 +33,33 @@ export default function EntriesPage() {
   });
   const competitions = entryCompsResponse?.data ?? [];
 
+  const [entryDialog, setEntryDialog] = useState<EntryListDialogState | null>(null);
+  const consumedListQuery = useRef(false);
+
   useEffect(() => {
-    if (!competitions.length) return;
-    const toPrefetch = competitions.slice(0, 3);
-    toPrefetch.forEach((comp, i) => {
-      const id = (comp as { _id?: string })._id ?? (comp as { id?: string }).id;
-      if (id) {
-        setTimeout(() => {
-          void prefetch(`/entries/${id}`);
-        }, i * 50);
-      }
+    if (typeof window === "undefined" || consumedListQuery.current || competitions.length === 0) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const listId = params.get("list")?.trim();
+    if (!listId) {
+      consumedListQuery.current = true;
+      return;
+    }
+
+    consumedListQuery.current = true;
+    params.delete("list");
+    const nextSearch = params.toString();
+    const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}`;
+    window.history.replaceState({}, "", nextUrl);
+
+    const match = competitions.find((c) => c.id === listId);
+    setEntryDialog({
+      competitionId: listId,
+      competitionTitle: match?.title ?? t("staticPages.entries.heading"),
     });
-  }, [competitions]);
+  }, [competitions, t]);
 
   return (
     <>
@@ -82,8 +102,14 @@ export default function EntriesPage() {
                   key={comp.id}
                   competition={comp}
                   variant="compact"
-                  href={`/entries/${comp.id}`}
+                  ctaLabel={t("staticPages.entries.seeEntryList")}
                   umamiEvent="entries:card-click"
+                  onCardClick={() =>
+                    setEntryDialog({
+                      competitionId: comp.id,
+                      competitionTitle: comp.title,
+                    })
+                  }
                 />
               ))}
             </div>
@@ -119,6 +145,15 @@ export default function EntriesPage() {
           </div>
         </section>
       )}
+
+      <CompetitionEntryListDialog
+        open={entryDialog != null}
+        onOpenChange={(open) => {
+          if (!open) setEntryDialog(null);
+        }}
+        competitionId={entryDialog?.competitionId ?? ""}
+        competitionTitle={entryDialog?.competitionTitle ?? ""}
+      />
     </>
   );
 }

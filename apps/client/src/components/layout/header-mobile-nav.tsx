@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
-  Shield,
   Ticket,
   Trophy,
   X,
@@ -112,7 +111,6 @@ function HeaderMobileNavSheet({
   const complianceData = (pageContext as any).complianceFeaturesData;
   const features = useComplianceFeatures({ initialData: complianceData ?? undefined });
   const showPostalEntry = features.postalProminence;
-  const showResponsiblePlay = features.publicResponsiblePlayPage;
 
   const { user, isAnonymous, isLoading: authLoading, logout } = useAuth();
   const logicalPathname = useLogicalPathname();
@@ -132,7 +130,6 @@ function HeaderMobileNavSheet({
     >
       <HeaderMobileNavContent
         showPostalEntry={showPostalEntry}
-        showResponsiblePlay={showResponsiblePlay}
         authLoading={authLoading}
         isAnonymous={isAnonymous}
         user={user}
@@ -146,7 +143,6 @@ function HeaderMobileNavSheet({
 
 function HeaderMobileNavContent({
   showPostalEntry,
-  showResponsiblePlay,
   authLoading,
   isAnonymous,
   user,
@@ -155,7 +151,6 @@ function HeaderMobileNavContent({
   isActive,
 }: {
   showPostalEntry: boolean;
-  showResponsiblePlay: boolean;
   authLoading: boolean;
   isAnonymous: boolean;
   user: import("@luxero/types").User | null;
@@ -278,14 +273,6 @@ function HeaderMobileNavContent({
                 <Mail className="w-4 h-4 text-gold" />
               </div>
               {t("footer.freePostalEntry")}
-            </NavSheetLink>
-          ) : null}
-          {showResponsiblePlay ? (
-            <NavSheetLink href="/responsible-play" className={mobileNavItemClass()}>
-              <div className={mobileNavIconWrapClass()}>
-                <Shield className="w-4 h-4 text-gold" />
-              </div>
-              {t("header.nav.responsiblePlay")}
             </NavSheetLink>
           ) : null}
         </div>

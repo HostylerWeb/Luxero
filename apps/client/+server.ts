@@ -57,6 +57,7 @@ app.get("/sitemap.xml", async (c) => {
     { loc: "/how-it-works", changefreq: "monthly", priority: "0.5" },
     { loc: "/faq", changefreq: "monthly", priority: "0.5" },
     { loc: "/winners", changefreq: "weekly", priority: "0.6" },
+    { loc: "/entries", changefreq: "daily", priority: "0.7" },
     { loc: "/about", changefreq: "monthly", priority: "0.4" },
     { loc: "/contact", changefreq: "monthly", priority: "0.3" },
     { loc: "/privacy", changefreq: "yearly", priority: "0.2" },

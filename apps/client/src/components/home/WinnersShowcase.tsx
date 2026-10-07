@@ -1,11 +1,11 @@
-import { ArrowRight, Sparkles, Trophy } from "@luxero/icons";
+import { ArrowRight, Calendar, Sparkles, Trophy } from "@luxero/icons";
 import type { Winner } from "@luxero/types";
-import { getPublicWinnerImageUrl } from "@luxero/utils";
+import { cn, getPublicWinnerImageUrl, withAssetCacheVersion } from "@luxero/utils";
 import { useState } from "react";
 import { GoldOutlineButton } from "@/components/buttons";
 import { Link } from "@/components/Link";
 import { LuxeroDialog } from "@/components/luxero-dialog";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { formatCurrency, useTranslation } from "@/lib/i18n";
 import { formatDate } from "@/lib/utils";
 
@@ -20,17 +20,216 @@ function getWinnerImage(w: Winner): string | undefined {
   return getPublicWinnerImageUrl(w);
 }
 
+type MappedWinner = {
+  id: string;
+  name: string;
+  initials: string;
+  prize: string;
+  prizeValue: number;
+  imageUrl: string | undefined;
+  profileAvatarUrl: string | undefined;
+  testimonial?: string;
+  competitionTitle: string;
+  winDate: string;
+};
+
+function WinnerThumb({
+  winner,
+  failedImages,
+  onFail,
+  onOpen,
+  t,
+  locale,
+}: {
+  winner: MappedWinner;
+  failedImages: Set<string>;
+  onFail: (id: string) => void;
+  onOpen: (id: string) => void;
+  t: ReturnType<typeof useTranslation>["t"];
+  locale: string;
+}) {
+  const hasImage = winner.imageUrl && !failedImages.has(winner.id);
+
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(winner.id)}
+      aria-label={t("home.winners.viewImage", { name: winner.name })}
+      data-umami-event="home:winners-thumbnail-click"
+      data-umami-event-winner={winner.id}
+      className="group relative shrink-0 snap-start cursor-pointer text-left w-[7.25rem] sm:w-[8.5rem] md:w-auto"
+    >
+      <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-gold/15 bg-card shadow-sm transition-colors duration-300 hover:border-gold/35 md:aspect-square md:rounded-2xl">
+        {hasImage ? (
+          <img
+            src={winner.imageUrl}
+            alt=""
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 120px, 20vw"
+            loading="lazy"
+            onError={() => onFail(winner.id)}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gold/15 to-gold/5">
+            <Trophy className="h-8 w-8 text-gold/40 md:h-10 md:w-10" />
+          </div>
+        )}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-2 pt-8 md:hidden">
+          <p className="truncate text-[11px] font-semibold text-white">{winner.name}</p>
+        </div>
+        {winner.prizeValue > 0 ? (
+          <div className="absolute right-1.5 top-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-gold backdrop-blur-sm md:right-2 md:top-2 md:px-2 md:text-xs">
+            {formatCurrency(winner.prizeValue, locale)}
+          </div>
+        ) : null}
+        <div className="absolute inset-0 hidden items-end bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
+          <div className="text-white">
+            <p className="text-sm font-semibold">{winner.name}</p>
+            <p className="line-clamp-2 text-xs text-gray-300">{winner.competitionTitle}</p>
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function FeaturedWinnerCard({
+  winner,
+  failedImages,
+  failedProfileAvatars,
+  onFail,
+  onProfileAvatarFail,
+  onOpen,
+  t,
+  locale,
+}: {
+  winner: MappedWinner;
+  failedImages: Set<string>;
+  failedProfileAvatars: Set<string>;
+  onFail: (id: string) => void;
+  onProfileAvatarFail: (id: string) => void;
+  onOpen: (id: string) => void;
+  t: ReturnType<typeof useTranslation>["t"];
+  locale: string;
+}) {
+  const hasPrizeImage = winner.imageUrl && !failedImages.has(winner.id);
+  const hasProfileAvatar =
+    winner.profileAvatarUrl && !failedProfileAvatars.has(winner.id);
+  const prizeValueLabel =
+    winner.prizeValue > 0 ? formatCurrency(winner.prizeValue, locale) : null;
+  const drawnLabel = t("home.winners.wonOn", { date: formatDate(winner.winDate) });
+
+  return (
+    <article className="group mb-8 sm:mb-10 md:mb-12">
+      <div className="rounded-2xl p-px ring-1 ring-gold/20 bg-gradient-to-br from-gold/15 via-gold/5 to-transparent shadow-lg shadow-gold/5">
+        <div className="overflow-hidden rounded-[calc(1rem-1px)] bg-card">
+          <div className="grid md:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <button
+              type="button"
+              onClick={() => onOpen(winner.id)}
+              aria-label={t("home.winners.viewImage", { name: winner.name })}
+              data-umami-event="home:winners-featured-click"
+              className="relative min-h-[9.5rem] cursor-zoom-in overflow-hidden bg-gradient-to-br from-gold/10 to-background text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold/60 sm:min-h-[11rem] md:min-h-[15rem]"
+            >
+              {hasPrizeImage ? (
+                <img
+                  src={winner.imageUrl}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  loading="eager"
+                  onError={() => onFail(winner.id)}
+                />
+              ) : (
+                <div className="flex h-full min-h-[inherit] items-center justify-center">
+                  <Trophy className="h-14 w-14 text-gold/35" />
+                </div>
+              )}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/10 md:bg-gradient-to-r md:from-black/50 md:via-transparent md:to-transparent" />
+              <Badge className="absolute left-3 top-3 z-10 border-0 bg-gold text-primary-foreground shadow-md">
+                <Sparkles className="mr-1 h-3 w-3" />
+                {t("home.winners.latestWinner")}
+              </Badge>
+              {prizeValueLabel ? (
+                <div className="absolute bottom-3 left-3 rounded-full border border-gold/35 bg-black/55 px-2.5 py-1 text-xs font-bold text-gold backdrop-blur-sm sm:text-sm">
+                  {prizeValueLabel}
+                </div>
+              ) : null}
+            </button>
+
+            <div className="flex flex-col justify-center gap-3 p-4 sm:p-5 md:gap-4 md:p-6 lg:p-8">
+              <div className="flex items-center gap-3">
+                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-gold/25 bg-gold/10 sm:h-12 sm:w-12">
+                  {hasProfileAvatar ? (
+                    <img
+                      src={winner.profileAvatarUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      onError={() => onProfileAvatarFail(winner.id)}
+                    />
+                  ) : hasPrizeImage ? (
+                    <img src={winner.imageUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center text-sm font-bold text-gold">
+                      {winner.initials}
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate font-sans text-base font-bold text-foreground sm:text-lg md:text-xl">
+                    {winner.name}
+                  </h3>
+                  {winner.competitionTitle ? (
+                    <p className="truncate text-xs text-muted-foreground sm:text-sm">
+                      {winner.competitionTitle}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold sm:flex">
+                  <Trophy className="h-4 w-4 text-primary-foreground" />
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gold/10 bg-gradient-to-br from-gold/[0.07] to-transparent px-3 py-2.5 sm:px-4 sm:py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground sm:text-xs">
+                  {t("home.winners.prizeLabel")}
+                </p>
+                <p className="mt-0.5 line-clamp-2 text-sm font-semibold leading-snug text-foreground sm:text-base md:text-lg">
+                  {winner.prize}
+                </p>
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground sm:text-sm">
+                  <Calendar className="h-3.5 w-3.5 shrink-0 text-gold/80" />
+                  {drawnLabel}
+                </p>
+              </div>
+
+              {winner.testimonial ? (
+                <blockquote className="line-clamp-2 border-l-2 border-gold/30 pl-3 text-xs italic leading-relaxed text-muted-foreground sm:line-clamp-3 sm:text-sm md:text-[0.9375rem]">
+                  &ldquo;{winner.testimonial}&rdquo;
+                </blockquote>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function WinnersShowcase({ winners: winnersRaw }: { winners: Winner[] }) {
   const { t, locale } = useTranslation();
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const [failedProfileAvatars, setFailedProfileAvatars] = useState<Set<string>>(new Set());
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
 
-  function mapWinner(w: Winner) {
+  function mapWinner(w: Winner): MappedWinner {
+    const name = w.displayName || t("home.winners.anonymousWinner");
+    const profileRaw = w.avatarUrl?.trim();
     return {
       id: w._id || w.id || "",
-      name: w.displayName || t("home.winners.anonymousWinner"),
-      initials: (w.displayName || t("home.winners.anonymousWinner"))
+      name,
+      initials: name
         .split(" ")
         .map((n) => n[0])
         .join("")
@@ -39,6 +238,7 @@ export function WinnersShowcase({ winners: winnersRaw }: { winners: Winner[] }) 
       prize: w.prizeTitle || t("home.winners.luxuryPrize"),
       prizeValue: w.prizeValue || 0,
       imageUrl: getWinnerImage(w),
+      profileAvatarUrl: profileRaw ? withAssetCacheVersion(profileRaw) : undefined,
       testimonial: w.testimonial,
       competitionTitle: getCompetitionTitle(w),
       winDate: w.drawnAt || new Date().toISOString(),
@@ -54,159 +254,81 @@ export function WinnersShowcase({ winners: winnersRaw }: { winners: Winner[] }) 
     setLightboxOpen(true);
   }
 
+  function markImageFailed(id: string) {
+    setFailedImages((prev) => new Set(prev).add(id));
+  }
+
+  function markProfileAvatarFailed(id: string) {
+    setFailedProfileAvatars((prev) => new Set(prev).add(id));
+  }
+
   if (winners.length === 0) return null;
 
   const featuredWinner = winners[0];
+  if (!featuredWinner) return null;
   const otherWinners = winners.slice(1, 6);
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 lg:py-28 bg-gradient-to-br from-gold/5 via-background to-gold/5 border-y border-gold/10 relative overflow-hidden">
+    <section className="relative overflow-hidden border-y border-gold/10 bg-gradient-to-br from-gold/5 via-background to-gold/5 py-10 sm:py-16 md:py-20 lg:py-24">
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
+      <div className="absolute top-0 left-1/4 h-72 w-72 rounded-full bg-gold/10 blur-3xl sm:h-96 sm:w-96" />
+      <div className="absolute bottom-0 right-1/4 h-72 w-72 rounded-full bg-gold/10 blur-3xl sm:h-96 sm:w-96" />
 
       <div className="luxero-container-wide relative z-10">
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <Trophy className="w-8 h-8 text-gold" />
-            <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+        <div className="mb-8 text-center sm:mb-10 md:mb-12">
+          <div className="mb-3 flex items-center justify-center gap-2 sm:mb-4 sm:gap-3">
+            <Trophy className="h-6 w-6 text-gold sm:h-8 sm:w-8" />
+            <h2 className="font-sans text-2xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
               <span className="text-gold">{t("home.winners.heading")}</span>
             </h2>
-            <Sparkles className="w-6 h-6 text-gold/60" />
+            <Sparkles className="h-5 w-5 text-gold/60 sm:h-6 sm:w-6" />
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-sm text-muted-foreground sm:text-lg">
             {t("home.winners.subtitle")}
           </p>
         </div>
 
-        {otherWinners.length > 0 && (
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 mb-16 animate-fade-in-stagger">
-            {otherWinners.map((winner) => (
-              <button
-                key={winner.id}
-                type="button"
-                onClick={() => openLightbox(winner.id)}
-                aria-label={t("home.winners.viewImage", { name: winner.name })}
-                data-umami-event="home:winners-thumbnail-click"
-                data-umami-event-winner={winner.id}
-                className="relative group cursor-pointer text-left w-full"
-              >
-                <div className="relative aspect-square overflow-hidden rounded-xl border border-gold/20 bg-card shadow-sm transition-colors duration-500 sm:rounded-2xl hover:border-gold/30">
-                  {winner.imageUrl && !failedImages.has(winner.id) ? (
-                    <img
-                      src={winner.imageUrl}
-                      alt={winner.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
-                      onError={() => setFailedImages((prev) => new Set(prev).add(winner.id))}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gold/20 to-gold/5">
-                      <Trophy className="w-10 h-10 text-gold/40" />
-                    </div>
-                  )}
+        <FeaturedWinnerCard
+          winner={featuredWinner}
+          failedImages={failedImages}
+          failedProfileAvatars={failedProfileAvatars}
+          onFail={markImageFailed}
+          onProfileAvatarFail={markProfileAvatarFailed}
+          onOpen={openLightbox}
+          t={t}
+          locale={locale}
+        />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:opacity-0 flex items-end p-3 sm:p-4">
-                    <div className="text-white">
-                      <p className="font-semibold text-xs sm:text-sm mb-0.5">{winner.name}</p>
-                      <p className="text-[10px] sm:text-xs text-gray-300 line-clamp-2">
-                        {winner.competitionTitle}
-                      </p>
-                      {winner.prizeValue > 0 && (
-                        <p className="text-xs sm:text-sm font-bold text-gold mt-1">
-                          {formatCurrency(winner.prizeValue, locale)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {winner.prizeValue > 0 && (
-                    <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gold/90 backdrop-blur-sm text-primary-foreground text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
-                      £{(winner.prizeValue / 1000).toFixed(0)}k
-                    </div>
-                  )}
-                </div>
-              </button>
-            ))}
+        {otherWinners.length > 0 ? (
+          <div className="mb-8 sm:mb-10">
+            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:mb-4 md:text-left">
+              {t("home.winners.recentWinners")}
+            </p>
+            <div
+              className={cn(
+                "-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 snap-x snap-mandatory scrollbar-thin md:mx-0 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-5 xl:grid-cols-5"
+              )}
+            >
+              {otherWinners.map((winner) => (
+                <WinnerThumb
+                  key={winner.id}
+                  winner={winner}
+                  failedImages={failedImages}
+                  onFail={markImageFailed}
+                  onOpen={openLightbox}
+                  t={t}
+                  locale={locale}
+                />
+              ))}
+            </div>
           </div>
-        )}
+        ) : null}
 
-        {featuredWinner && (
-          <Card className="border-gold/20 bg-gradient-to-br from-card to-gold/5 overflow-hidden">
-            <CardContent className="p-5 sm:p-6 md:p-8">
-              <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-center">
-                <button
-                  type="button"
-                  onClick={() => openLightbox(featuredWinner.id)}
-                  aria-label={t("home.winners.viewImage", { name: featuredWinner.name })}
-                  data-umami-event="home:winners-featured-click"
-                  className="relative flex-shrink-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded-full"
-                >
-                  <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-gold/30 shadow-xl shadow-gold/10">
-                    {featuredWinner.imageUrl && !failedImages.has(featuredWinner.id) ? (
-                      <img
-                        src={featuredWinner.imageUrl}
-                        alt={featuredWinner.name}
-                        className="w-full h-full object-cover"
-                        sizes="(max-width: 768px) 96px, 128px"
-                        loading="eager"
-                        onError={() =>
-                          setFailedImages((prev) => new Set(prev).add(featuredWinner.id))
-                        }
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gold/10">
-                        <Trophy className="w-12 h-12 text-gold/40" />
-                      </div>
-                    )}
-                  </div>
-                </button>
-
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-3 mb-4">
-                    <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
-                    <h3 className="font-sans text-xl sm:text-2xl font-bold text-foreground">
-                      {featuredWinner.name}
-                    </h3>
-                    <div className="bg-gold text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md shadow-gold/20">
-                      <Sparkles className="w-3 h-3" />
-                      {t("home.winners.featuredWinner")}
-                    </div>
-                  </div>
-
-                  {featuredWinner.testimonial && (
-                    <blockquote className="text-sm sm:text-base text-muted-foreground italic mb-6 relative whitespace-pre-wrap">
-                      <span className="text-3xl sm:text-4xl text-gold/20 absolute -top-2 -left-1">
-                        &ldquo;
-                      </span>
-                      {featuredWinner.testimonial}
-                      <span className="text-3xl sm:text-4xl text-gold/20 absolute -bottom-4 -right-1">
-                        &rdquo;
-                      </span>
-                    </blockquote>
-                  )}
-
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                      <p className="font-bold text-lg sm:text-xl text-gold">
-                        {featuredWinner.prize}
-                      </p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        Won {formatDate(featuredWinner.winDate)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="text-center mt-10 md:mt-12">
+        <div className="text-center">
           <GoldOutlineButton asChild size="lg">
             <Link href="/winners" data-umami-event="home:winners-view-all">
               {t("home.winners.viewAll")}
-              <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+              <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
             </Link>
           </GoldOutlineButton>
         </div>

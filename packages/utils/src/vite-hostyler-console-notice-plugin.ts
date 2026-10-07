@@ -1,4 +1,4 @@
-import { HOSTYLER_CONSOLE_NOTICE_INLINE } from "./hostyler-console-notice";
+import { HOSTYLER_CONSOLE_NOTICE_INLINE } from "./hostyler-console-notice.ts";
 
 export function hostylerConsoleNoticeIndexHtmlPlugin() {
   return {

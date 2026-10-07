@@ -659,7 +659,7 @@ export default function Page() {
                           )}
                         </div>
                         {maxCartQuantity > 0 && !atPersonalLimit && liveAvailable > 0 ? (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-foreground">
                             {userOwned > 0 ? (
                               <>
                                 {t("competitions.detail.youAlreadyOwn", {
@@ -910,15 +910,6 @@ export default function Page() {
                         </div>
                       </div>
 
-                      {instantPrizes.length > 0 && (
-                        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 flex items-center gap-3">
-                          <Gift className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                          <p className="text-sm text-emerald-400">
-                            {t("competitions.detail.instantPrizeInfo")}
-                          </p>
-                        </div>
-                      )}
-
                       <div className="relative overflow-hidden rounded-xl border border-gold/20 bg-gradient-to-br from-gold/5 to-gold/10 p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center flex-shrink-0">
@@ -944,7 +935,7 @@ export default function Page() {
                         </div>
                       </div>
 
-                      <p className="text-center text-xs text-muted-foreground pt-2">
+                      <p className="text-center text-xs text-foreground pt-2">
                         {t("competitions.detail.ageNotice")}
                       </p>
 
@@ -990,7 +981,6 @@ export default function Page() {
                 bonusAwards={bonusAwards}
                 variant="detail"
                 countdownLabel={`${countdown}s`}
-                percentageBelow
               />
             </div>
 

@@ -1,4 +1,4 @@
-import { AuthProvider, QueryProvider } from "@luxero/api-client";
+import { AuthProvider } from "@luxero/api-client";
 import type { PublicComplianceSettings, SessionUser } from "@luxero/types";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { HeaderMobileNavProvider } from "@/components/layout/header-mobile-nav";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { PwaInstallPrompt } from "@/components/layout/PwaInstallPrompt";
+import { ProfileQueryHydrator } from "@/components/providers/ProfileQueryHydrator";
 import { RoutePrefetcher } from "@/components/layout/RoutePrefetcher";
 import { ReferralRefGateIsland } from "@/components/providers/ReferralRefGateIsland";
 import { ScrollLockFix } from "@/components/ScrollLockFix";
@@ -36,16 +37,15 @@ export default function Layout({
       <LocaleProvider locale={pageContext.locale ?? "en"}>
         <ThemeProvider defaultTheme="dark" storageKey="luxero-theme">
           <AuthProvider initialUser={user} guestCheckoutEnabled={guestCheckoutEnabled}>
-            <QueryProvider>
-              <ReferralRefGateIsland />
-              <ScrollLockFix />
-              <HeaderMobileNavProvider>
-                <PublicLayout>{children}</PublicLayout>
-                <PwaInstallPrompt />
-                <RoutePrefetcher />
-                <Toaster position="bottom-right" />
-              </HeaderMobileNavProvider>
-            </QueryProvider>
+            <ProfileQueryHydrator />
+            <ReferralRefGateIsland />
+            <ScrollLockFix />
+            <HeaderMobileNavProvider>
+              <PublicLayout>{children}</PublicLayout>
+              <PwaInstallPrompt />
+              <RoutePrefetcher />
+              <Toaster position="bottom-right" />
+            </HeaderMobileNavProvider>
           </AuthProvider>
         </ThemeProvider>
       </LocaleProvider>

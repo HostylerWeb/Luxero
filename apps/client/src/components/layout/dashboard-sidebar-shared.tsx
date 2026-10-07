@@ -25,6 +25,7 @@ import { getDisplayName, getProfileInitials } from "@luxero/utils";
 import { useMemo } from "react";
 import { usePageContext } from "vike-react/usePageContext";
 import { UserAvatar } from "@/components/user-avatar";
+import { useProfileInitialData } from "@/hooks/useProfileInitialData";
 import { type TranslationKey, useLogicalPathname, useTranslation } from "@/lib/i18n";
 import { mobileNavIconWrapClass, mobileNavItemClass } from "./mobile-nav-styles";
 import { NavSheetNavLink } from "./nav-sheet-link";
@@ -111,7 +112,8 @@ export function useDashboardNavGroups(): DashboardNavGroup[] {
 export function useDashboardUserSummary() {
   const pageContext = usePageContext();
   const { user: authUser } = useAuth();
-  const { avatarUrl } = useProfileAvatar();
+  const profileInitialData = useProfileInitialData();
+  const { avatarUrl } = useProfileAvatar({ initialData: profileInitialData });
   const pageUser = (pageContext as unknown as Record<string, unknown>).user as {
     id: string;
     email: string;

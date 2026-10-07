@@ -145,6 +145,8 @@ export interface Winner {
   location?: string;
   testimonial?: string;
   winnerPhotoUrl?: string;
+  /** Public profile photo when the winner is linked to a user account. */
+  avatarUrl?: string | null;
   showFullName: boolean;
   claimed?: boolean;
   claimedAt?: string;

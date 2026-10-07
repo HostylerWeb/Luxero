@@ -10,17 +10,10 @@ async function jsonFetch<T>(path: string, cookie: string): Promise<T | null> {
 export async function data(pageContext: PageContextServer) {
   const cookie = pageContext.headers?.cookie ?? "";
 
-  const [winners, stats] = await Promise.all([
-    jsonFetch<Winner[]>("/api/winners", cookie),
-    jsonFetch<{ totalWinners: number; totalPrizeValue: number; totalWinnersAllTime: number }>(
-      "/api/winners/stats",
-      cookie
-    ),
-  ]);
+  const winners = await jsonFetch<Winner[]>("/api/winners", cookie);
 
   return {
     winners: winners ?? [],
-    stats: stats ?? null,
   };
 }
 

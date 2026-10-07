@@ -1,11 +1,12 @@
 import type { AuthClientSession } from "@luxero/auth-client";
 import { authClient } from "@luxero/auth-client";
-import type { Profile, SessionUser } from "@luxero/types";
+import type { ApiResponse, Profile, SessionUser } from "@luxero/types";
 import * as Sentry from "@sentry/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useCallback, useEffect, useRef } from "react";
 import { isAnonymousUser } from "../auth/session";
 import {
+  getSessionSnapshot,
   markAnonymousSession,
   resetSessionSnapshot,
   seedSessionFromServer,
@@ -69,8 +70,21 @@ export function AuthProvider({
   const initialUserRef = useRef(initialUser);
   initialUserRef.current = initialUser;
 
+  if (
+    typeof window !== "undefined" &&
+    initialUser &&
+    getSessionSnapshot().isLoading &&
+    !getSessionSnapshot().user
+  ) {
+    seedSessionFromServer(
+      initialUser as unknown as AuthClientSession["user"] & {
+        firstName?: string | null;
+        lastName?: string | null;
+      }
+    );
+  }
+
   useEffect(() => {
-    resetSessionSnapshot();
     if (initialUser) {
       seedSessionFromServer(
         initialUser as unknown as AuthClientSession["user"] & {
@@ -78,7 +92,9 @@ export function AuthProvider({
           lastName?: string | null;
         }
       );
+      return;
     }
+    resetSessionSnapshot();
   }, [initialUser]);
 
   const { data: session, isPending, error: sessionError } = authClient.useSession();
@@ -168,6 +184,9 @@ export function AuthProvider({
 
   useEffect(() => {
     if (sessionError || isPending || !session?.user || isAnonymousUser(session.user)) return;
+
+    const cached = queryClient.getQueryData<ApiResponse<Profile>>(queryKeys.my.profile());
+    if (cached?.data?.avatarUrl) return;
 
     void queryClient.prefetchQuery({
       queryKey: queryKeys.my.profile(),

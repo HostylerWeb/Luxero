@@ -21,12 +21,19 @@ const SEGMENT_LABEL_CLASSES = "mt-1 text-xs text-muted-foreground";
 
 const SEGMENT_GRID_CLASSES = "grid w-full grid-cols-4 gap-2 sm:gap-3";
 
-export function CountdownTimer({ targetDate }: { targetDate: string }) {
+export function CountdownTimer({
+  targetDate,
+  initialNow,
+}: {
+  targetDate: string;
+  initialNow?: number;
+}) {
   const { t } = useTranslation();
   const target = new Date(targetDate).getTime();
-  const [now, setNow] = useState(Date.now);
+  const [now, setNow] = useState(() => initialNow ?? Date.now());
 
   useEffect(() => {
+    setNow(Date.now());
     const interval = setInterval(() => setNow(Date.now()), COUNTDOWN_TICK_MS);
     return () => clearInterval(interval);
   }, []);

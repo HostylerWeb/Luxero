@@ -1,7 +1,7 @@
 "use client";
 import * as Sentry from "@sentry/react";
-import Image from "next/image";
 import { useState } from "react";
+import { AssetImage } from "@/components/AssetImage";
 import { cn } from "@/lib/utils";
 
 type AspectRatio = "video" | "square" | "portrait" | "wide";
@@ -72,13 +72,12 @@ export function ImagePreview({
       )}
     >
       {src && !imgError ? (
-        <Image
+        <AssetImage
           src={src}
           alt={alt}
           fill
-          className="object-cover transition-transform duration-300 hover:scale-[1.02]"
-          sizes="(max-width: 768px) 100vw, 50vw"
           crossOrigin="anonymous"
+          className="object-cover transition-transform duration-300 hover:scale-[1.02]"
           onError={() => {
             Sentry.captureMessage("[ImagePreview] failed to load", {
               level: "warning",

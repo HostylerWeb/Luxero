@@ -1,8 +1,8 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Minus, Plus, Video, X } from "@luxero/icons";
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AssetImage } from "@/components/AssetImage";
 import type { ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { cn } from "@/lib/utils";
@@ -313,11 +313,9 @@ export function GalleryContent({
                     <Video className="size-6 text-muted-foreground" />
                   </div>
                 ) : (
-                  <Image
+                  <AssetImage
                     src={img}
                     alt=""
-                    width={96}
-                    height={96}
                     className="h-full w-full object-cover"
                     draggable={false}
                   />

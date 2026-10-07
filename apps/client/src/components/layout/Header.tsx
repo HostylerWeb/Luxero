@@ -3,7 +3,6 @@
 import {
   api,
   useCartCount,
-  useComplianceFeatures,
   useProfileAvatar,
   usePushSubscription,
 } from "@luxero/api-client";
@@ -17,7 +16,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Shield,
   ShoppingBag,
   ShoppingCart,
   SocialIcon,
@@ -47,6 +45,7 @@ import {
 import { Marquee } from "@/components/ui/marquee";
 import { UserAvatar } from "@/components/user-avatar";
 import { useUserState } from "@/hooks";
+import { useProfileInitialData } from "@/hooks/useProfileInitialData";
 import { type TranslationKey, useLogicalPathname, useTranslation } from "@/lib/i18n";
 
 import { DASHBOARD_SCROLL_ID } from "./header-layout";
@@ -131,7 +130,10 @@ function UserDropdown({
   hideDashboardLinks: boolean;
 }) {
   const { t } = useTranslation();
-  const { avatarUrl } = useProfileAvatar();
+  const profileInitialData = useProfileInitialData();
+  const { profile } = useProfileAvatar({ initialData: profileInitialData });
+  const avatarSource = profile?.avatarUrl ?? profileInitialData?.data?.avatarUrl;
+  const avatarVersion = profile?.updatedAt ?? profileInitialData?.data?.updatedAt;
   const [isOpen, setIsOpen] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
 
@@ -190,10 +192,12 @@ function UserDropdown({
             data-umami-event="nav:user-dropdown-toggle"
           >
             <UserAvatar
-              avatarUrl={avatarUrl}
+              avatarUrl={avatarSource}
+              cacheVersion={avatarVersion}
               initials={initials}
               className="size-7"
               fallbackClassName="text-xs font-semibold"
+              priority
             />
             <span className="text-sm font-medium">{triggerLabel}</span>
             <ChevronDown className="size-3.5 opacity-60" />
@@ -203,7 +207,8 @@ function UserDropdown({
           <DropdownMenuLabel className="px-3 py-3 font-normal">
             <div className="flex items-center gap-3">
               <UserAvatar
-                avatarUrl={avatarUrl}
+                avatarUrl={avatarSource}
+                cacheVersion={avatarVersion}
                 initials={initials}
                 className="size-10"
                 fallbackClassName="text-sm font-semibold"
@@ -308,10 +313,6 @@ function CartButton() {
 
 export function Header() {
   const { t } = useTranslation();
-  const pageContext = usePageContext();
-  const complianceData = (pageContext as any).complianceFeaturesData;
-  const features = useComplianceFeatures({ initialData: complianceData ?? undefined });
-  const showResponsiblePlay = features.publicResponsiblePlayPage;
   const currentPath = useLogicalPathname();
   const { user, isAuthenticated, logout } = useUserState();
   const { open: mobileOpen, toggle: toggleMobileNav } = useHeaderMobileNav();
@@ -407,21 +408,6 @@ export function Header() {
                     </Link>
                   );
                 })}
-                {showResponsiblePlay ? (
-                  <Link
-                    key="/responsible-play"
-                    href="/responsible-play"
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap shrink-0",
-                      isActive("/responsible-play")
-                        ? "text-gold bg-gold/10"
-                        : "text-muted-foreground hover:text-gold hover:bg-gold/10"
-                    )}
-                  >
-                    <Shield className="w-4 h-4" />
-                    <span>{t("header.nav.responsiblePlay")}</span>
-                  </Link>
-                ) : null}
               </nav>
             </div>
 

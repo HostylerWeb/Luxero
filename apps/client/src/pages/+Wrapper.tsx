@@ -1,6 +1,6 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryProvider } from "@luxero/api-client";
 import { Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { useBuildVersion } from "@/hooks/useBuildVersion";
 import { captureAffiliateParams } from "@/lib/affiliate-tracker";
@@ -8,28 +8,17 @@ import { captureAffiliateParams } from "@/lib/affiliate-tracker";
 const BUILD_VERSION = import.meta.env.VITE_APP_VERSION || "";
 
 export function Wrapper({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60_000,
-          },
-        },
-      })
-  );
-
   useEffect(() => {
     captureAffiliateParams();
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryProvider>
       <ErrorBoundary buildVersion={BUILD_VERSION}>
         <BuildVersionWatcher />
         {children}
       </ErrorBoundary>
-    </QueryClientProvider>
+    </QueryProvider>
   );
 }
 

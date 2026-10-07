@@ -7,7 +7,7 @@ export const CONTEXTUAL_ERROR_ROUTES = {
   tickets: "/dashboard/tickets",
   orders: "/dashboard/orders",
   cart: "/cart",
-  entries: "/entries",
+  entries: "/winners",
   competitions: "/competitions",
   verify: "/auth/verify",
   contact: "/contact",

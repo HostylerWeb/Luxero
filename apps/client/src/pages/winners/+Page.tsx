@@ -2,18 +2,25 @@
 
 import { useWinners } from "@luxero/api-client";
 
-import { ArrowRight, Calendar, MapPin, Sparkles, Ticket, Trophy } from "@luxero/icons";
+import { ArrowRight, Calendar, List, MapPin, Ticket, Trophy } from "@luxero/icons";
 import type { Winner } from "@luxero/types";
-import { cn, formatDate, getDisplayName, getPublicWinnerImageUrls, getPublicWinnerImageUrl } from "@luxero/utils";
-import { useState } from "react";
+import { cn, formatDate, getDisplayName, withAssetCacheVersion } from "@luxero/utils";
+import { useEffect, useRef, useState } from "react";
 import { useData } from "vike-react/useData";
 import { GoldOutlineButton } from "@/components/buttons";
-import { ImagePreviewDialog } from "@/components/image-preview-dialog";
 import { Link } from "@/components/Link";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrency, formatNumber, useTranslation } from "@/lib/i18n";
+import { formatNumber, useTranslation } from "@/lib/i18n";
+import { CompetitionEntryListDialog } from "@/components/winners/CompetitionEntryListDialog";
+import { Button } from "@/components/ui/button";
 import type { Data } from "./+data";
+
+type EntryDialogState = {
+  competitionId: string;
+  competitionTitle: string;
+  highlightTicketNumbers: number[];
+  winnerDisplayName: string;
+};
 
 function getCompetitionIdObject(winner: Winner) {
   return typeof winner.competitionId === "object" && winner.competitionId !== null
@@ -27,24 +34,13 @@ function getCompetitionTitle(winner: Winner): string {
   return winner.competitionTitle ?? winner.competition?.title ?? "";
 }
 
-function getWinnerImages(winner: Winner): string[] {
-  return getPublicWinnerImageUrls(winner);
-}
-
-function _formatPrizeValue(value?: number): string | null {
-  if (value == null || value <= 0) return null;
-  return `£${value.toLocaleString("en-GB")}`;
-}
-
-function formatStatsPrizeValue(value: number, locale: string): string | null {
-  if (value <= 0) return null;
-  if (value >= 1_000_000) {
-    return `£${(value / 1_000_000).toFixed(value % 1_000_000 === 0 ? 0 : 1)}M`;
+function getWinnerCompetitionId(winner: Winner): string | null {
+  if (typeof winner.competitionId === "string" && winner.competitionId.trim()) {
+    return winner.competitionId.trim();
   }
-  if (value >= 1_000) {
-    return `£${Math.round(value / 1_000).toLocaleString("en-GB")}K`;
-  }
-  return formatCurrency(value, locale);
+  const comp = getCompetitionIdObject(winner);
+  if (comp?._id) return comp._id;
+  return null;
 }
 
 type PopulatedWinnerUser = {
@@ -62,18 +58,28 @@ function getPopulatedWinnerUser(winner: Winner): PopulatedWinnerUser | null {
   return null;
 }
 
+function getCompetitionImageForWinner(winner: Winner): string | undefined {
+  const comp = getCompetitionIdObject(winner);
+  return (
+    winner.prizeImageUrl?.trim() ||
+    comp?.prizeImageUrl?.trim() ||
+    comp?.imageUrl?.trim() ||
+    winner.competition?.prizeImageUrl?.trim() ||
+    winner.competition?.imageUrl?.trim() ||
+    undefined
+  );
+}
+
 function WinnerAvatar({ winner, className }: { winner: Winner; className?: string }) {
   const userObj = getPopulatedWinnerUser(winner);
-  const initials = userObj?.firstName
-    ? [userObj.firstName, userObj.lastName]
-        .filter(Boolean)
-        .map((n) => n?.[0] ?? "")
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
-    : winner.displayName?.[0]?.toUpperCase() || "W";
+  const profileRaw = winner.avatarUrl?.trim() || userObj?.avatarUrl?.trim();
+  const competitionRaw = getCompetitionImageForWinner(winner);
 
-  const avatarUrl = userObj?.avatarUrl ?? winner.winnerPhotoUrl ?? getPublicWinnerImageUrl(winner);
+  const src = profileRaw
+    ? withAssetCacheVersion(profileRaw)
+    : competitionRaw
+      ? withAssetCacheVersion(competitionRaw)
+      : undefined;
 
   return (
     <div
@@ -82,10 +88,10 @@ function WinnerAvatar({ winner, className }: { winner: Winner; className?: strin
         className
       )}
     >
-      {avatarUrl ? (
-        <img src={avatarUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      {src ? (
+        <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
       ) : (
-        <span className="text-lg font-bold text-gold sm:text-xl">{initials}</span>
+        <Trophy className="h-6 w-6 text-gold/50 sm:h-7 sm:w-7" />
       )}
     </div>
   );
@@ -94,11 +100,11 @@ function WinnerAvatar({ winner, className }: { winner: Winner; className?: strin
 function WinnerCard({
   winner,
   featured = false,
-  onImageClick,
+  onSeeEntries,
 }: {
   winner: Winner;
   featured?: boolean;
-  onImageClick?: () => void;
+  onSeeEntries?: () => void;
 }) {
   const { t, locale } = useTranslation();
   const userObj = getPopulatedWinnerUser(winner);
@@ -112,90 +118,25 @@ function WinnerCard({
       userObj?.email ?? ""
     ) ||
     t("staticPages.winners.anonymousWinner");
-  const cardImage = getWinnerImages(winner)[0];
-  const prizeValueLabel =
-    winner.prizeValue != null && winner.prizeValue > 0
-      ? formatCurrency(winner.prizeValue, locale)
-      : null;
   const competitionTitle = getCompetitionTitle(winner);
   const drawnDate = formatDate(winner.drawnAt);
+  const competitionId = getWinnerCompetitionId(winner);
+  const showEntriesButton = Boolean(competitionId && onSeeEntries);
 
   return (
-    <article
-      className={cn(
-        "group relative overflow-hidden rounded-[1.5rem] transition-transform duration-300 hover:-translate-y-0.5",
-        featured && "lg:col-span-2"
-      )}
-    >
+    <article className="group relative overflow-hidden rounded-[1.5rem] transition-transform duration-300 hover:-translate-y-0.5">
       <div
         className={cn(
           "rounded-[1.5rem] p-1.5 ring-1 transition-colors duration-500",
           featured ? "bg-gold/10 ring-gold/25" : "bg-white/5 ring-white/10 hover:ring-gold/25"
         )}
       >
-        <div
-          className={cn(
-            "overflow-hidden rounded-[calc(1.5rem-0.375rem)] bg-card",
-            featured ? "grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]" : "flex flex-col"
-          )}
-        >
-          <div
-            className={cn(
-              "relative overflow-hidden bg-gradient-to-br from-gold/10 to-background",
-              featured ? "min-h-[220px] lg:min-h-full" : "aspect-[16/10]"
-            )}
-          >
-            {cardImage ? (
-              <button
-                type="button"
-                onClick={onImageClick}
-                aria-label={t("staticPages.winners.viewPrizeImage", {
-                  prize: winner.prizeTitle || "prize",
-                })}
-                data-umami-event="winners:image-click"
-                data-umami-event-winner={winner._id}
-                className="absolute inset-0 z-10 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
-              >
-                <span className="sr-only">{t("staticPages.winners.openPreview")}</span>
-              </button>
-            ) : null}
-            {cardImage ? (
-              <img
-                src={cardImage}
-                alt={winner.prizeTitle || t("staticPages.winners.prize")}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-            ) : (
-              <div className="flex h-full min-h-[180px] items-center justify-center bg-gradient-to-br from-gold/10 to-gold/5">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-gold/20 bg-card">
-                    <Trophy className="h-6 w-6 text-gold/60" />
-                  </div>
-                  <span className="text-xs font-medium text-gold/50">
-                    {winner.prizeTitle || t("staticPages.winners.prize")}
-                  </span>
-                </div>
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-            {prizeValueLabel ? (
-              <div className="absolute bottom-3 left-3 rounded-full border border-gold/30 bg-black/55 px-3 py-1 text-sm font-bold text-gold backdrop-blur-sm">
-                {prizeValueLabel}
-              </div>
-            ) : null}
-            {featured ? (
-              <Badge className="absolute left-3 top-3 z-20 border-0 bg-gold text-primary-foreground">
-                <Sparkles className="mr-1 h-3 w-3" />
-                {t("staticPages.winners.latestWinner")}
-              </Badge>
-            ) : null}
-          </div>
-
-          <div className={cn("flex flex-col p-4 sm:p-5 lg:p-6", featured && "justify-center")}>
+        <div className="overflow-hidden rounded-[calc(1.5rem-0.375rem)] bg-card">
+          <div className="flex flex-col p-4 sm:p-5 lg:p-6">
             <div className="mb-4 flex items-center gap-3">
               <WinnerAvatar winner={winner} className="h-12 w-12 sm:h-14 sm:w-14" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-semibold text-foreground sm:text-lg">
+                <p className="truncate text-lg font-bold text-foreground sm:text-xl md:text-2xl">
                   {displayName}
                 </p>
                 {winner.location ? (
@@ -204,9 +145,6 @@ function WinnerCard({
                     <span className="truncate">{winner.location}</span>
                   </p>
                 ) : null}
-              </div>
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold">
-                <Trophy className="h-4 w-4 text-black" />
               </div>
             </div>
 
@@ -239,6 +177,23 @@ function WinnerCard({
               <blockquote className="mt-4 border-l-2 border-gold/30 pl-4 text-sm italic leading-relaxed text-muted-foreground sm:text-base">
                 &ldquo;{winner.testimonial}&rdquo;
               </blockquote>
+            ) : null}
+
+            {showEntriesButton ? (
+              <div className="mt-4">
+                <Button
+                  type="button"
+                  variant="gold"
+                  size="sm"
+                  className="w-full"
+                  onClick={onSeeEntries}
+                  data-umami-event="winners:see-entries"
+                  data-umami-event-competition={competitionId ?? undefined}
+                >
+                  <List className="mr-2 h-4 w-4" />
+                  {t("staticPages.winners.seeEntries")}
+                </Button>
+              </div>
             ) : null}
           </div>
         </div>
@@ -294,25 +249,62 @@ export default function Page() {
   } = useWinners(50, { initialData: { data: data?.winners ?? [] } });
   const winners = winnersResponse?.data ?? [];
 
-  const stats = data?.stats ?? null;
+  const [entryDialog, setEntryDialog] = useState<EntryDialogState | null>(null);
+  const consumedEntriesQuery = useRef(false);
 
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
-
-  function openLightbox(winner: Winner) {
-    const images = getWinnerImages(winner);
-    if (images.length === 0) return;
-    setLightboxImages(images);
-    setLightboxIndex(0);
-    setLightboxOpen(true);
+  function openEntryDialog(winner: Winner) {
+    const competitionId = getWinnerCompetitionId(winner);
+    if (!competitionId) return;
+    const userObj = getPopulatedWinnerUser(winner);
+    const displayName =
+      winner.displayName ||
+      getDisplayName(
+        {
+          firstName: userObj?.firstName ?? undefined,
+          lastName: userObj?.lastName ?? undefined,
+        },
+        userObj?.email ?? ""
+      ) ||
+      t("staticPages.winners.anonymousWinner");
+    setEntryDialog({
+      competitionId,
+      competitionTitle: getCompetitionTitle(winner),
+      highlightTicketNumbers: winner.ticketNumber > 0 ? [winner.ticketNumber] : [],
+      winnerDisplayName: displayName,
+    });
   }
 
+  useEffect(() => {
+    if (consumedEntriesQuery.current || typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const entriesCompId = params.get("entries")?.trim();
+    if (!entriesCompId) {
+      consumedEntriesQuery.current = true;
+      return;
+    }
+    if (isLoading) return;
+
+    consumedEntriesQuery.current = true;
+    params.delete("entries");
+    const nextSearch = params.toString();
+    const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}`;
+    window.history.replaceState({}, "", nextUrl);
+
+    const match = winners.find((w) => getWinnerCompetitionId(w) === entriesCompId);
+    if (match) {
+      openEntryDialog(match);
+      return;
+    }
+
+    setEntryDialog({
+      competitionId: entriesCompId,
+      competitionTitle: t("staticPages.entries.heading"),
+      highlightTicketNumbers: [],
+      winnerDisplayName: "",
+    });
+  }, [isLoading, winners, t]);
+
   const hasError = winnersError;
-  const totalPrizeLabel = stats ? formatStatsPrizeValue(stats.totalPrizeValue, locale) : null;
-  const showWinnerCount = (stats?.totalWinners ?? 0) > 0;
-  const showPrizeValue = Boolean(totalPrizeLabel);
-  const showStats = showWinnerCount || showPrizeValue;
   const hasWinnerData = winners.length > 0;
   const showHero = !isLoading && hasWinnerData;
 
@@ -323,12 +315,6 @@ export default function Page() {
           <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-gold/10 to-transparent" />
 
           <div className="relative text-center">
-            <Badge className="mb-4 border-gold/25 bg-gold/10 text-gold">
-              {t("staticPages.winners.publicGallery")}
-            </Badge>
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/20 bg-card lg:h-16 lg:w-16">
-              <Trophy className="h-7 w-7 text-gold lg:h-8 lg:w-8" />
-            </div>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
               {t("staticPages.winners.heading")}{" "}
               <span className="text-gold">{t("staticPages.winners.subheading")}</span>
@@ -339,48 +325,6 @@ export default function Page() {
           </div>
         </section>
       ) : null}
-
-      {isLoading && (
-        <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {[1, 2].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-[1.5rem]" shimmer />
-          ))}
-        </div>
-      )}
-
-      {!isLoading && showStats && (
-        <div
-          className={cn(
-            "mb-10 grid gap-4",
-            showWinnerCount && showPrizeValue ? "sm:grid-cols-2" : "max-w-md mx-auto"
-          )}
-        >
-          {showPrizeValue ? (
-            <div className="rounded-[1.5rem] bg-gold/5 p-1.5 ring-1 ring-gold/20">
-              <div className="rounded-[calc(1.5rem-0.375rem)] bg-card px-5 py-6 text-center sm:px-6">
-                <p className="text-3xl font-bold text-gold sm:text-4xl">{totalPrizeLabel}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("staticPages.winners.totalPrizesAwarded")}
-                </p>
-              </div>
-            </div>
-          ) : null}
-          {showWinnerCount ? (
-            <div className="rounded-[1.5rem] bg-white/5 p-1.5 ring-1 ring-white/10">
-              <div className="rounded-[calc(1.5rem-0.375rem)] bg-card px-5 py-6 text-center sm:px-6">
-                <p className="text-3xl font-bold text-gold sm:text-4xl">
-                  {formatNumber(stats!.totalWinners, locale)}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {stats!.totalWinners === 1
-                    ? t("staticPages.winners.happyWinner")
-                    : t("staticPages.winners.happyWinners")}
-                </p>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      )}
 
       {hasError && (
         <div className="mb-10 text-center">
@@ -399,19 +343,19 @@ export default function Page() {
       )}
 
       {isLoading ? (
-        <div className="mb-12 grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="mb-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-72 rounded-[1.5rem]" shimmer />
           ))}
         </div>
       ) : winners.length > 0 ? (
-        <div className="mb-12 grid grid-cols-1 gap-5 lg:grid-cols-2 animate-fade-in-stagger">
+        <div className="mb-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-fade-in-stagger">
           {winners.map((winner, index) => (
             <WinnerCard
               key={winner._id}
               winner={winner}
               featured={index === 0}
-              onImageClick={() => openLightbox(winner)}
+              onSeeEntries={() => openEntryDialog(winner)}
             />
           ))}
         </div>
@@ -445,14 +389,15 @@ export default function Page() {
         </div>
       </section>
 
-      <ImagePreviewDialog
-        open={lightboxOpen}
-        onOpenChange={setLightboxOpen}
-        images={lightboxImages}
-        currentIndex={lightboxIndex}
-        onIndexChange={setLightboxIndex}
-        variant="medium"
-        alt={t("staticPages.winners.prizePreview")}
+      <CompetitionEntryListDialog
+        open={entryDialog != null}
+        onOpenChange={(open) => {
+          if (!open) setEntryDialog(null);
+        }}
+        competitionId={entryDialog?.competitionId ?? ""}
+        competitionTitle={entryDialog?.competitionTitle ?? ""}
+        highlightTicketNumbers={entryDialog?.highlightTicketNumbers ?? []}
+        winnerDisplayName={entryDialog?.winnerDisplayName}
       />
     </div>
   );

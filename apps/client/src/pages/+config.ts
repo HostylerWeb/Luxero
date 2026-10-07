@@ -12,6 +12,7 @@ export default {
     "userShell",
     "routeParams",
     "cartInitialData",
+    "profileInitialData",
     "complianceFeaturesData",
     "defaultOgImageUrl",
     "referralOgImageUrl",

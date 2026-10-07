@@ -1,7 +1,7 @@
 import "@luxero/env/server";
 
 import path from "node:path";
-import { hostylerConsoleNoticeIndexHtmlPlugin } from "@luxero/utils";
+import { hostylerConsoleNoticeIndexHtmlPlugin } from "../../packages/utils/src/vite-hostyler-console-notice-plugin.ts";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import vike from "vike/plugin";

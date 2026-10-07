@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { AssetImage } from "@/components/AssetImage";
 
 interface ImageCellProps {
   src?: string | null;
@@ -7,13 +7,13 @@ interface ImageCellProps {
   className?: string;
 }
 
-const sizeMap = { sm: "size-10", md: "size-12", lg: "size-16", full: "size-full" } as const;
+const sizeMap = { xs: "size-8", sm: "size-10", md: "size-12", lg: "size-16", full: "size-full" } as const;
 
 function ImageCell({ src, alt = "", size = "md", className }: ImageCellProps) {
   const imgSize = sizeMap[size as keyof typeof sizeMap] ?? "size-12";
   return src ? (
-    <div className={`relative ${imgSize} rounded-md ${className ?? ""}`}>
-      <Image src={src} alt={alt} fill className="rounded-md object-cover" sizes="40px" />
+    <div className={`${imgSize} shrink-0 overflow-hidden rounded-md ${className ?? ""}`}>
+      <AssetImage src={src} alt={alt} className="h-full w-full rounded-md object-cover" />
     </div>
   ) : (
     <div className={`${imgSize} rounded-md bg-muted ${className ?? ""}`} />

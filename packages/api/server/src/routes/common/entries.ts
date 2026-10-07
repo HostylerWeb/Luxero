@@ -64,6 +64,48 @@ function mapPublicEntry(entry: Record<string, unknown>) {
   };
 }
 
+function parseEntrySearchDigits(raw: string | undefined): number | null {
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return null;
+  const n = Number.parseInt(digits, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+function buildEntrySearchStages(
+  searchPattern: string,
+  searchRaw: string
+): mongoose.PipelineStage[] {
+  const ticketOrOrder = parseEntrySearchDigits(searchRaw);
+  const orClauses: Record<string, unknown>[] = [
+    { firstName: { $regex: searchPattern, $options: "i" } },
+    { lastName: { $regex: searchPattern, $options: "i" } },
+    { city: { $regex: searchPattern, $options: "i" } },
+    { displayName: { $regex: searchPattern, $options: "i" } },
+  ];
+  if (ticketOrOrder != null) {
+    orClauses.push({ entryNumber: ticketOrOrder }, { orderNumber: ticketOrOrder });
+  }
+  return [
+    {
+      $addFields: {
+        displayName: {
+          $trim: {
+            input: {
+              $concat: [
+                { $ifNull: ["$firstName", ""] },
+                " ",
+                { $ifNull: ["$lastName", ""] },
+              ],
+            },
+          },
+        },
+      },
+    },
+    { $match: { $or: orClauses } },
+  ];
+}
+
 async function resolveMissingOrderNumbers(entries: Record<string, unknown>[]): Promise<void> {
   const nullOrder = entries.filter((e) => e.orderNumber == null && e.ownerId) as Record<
     string,
@@ -146,22 +188,17 @@ app.get(
         {
           $lookup: {
             from: "profiles",
-            let: { ownerId: "$ownerId", cachedFirst: "$entryFirstName" },
+            localField: "ownerId",
+            foreignField: "_id",
+            as: "profile",
             pipeline: [
               {
                 $match: {
-                  $expr: {
-                    $and: [
-                      { $eq: ["$_id", "$$ownerId"] },
-                      { $eq: [{ $ifNull: ["$deletedAt", null] }, null] },
-                      { $eq: [{ $ifNull: ["$$cachedFirst", null] }, null] },
-                    ],
-                  },
+                  $expr: { $eq: [{ $ifNull: ["$deletedAt", null] }, null] },
                 },
               },
-              { $project: { firstName: 1, lastName: 1, showLastName: 1 } },
+              { $project: { firstName: 1, lastName: 1, showLastName: 1, city: 1 } },
             ],
-            as: "profile",
           },
         },
         { $unwind: { path: "$profile", preserveNullAndEmptyArrays: true } },
@@ -178,25 +215,14 @@ app.get(
             showLastName: {
               $ifNull: ["$entryShowLastName", { $ifNull: ["$profile.showLastName", true] }],
             },
+            city: "$profile.city",
             createdAt: { $ifNull: ["$soldAt", "$$NOW"] },
           },
         },
       ];
 
-      const searchStages = search
-        ? [
-            {
-              $match: {
-                $or: [
-                  { firstName: { $regex: search, $options: "i" } },
-                  ...(Number.isFinite(Number(searchRaw))
-                    ? [{ entryNumber: Number(searchRaw) }, { orderNumber: Number(searchRaw) }]
-                    : []),
-                ],
-              },
-            },
-          ]
-        : [];
+      const searchStages =
+        search && searchRaw ? buildEntrySearchStages(search, searchRaw) : [];
 
       if (c.req.query("cursor") !== undefined) {
         const { limit, cursor, sortField, sortDir } = parseCursorPagination(c, {
@@ -361,7 +387,7 @@ app.get(
     try {
       await dbConnect();
 
-      const competitions = await Competition.find({ status: { $in: ["active", "ended", "pending_draw"] } })
+      const competitions = await Competition.find({ status: "active" })
         .select(
           "title prizeImageUrl imageUrl heroImageUrl prizeImages status drawDate maxTickets ticketsSold"
         )

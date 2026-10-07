@@ -1,8 +1,8 @@
 "use client";
 
 import { Eye, Flag, Image as ImageIcon, RotateCcw, Search, Share2, Star } from "@luxero/icons";
-import Image from "next/image";
 import { useState } from "react";
+import { AssetImage } from "@/components/AssetImage";
 import type { CompetitionImage } from "@/components/competition/types";
 import { ZoomableImageGallery } from "@/components/image-preview";
 import { Button } from "@/components/ui/button";
@@ -169,11 +169,10 @@ function ShowcaseCard({
             className="group/view relative h-full w-full overflow-hidden rounded-none p-0"
             aria-label={`View ${label}`}
           >
-            <Image
+            <AssetImage
               src={imageUrl}
               alt={label}
               fill
-              sizes="(max-width: 768px) 50vw, 25vw"
               className="object-cover transition-transform duration-300 group-hover/view:scale-105"
             />
             <div className="absolute inset-0 flex items-center justify-center bg-background/0 transition-colors group-hover/view:bg-background/20">
@@ -215,14 +214,7 @@ function ShowcaseCard({
               {imageUrl && (
                 <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground bg-muted/50">
                   <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                    <Image
-                      src={imageUrl}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="2.5rem"
-                      unoptimized
-                    />
+                    <AssetImage src={imageUrl} alt="" fill className="object-cover" />
                   </div>
                   <span className="truncate text-xs">{imageUrl.split("/").pop()}</span>
                   <span className="ml-auto text-[10px] text-muted-foreground">(current)</span>
@@ -239,14 +231,7 @@ function ShowcaseCard({
                   className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted transition-colors text-left"
                 >
                   <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                    <Image
-                      src={img.url}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="2.5rem"
-                      unoptimized
-                    />
+                    <AssetImage src={img.url} alt="" fill className="object-cover" />
                   </div>
                   <span className="truncate text-xs">{img.url.split("/").pop()}</span>
                 </button>

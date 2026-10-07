@@ -31,6 +31,10 @@ interface CompetitionCardProps {
   /** Override the link target. Defaults to /competitions/:slug. */
   href?: string;
   umamiEvent?: string;
+  /** When set, card acts as a button (no navigation). */
+  onCardClick?: () => void;
+  /** Footer CTA when competition is active and not sold out (compact variant). */
+  ctaLabel?: string;
 }
 
 function getCompId(comp: CompetitionCardSource): string {
@@ -95,17 +99,19 @@ export function CompetitionCard({
   categories,
   href: hrefOverride,
   umamiEvent,
+  onCardClick,
+  ctaLabel: ctaLabelOverride,
 }: CompetitionCardProps) {
   const { t, locale } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  const linkHref = hrefOverride ?? getHref(comp);
   const totalTickets = getMaxTickets(comp);
   const soldTickets = getTicketsSold(comp);
   const isActive = comp.status === "active";
   const percentageSold = getProgress(soldTickets, totalTickets);
   const ticketsLeft = getAvailableTickets(comp);
   const imageUrl = getImageUrl(comp);
-  const href = hrefOverride ?? getHref(comp);
   const timeLeft = useCompCountdown(comp, isActive);
 
   useEffect(() => {
@@ -121,7 +127,7 @@ export function CompetitionCard({
   if (variant === "hot") {
     return (
       <Link
-        href={href}
+        href={linkHref}
         className="group block h-full"
         data-umami-event={umamiEvent || "competitions:card-click"}
         data-umami-event-id={getCompSlug(comp)}
@@ -199,15 +205,14 @@ export function CompetitionCard({
 
   if (variant === "compact") {
     const drawDate = "drawDate" in comp ? comp.drawDate : undefined;
-    return (
-      <Link
-        href={href}
-        className="@container/card group block h-full min-w-0"
-        data-umami-event={umamiEvent || "competitions:card-click"}
-        data-umami-event-id={getCompSlug(comp)}
-        data-umami-event-title={comp.title}
-        data-umami-event-price={getTicketPrice(comp)}
-      >
+    const cardUmami = {
+      "data-umami-event": umamiEvent || "competitions:card-click",
+      "data-umami-event-id": getCompSlug(comp),
+      "data-umami-event-title": comp.title,
+      "data-umami-event-price": getTicketPrice(comp),
+    };
+    const cardClassName = "@container/card group block h-full min-w-0";
+    const cardInner = (
         <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gold/10 border-b-0 bg-card shadow-sm transition-colors duration-300 hover:border-gold/30">
           {drawDate && (
             <div className="comp-card-draw-badge absolute top-1.5 right-1.5 @lg/card:top-3 @lg/card:right-3 z-10 max-w-[calc(100%-0.75rem)]">
@@ -296,7 +301,7 @@ export function CompetitionCard({
               ? t("home.notAvailable")
               : ticketsLeft === 0
                 ? t("home.soldOut")
-                : t("home.enterNow");
+                : (ctaLabelOverride ?? t("home.enterNow"));
             return (
               <div
                 className={cn(
@@ -322,13 +327,38 @@ export function CompetitionCard({
             );
           })()}
         </div>
+    );
+
+    if (onCardClick) {
+      return (
+        <div
+          role="button"
+          tabIndex={0}
+          className={cn(cardClassName, "cursor-pointer")}
+          onClick={onCardClick}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onCardClick();
+            }
+          }}
+          {...cardUmami}
+        >
+          {cardInner}
+        </div>
+      );
+    }
+
+    return (
+      <Link href={linkHref} className={cardClassName} {...cardUmami}>
+        {cardInner}
       </Link>
     );
   }
 
   return (
     <Link
-      href={href}
+      href={linkHref}
       className="group block animate-fade-in-up"
       data-umami-event={umamiEvent || "competitions:card-click"}
       data-umami-event-id={getCompSlug(comp)}

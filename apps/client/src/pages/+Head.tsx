@@ -1,6 +1,7 @@
 import "../index.css";
-import { HOSTYLER_CONSOLE_NOTICE_INLINE } from "@luxero/utils";
+import type { ApiResponse, Profile } from "@luxero/types";
 import { getEnv } from "@luxero/env/vike";
+import { HOSTYLER_CONSOLE_NOTICE_INLINE, withAssetCacheVersion } from "@luxero/utils";
 import { usePageContext } from "vike-react/usePageContext";
 
 const DEFAULT_DESC =
@@ -16,6 +17,11 @@ export function Head() {
   const umamiId = getEnv("UMAMI_WEBSITE_ID");
   const siteName = headData?.siteName ?? "Luxero";
   const baseUrl = getEnv("APP_URL");
+  const profileInitialData = (pageContext as { profileInitialData?: ApiResponse<Profile> | null })
+    .profileInitialData;
+  const avatarPreloadHref = profileInitialData?.data?.avatarUrl
+    ? withAssetCacheVersion(profileInitialData.data.avatarUrl, profileInitialData.data.updatedAt)
+    : null;
 
   return (
     <>
@@ -27,6 +33,9 @@ export function Head() {
       <meta name="description" content={description} />
       <meta name="theme-color" content="#C9A84C" />
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      {avatarPreloadHref ? (
+        <link rel="preload" as="image" href={avatarPreloadHref} fetchPriority="high" />
+      ) : null}
 
       {pageContext.nonce && <style nonce={pageContext.nonce} />}
 

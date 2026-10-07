@@ -54,6 +54,13 @@ export function withAssetCacheVersion(
   if (!shouldVersionAssetUrl(trimmed)) return trimmed;
 
   const explicit = assetCacheVersion(version);
+  if (!explicit) {
+    try {
+      if (new URL(trimmed).searchParams.get("v")) return trimmed;
+    } catch {
+      if (/[?&]v=/.test(trimmed)) return trimmed;
+    }
+  }
   const resolved = explicit ?? extractVersionFromAssetUrl(trimmed);
   if (!resolved) return trimmed;
 

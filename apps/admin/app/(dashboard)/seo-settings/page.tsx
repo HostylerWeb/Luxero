@@ -2,7 +2,7 @@
 
 import { useAdminSeoSettings, useAdminSeoSettingsMutations } from "@luxero/api-admin";
 import { Search, Settings, Share2 } from "@luxero/icons";
-import NextImage from "next/image";
+import { AssetImage } from "@/components/AssetImage";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -102,13 +102,11 @@ export default function SeoSettingsAdminPage() {
             </div>
             {display.defaultOgImageUrl ? (
               <div className="relative mt-1 aspect-[1200/630] w-full overflow-hidden rounded-md bg-muted">
-                <NextImage
+                <AssetImage
                   src={display.defaultOgImageUrl}
                   alt="Default OG image preview"
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  unoptimized
                 />
               </div>
             ) : (
@@ -144,13 +142,11 @@ export default function SeoSettingsAdminPage() {
             </div>
             {display.referralOgImageUrl ? (
               <div className="relative mt-1 aspect-[1200/630] w-full overflow-hidden rounded-md bg-muted">
-                <NextImage
+                <AssetImage
                   src={display.referralOgImageUrl}
                   alt="Referral OG image preview"
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 25vw"
-                  unoptimized
                 />
               </div>
             ) : (

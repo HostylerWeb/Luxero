@@ -13,7 +13,7 @@ import {
   Trash2,
   X,
 } from "@luxero/icons";
-import Image from "next/image";
+import { AssetImage } from "@/components/AssetImage";
 import type { CompetitionImage } from "@/components/competition/types";
 import {
   AlertDialog,
@@ -108,11 +108,10 @@ export function SortableListTile({
             <ImageIcon className="size-6 text-muted-foreground/50" aria-hidden="true" />
           </div>
         ) : (
-          <Image
+          <AssetImage
             src={img.url}
             alt=""
             fill
-            sizes="80px"
             className="object-cover"
             onError={() => setBrokenImages((prev) => new Set(prev).add(img.url))}
           />

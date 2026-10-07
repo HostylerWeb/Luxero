@@ -21,10 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Gift,
-  HelpCircle,
   Mail,
-  Minus,
-  Plus,
   Share2,
   Shield,
   ShoppingCart,
@@ -55,13 +52,14 @@ import CompetitionInfo from "@/components/competitions/CompetitionInfo";
 import { CountdownTimer } from "@/components/competitions/CountdownTimer";
 import { InstantWinsSection } from "@/components/competitions/instant-wins";
 import RelatedCompetitions from "@/components/competitions/RelatedCompetitions";
+import { TicketQuantitySelector } from "@/components/competitions/TicketQuantitySelector";
+import { SkillQuestionSelector } from "@/components/competitions/SkillQuestionSelector";
 import { Link } from "@/components/Link";
 import { LuxeroDialog } from "@/components/luxero-dialog";
 import { ShareDialog } from "@/components/share-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CompetitionProgressBar } from "@/components/ui/competition-progress-bar";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { isCashOnly } from "@/lib/competition-display";
@@ -186,7 +184,7 @@ export default function Page() {
   const quantitySectionRef = useRef<HTMLDivElement>(null);
   const quizSectionRef = useRef<HTMLDivElement>(null);
   const cartLoadedRef = useRef(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(true);
   const [showCompactLoading, setShowCompactLoading] = useState(false);
   const { user: authUser, isAnonymous: authIsAnonymous } = useAuth();
   const serverUser = (pageContext as any).user;
@@ -675,6 +673,40 @@ export default function Page() {
                 ) : null}
               </div>
             </div>
+
+            <div className="space-y-4">
+              {(competition.drawDate || competition.endDate) && (
+                <CountdownTimer
+                  targetDate={
+                    getCompetitionCountdownTarget({
+                      drawDate: competition.drawDate,
+                      endDate: competition.endDate,
+                    }) ?? String(competition.drawDate ?? competition.endDate)
+                  }
+                  initialNow={competitionData.serverNow}
+                />
+              )}
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Ticket className="w-5 h-5 text-gold" />
+                  <span className="font-medium text-foreground text-[17px]">
+                    {t("competitions.detail.ticketSales")}
+                  </span>
+                </div>
+                <CompetitionProgressBar
+                  competition={{
+                    _id: competitionId,
+                    ticketsSold: soldTickets,
+                    maxTickets,
+                  }}
+                  bonusAwards={bonusAwards}
+                  variant="detail"
+                  countdownLabel={`${countdown}s`}
+                />
+              </div>
+            </div>
+
             <div className="relative overflow-hidden rounded-xl lg:rounded-[1.5rem]">
               <div className="p-1 lg:p-1.5 rounded-xl lg:rounded-[1.5rem] bg-white/5 ring-1 ring-white/10">
                 <div className="rounded-[calc(1.25rem-0.25rem)] lg:rounded-[calc(1.5rem-0.375rem)] bg-card p-3 lg:p-6 space-y-3 lg:space-y-6">
@@ -696,177 +728,81 @@ export default function Page() {
                     </div>
                   ) : (
                     <>
-                      <div className="space-y-3" ref={quantitySectionRef}>
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-2">
-                            <GoldOutlineButton
-                              size="icon"
-                              onClick={() => setQuantityWithLimit(quantity - 1)}
-                              disabled={quantity <= 1 || maxCartQuantity === 0}
-                              className="h-10 w-10 rounded-full active:scale-95 transition-all"
-                              data-umami-event="competition:quantity-decrement"
-                            >
-                              <Minus className="size-5" />
-                            </GoldOutlineButton>
-                            <Input
-                              type="number"
-                              value={quantity}
-                              onChange={(e) => {
-                                const val = parseInt(e.target.value, 10) || 1;
-                                setQuantityWithLimit(val);
-                              }}
-                              min={1}
-                              max={maxCartQuantity || undefined}
-                              className="w-20 text-center text-lg font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                            />
-                            <GoldOutlineButton
-                              size="icon"
-                              onClick={() => setQuantityWithLimit(quantity + 1)}
-                              disabled={atQuantityLimit || maxCartQuantity === 0}
-                              className="h-10 w-10 rounded-full active:scale-95 transition-all"
-                              data-umami-event="competition:quantity-increment"
-                            >
-                              <Plus className="size-5" />
-                            </GoldOutlineButton>
-                          </div>
-                          {liveAvailable <= 0 ? (
-                            <span className="text-base sm:text-lg lg:text-xl text-white line-through">
-                              {competition.ticketPrice
-                                ? `${formatCurrency(
-                                    competition.originalPrice ?? competition.ticketPrice ?? 0,
-                                    locale,
-                                    "GBP"
-                                  )} ${t("competitions.detail.perTicket")}`
-                                : t("competitions.detail.free")}
-                            </span>
-                          ) : (competition.ticketPrice ?? 0) > 0 ? (
-                            <span className="text-base sm:text-lg lg:text-xl font-bold text-gold">
-                              {formatCurrency(competition.ticketPrice ?? 0, locale, "GBP")}{" "}
-                              {t("competitions.detail.perTicket")}
-                            </span>
-                          ) : (
-                            <span className="text-base sm:text-lg lg:text-xl font-bold text-gold">
-                              {t("competitions.detail.free")}
-                            </span>
-                          )}
-                        </div>
-                        {maxCartQuantity > 0 && !atPersonalLimit && liveAvailable > 0 ? (
-                          <p className="text-xs text-muted-foreground">
-                            {userOwned > 0 ? (
-                              <>
-                                {t("competitions.detail.youAlreadyOwn", {
-                                  count: formatNumber(userOwned, locale),
-                                })}
-                                {maxPurchasable > 0
-                                  ? ` · ${t("competitions.detail.upToPerPerson", { max: formatNumber(maxCartQuantity, locale) })}`
-                                  : currentInCart > 0
-                                    ? ` · ${t("competitions.detail.alreadyInCart", { count: formatNumber(currentInCart, locale) })} (${t("competitions.detail.inCart")})`
-                                    : ` · ${t("competitions.detail.limitReached")}`}
-                              </>
-                            ) : maxPerUser > 0 && maxCartQuantity === maxPerUser - userOwned ? (
-                              t("competitions.detail.upToPerPerson", {
-                                max: formatNumber(maxCartQuantity, locale),
-                              })
+                      <div ref={quantitySectionRef}>
+                        <TicketQuantitySelector
+                          quantity={quantity}
+                          maxQuantity={maxCartQuantity}
+                          disabled={maxCartQuantity === 0}
+                          onQuantityChange={setQuantityWithLimit}
+                          title={t("competitions.detail.ticketsLabel")}
+                          maxPresetLabel={t("competitions.detail.max")}
+                          priceSlot={
+                            liveAvailable <= 0 ? (
+                              <span className="text-base sm:text-lg lg:text-xl text-white line-through">
+                                {competition.ticketPrice
+                                  ? `${formatCurrency(
+                                      competition.originalPrice ?? competition.ticketPrice ?? 0,
+                                      locale,
+                                      "GBP"
+                                    )} ${t("competitions.detail.perTicket")}`
+                                  : t("competitions.detail.free")}
+                              </span>
+                            ) : (competition.ticketPrice ?? 0) > 0 ? (
+                              <span className="text-base sm:text-lg lg:text-xl font-bold text-gold">
+                                {formatCurrency(competition.ticketPrice ?? 0, locale, "GBP")}{" "}
+                                {t("competitions.detail.perTicket")}
+                              </span>
                             ) : (
-                              t("competitions.detail.ticketsAvailable", {
-                                max: formatNumber(maxCartQuantity, locale),
-                              })
-                            )}
-                            {currentInCart > 0 &&
-                            maxPurchasable > 0 &&
-                            currentInCart < maxCartQuantity
-                              ? ` · ${t("competitions.detail.alreadyInCart", { count: formatNumber(currentInCart, locale) })}`
-                              : ""}
-                          </p>
-                        ) : null}
-                      </div>
-
-                      <div className="space-y-2.5">
-                        <p className="text-base sm:text-lg text-muted-foreground">
-                          {t("competitions.detail.quickAdd")}
-                        </p>
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                          {[5, 25, 50, 100].map((amount) => (
-                            <GoldOutlineButton
-                              key={amount}
-                              type="button"
-                              onClick={() => setQuantityWithLimit(quantity + amount)}
-                              disabled={maxCartQuantity === 0 || atQuantityLimit}
-                              className="h-11 sm:h-12 rounded-xl px-4 text-base sm:text-lg shadow-sm"
-                              data-umami-event={`competition:quick-add-${amount}`}
-                            >
-                              +{amount}
-                            </GoldOutlineButton>
-                          ))}
-                          <GoldOutlineButton
-                            type="button"
-                            onClick={() => setQuantityWithLimit(maxCartQuantity)}
-                            disabled={maxCartQuantity === 0 || atQuantityLimit}
-                            className="h-11 sm:h-12 rounded-xl px-4 text-base sm:text-lg font-bold shadow-sm"
-                            data-umami-event="competition:quick-add-max"
-                          >
-                            {t("competitions.detail.max")}
-                          </GoldOutlineButton>
-                        </div>
+                              <span className="text-base sm:text-lg lg:text-xl font-bold text-gold">
+                                {t("competitions.detail.free")}
+                              </span>
+                            )
+                          }
+                          hintSlot={
+                            maxCartQuantity > 0 && !atPersonalLimit && liveAvailable > 0 ? (
+                              <p className="text-xs text-center text-foreground">
+                                {userOwned > 0 ? (
+                                  <>
+                                    {t("competitions.detail.youAlreadyOwn", {
+                                      count: formatNumber(userOwned, locale),
+                                    })}
+                                    {maxPurchasable > 0
+                                      ? ` · ${t("competitions.detail.upToPerPerson", { max: formatNumber(maxCartQuantity, locale) })}`
+                                      : currentInCart > 0
+                                        ? ` · ${t("competitions.detail.alreadyInCart", { count: formatNumber(currentInCart, locale) })} (${t("competitions.detail.inCart")})`
+                                        : ` · ${t("competitions.detail.limitReached")}`}
+                                  </>
+                                ) : maxPerUser > 0 && maxCartQuantity === maxPerUser - userOwned ? (
+                                  t("competitions.detail.upToPerPerson", {
+                                    max: formatNumber(maxCartQuantity, locale),
+                                  })
+                                ) : (
+                                  t("competitions.detail.ticketsAvailable", {
+                                    max: formatNumber(maxCartQuantity, locale),
+                                  })
+                                )}
+                                {currentInCart > 0 &&
+                                maxPurchasable > 0 &&
+                                currentInCart < maxCartQuantity
+                                  ? ` · ${t("competitions.detail.alreadyInCart", { count: formatNumber(currentInCart, locale) })}`
+                                  : ""}
+                              </p>
+                            ) : null
+                          }
+                        />
                       </div>
 
                       {competition.question &&
                         competition.questionOptions &&
                         competition.questionOptions.length > 0 && (
-                          <div className="space-y-3 pt-2" ref={quizSectionRef}>
-                            <div className="relative overflow-hidden rounded-xl border border-gold/30 bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 p-4 text-center">
-                              <p className="text-xs font-bold text-gold uppercase tracking-wider mb-0.5">
-                                {t("competitions.detail.skillBasedCompetition")}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {t("competitions.detail.answerCorrectly")}
-                              </p>
-                            </div>
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <HelpCircle className="w-4 h-4 text-gold" />
-                                <span className="text-sm font-medium text-foreground">
-                                  {t("competitions.detail.skillQuestion")}
-                                </span>
-                              </div>
-                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold border border-gold/30 bg-gold/10 px-2.5 py-1 rounded-full">
-                                <HelpCircle className="w-3 h-3" />
-                                {t("competitions.detail.required")}
-                              </span>
-                            </div>
-                            <p className="text-base sm:text-lg font-medium text-foreground">
-                              {competition.question}
-                            </p>
-                            <div className="grid grid-cols-1 gap-2.5">
-                              {competition.questionOptions.map((option, idx) => (
-                                <label
-                                  key={idx}
-                                  className={`flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border cursor-pointer transition-all text-base sm:text-lg ${
-                                    answerIndex === idx
-                                      ? "border-gold bg-gold/10"
-                                      : "border-border hover:border-gold/30 hover:bg-gold/5"
-                                  }`}
-                                >
-                                  <input
-                                    type="radio"
-                                    name="skill-answer"
-                                    value={idx}
-                                    checked={answerIndex === idx}
-                                    onChange={() => setAnswerIndex(idx)}
-                                    className="w-4 h-4 accent-gold"
-                                  />
-                                  <span
-                                    className={
-                                      answerIndex === idx
-                                        ? "text-gold font-medium"
-                                        : "text-foreground"
-                                    }
-                                  >
-                                    {option}
-                                  </span>
-                                </label>
-                              ))}
-                            </div>
+                          <div ref={quizSectionRef}>
+                            <SkillQuestionSelector
+                              question={competition.question}
+                              options={competition.questionOptions}
+                              selectedIndex={answerIndex}
+                              onSelect={setAnswerIndex}
+                              instructionTitle={t("competitions.detail.skillBasedCompetition")}
+                            />
                           </div>
                         )}
 
@@ -936,7 +872,8 @@ export default function Page() {
                       ) : null}
 
                       <GoldButton
-                        className="w-full"
+                        size="lg"
+                        className="h-12 w-full rounded-xl text-base sm:h-14 sm:text-lg"
                         onClick={() => {
                           if (
                             competition.status !== "active" ||
@@ -970,7 +907,7 @@ export default function Page() {
                           </>
                         ) : (
                           <>
-                            <ShoppingCart className="w-5 h-5 mr-2" />
+                            <ShoppingCart className="mr-2 size-5 sm:size-6" />
                             {currentInCart > 0
                               ? t("competitions.detail.updateCart")
                               : t("competitions.detail.addToCart")}
@@ -1002,15 +939,6 @@ export default function Page() {
                         </div>
                       </div>
 
-                      {instantPrizes.length > 0 && (
-                        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 flex items-center gap-3">
-                          <Gift className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                          <p className="text-sm text-emerald-400">
-                            {t("competitions.detail.instantPrizeInfo")}
-                          </p>
-                        </div>
-                      )}
-
                       <div className="relative overflow-hidden rounded-xl border border-gold/20 bg-gradient-to-br from-gold/5 to-gold/10 p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center flex-shrink-0">
@@ -1036,7 +964,7 @@ export default function Page() {
                         </div>
                       </div>
 
-                      <p className="text-center text-xs text-muted-foreground pt-2">
+                      <p className="text-center text-xs text-foreground pt-2">
                         {t("competitions.detail.ageNotice")}
                       </p>
 
@@ -1063,39 +991,6 @@ export default function Page() {
                 </div>
               </div>
             </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Ticket className="w-5 h-5 text-gold" />
-                  <span className="font-medium text-foreground text-[17px]">
-                    {t("competitions.detail.ticketSales")}
-                  </span>
-                </div>
-              </div>
-              <CompetitionProgressBar
-                competition={{
-                  _id: competitionId,
-                  ticketsSold: soldTickets,
-                  maxTickets,
-                }}
-                bonusAwards={bonusAwards}
-                variant="detail"
-                countdownLabel={`${countdown}s`}
-                percentageBelow
-              />
-            </div>
-
-            {(competition.drawDate || competition.endDate) && (
-              <CountdownTimer
-                targetDate={
-                  getCompetitionCountdownTarget({
-                    drawDate: competition.drawDate,
-                    endDate: competition.endDate,
-                  }) ?? String(competition.drawDate ?? competition.endDate)
-                }
-              />
-            )}
           </div>
         </div>
 
@@ -1130,7 +1025,7 @@ export default function Page() {
                   }`}
                 >
                   <div className="border-t border-gold/10 pt-4 lg:pt-6">
-                    <p className="text-sm lg:text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    <p className="text-sm lg:text-base text-foreground leading-relaxed whitespace-pre-wrap">
                       {competition.description}
                     </p>
                   </div>

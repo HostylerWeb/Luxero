@@ -6,7 +6,7 @@ import type { AdminCompetition } from "@luxero/types";
 import { formatDateTime, getDisplayName } from "@luxero/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef, SortingState, VisibilityState } from "@tanstack/react-table";
-import Image from "next/image";
+import { AssetImage } from "@/components/AssetImage";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -149,12 +149,11 @@ function PendingCompetitionCard({
 
         {competition.imageUrl ? (
           <div className="relative h-40 overflow-hidden rounded-lg bg-muted">
-            <Image
+            <AssetImage
               src={competition.imageUrl}
               alt={competition.title}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
         ) : null}

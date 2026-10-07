@@ -58,17 +58,21 @@ function mapPublicWinner(
     imageUrl?: string | null;
     prizeImageUrl?: string | null;
   } | null,
-  displayName: string
+  displayName: string,
+  avatarUrl?: string | null,
+  competitionId?: string | null
 ) {
   const competitionImageUrl = resolveCompetitionImageUrl(competition);
   const prizeImageUrl = winner.prizeImageUrl?.trim() || competitionImageUrl || null;
   return {
     _id: winner._id?.toString(),
+    competitionId: competitionId ?? undefined,
     displayName,
     prizeTitle: winner.prizeTitle ?? null,
     prizeValue: winner.prizeValue ?? null,
     prizeImageUrl,
     winnerPhotoUrl: winner.winnerPhotoUrl?.trim() || null,
+    avatarUrl: avatarUrl?.trim() || null,
     location: winner.location ?? null,
     testimonial: winner.testimonial ?? null,
     ticketNumber: winner.ticketNumber,
@@ -113,7 +117,7 @@ app.get(
       const profiles =
         userIds.length > 0
           ? await Profile.find({ _id: { $in: userIds } })
-              .select("firstName lastName showLastName")
+              .select("firstName lastName showLastName avatarUrl")
               .lean()
           : [];
       const profileMap = new Map(profiles.map((p) => [p._id.toString(), p]));
@@ -144,7 +148,20 @@ app.get(
         const name =
           w.displayName?.trim() ||
           formatPublicWinnerDisplayName({ displayName: w.displayName });
-        return mapPublicWinner(w, compObj, name);
+        const profile = w.userId ? profileMap.get(w.userId.toString()) : undefined;
+        const competitionId =
+          compObj && "_id" in compObj && compObj._id
+            ? String(compObj._id)
+            : w.competitionId
+              ? String(w.competitionId)
+              : null;
+        return mapPublicWinner(
+          w,
+          compObj,
+          name,
+          profile?.avatarUrl ?? null,
+          competitionId
+        );
       });
 
       return paginated(c, publicWinners, total, page, limit);
@@ -188,7 +205,9 @@ app.get(
           w,
           null,
           w.displayName?.trim() ||
-            formatPublicWinnerDisplayName({ displayName: w.displayName })
+            formatPublicWinnerDisplayName({ displayName: w.displayName }),
+          null,
+          null
         )
       );
 

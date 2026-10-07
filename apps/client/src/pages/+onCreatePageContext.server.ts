@@ -1,6 +1,12 @@
 import { getServerSession } from "@luxero/auth-admin";
 import { getEnv } from "@luxero/env/server";
-import type { ApiResponse, ICart, PublicComplianceSettings, SessionUser } from "@luxero/types";
+import type {
+  ApiResponse,
+  ICart,
+  Profile,
+  PublicComplianceSettings,
+  SessionUser,
+} from "@luxero/types";
 import { getDisplayName, getProfileInitials, getSessionCookiePrefix } from "@luxero/utils";
 import type { PageContextServer } from "vike/types";
 import { loadLocaleData, setLocaleData } from "@/lib/i18n";
@@ -45,49 +51,65 @@ function parseSessionTokens(cookieHeader: string): string[] {
   return tokens;
 }
 
-async function resolveBestSession(cookie: string): Promise<SessionUser | null> {
-  const headers = new Headers();
-  if (cookie) headers.set("cookie", cookie);
+interface ResolvedSession {
+  user: SessionUser | null;
+  /** Cookie header to use for authenticated API calls (may be a single token). */
+  authCookie: string;
+}
 
-  // First attempt: pass the raw cookie header — Better Auth picks the first
-  // matching session token. This handles the normal single-cookie case.
-  const user = await getServerSession("client", headers);
-  if (user) return user;
+async function resolveBestSession(cookie: string): Promise<ResolvedSession> {
+  const empty: ResolvedSession = { user: null, authCookie: cookie };
 
-  // If getSession returned null but there are multiple session tokens (e.g. an
-  // old revoked anonymous token + a new Google-authenticated token), try each
-  // token individually. The browser may send both; Better Auth's internal
-  // parsing picks the first one, which could be the stale one.
+  if (!cookie) return empty;
+
   const tokens = parseSessionTokens(cookie);
-  if (tokens.length <= 1) return null;
 
-  for (const token of tokens) {
-    const h = new Headers();
-    h.set("cookie", `${SESSION_COOKIE_NAME}=${token}`);
-    try {
-      const candidate = await getServerSession("client", h);
-      if (candidate) {
-        return candidate;
+  if (tokens.length > 1) {
+    let anonymousFallback: ResolvedSession | null = null;
+
+    for (const token of tokens) {
+      const authCookie = `${SESSION_COOKIE_NAME}=${token}`;
+      const h = new Headers();
+      h.set("cookie", authCookie);
+      try {
+        const candidate = await getServerSession("client", h);
+        if (!candidate) continue;
+        if (!candidate.isAnonymous) {
+          return { user: candidate, authCookie };
+        }
+        if (!anonymousFallback) {
+          anonymousFallback = { user: candidate, authCookie };
+        }
+      } catch {
+        // Token failed, try the next one
       }
-    } catch {
-      // Token failed, try the next one
     }
+
+    if (anonymousFallback) return anonymousFallback;
+    return empty;
   }
 
-  return null;
+  const headers = new Headers();
+  headers.set("cookie", cookie);
+  const user = await getServerSession("client", headers);
+  return { user, authCookie: cookie };
 }
 
 export async function onCreatePageContext(pageContext: PageContextServer) {
   const cookie = pageContext.headers?.cookie ?? "";
 
   let user: SessionUser | null = null;
+  let authCookie = cookie;
   try {
-    user = await resolveBestSession(cookie);
+    const resolved = await resolveBestSession(cookie);
+    user = resolved.user;
+    authCookie = resolved.authCookie;
   } catch {
     user = null;
   }
 
   let cartInitialData: ApiResponse<ICart> | null = null;
+  let profileInitialData: ApiResponse<Profile> | null = null;
   let complianceFeaturesData: ApiResponse<PublicComplianceSettings> | null = null;
   let defaultOgImageUrl: string | null = null;
   let referralOgImageUrl: string | null = null;
@@ -115,11 +137,16 @@ export async function onCreatePageContext(pageContext: PageContextServer) {
     }),
   ]);
 
-  if (user) {
-    try {
-      cartInitialData = await serverFetch<ICart>("/api/cart", { cookieHeader: cookie });
-    } catch {
-      cartInitialData = null;
+  if (user && !user.isAnonymous) {
+    const [cartResult, profileResult] = await Promise.allSettled([
+      serverFetch<ICart>("/api/cart", { cookieHeader: authCookie }),
+      serverFetch<Profile>("/api/me/profile", { cookieHeader: authCookie }),
+    ]);
+    if (cartResult.status === "fulfilled") {
+      cartInitialData = cartResult.value;
+    }
+    if (profileResult.status === "fulfilled") {
+      profileInitialData = profileResult.value;
     }
   }
 
@@ -141,6 +168,7 @@ export async function onCreatePageContext(pageContext: PageContextServer) {
   Object.assign(pageContext, {
     user,
     cartInitialData,
+    profileInitialData,
     complianceFeaturesData,
     defaultOgImageUrl,
     referralOgImageUrl,
@@ -157,6 +185,7 @@ declare global {
     interface PageContext {
       user: SessionUser | null;
       cartInitialData: ApiResponse<ICart> | null;
+      profileInitialData: ApiResponse<Profile> | null;
       complianceFeaturesData: ApiResponse<PublicComplianceSettings> | null;
       defaultOgImageUrl: string | null;
       referralOgImageUrl: string | null;
