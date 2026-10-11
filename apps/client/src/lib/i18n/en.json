@@ -963,7 +963,10 @@
       "salesProgressSold": "{percent}% sold",
       "salesProgressTarget": "Next at {percent}%",
       "showAllMilestones": "Show all {count} milestones",
-      "showFewer": "Show fewer milestones"
+      "showFewer": "Show fewer milestones",
+      "howItWorksToggle": "How bonus draws work",
+      "howItWorksBody": "When enough tickets are sold to hit a milestone (for example 5% or 10% of the competition), we automatically run an extra draw using tickets already entered in this competition. One eligible ticket wins the bonus prize shown — you do not need a separate entry or extra fee.",
+      "howItWorksNote": "Bonus draws are separate from the main prize draw. Winners are picked at random from eligible tickets at each milestone."
     },
     "instantWins": {
       "heading": "Instant Wins",

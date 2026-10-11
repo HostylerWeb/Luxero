@@ -963,7 +963,10 @@
       "salesProgressSold": "{percent}% vândut",
       "salesProgressTarget": "Următorul la {percent}%",
       "showAllMilestones": "Arată toate cele {count} etape",
-      "showFewer": "Arată mai puține etape"
+      "showFewer": "Arată mai puține etape",
+      "howItWorksToggle": "Cum funcționează extragerile bonus",
+      "howItWorksBody": "Când se vând suficiente bilete pentru a atinge o etapă (de exemplu 5% sau 10% din concurs), rulăm automat o extragere suplimentară folosind biletele deja înscrise la acest concurs. Un bilet eligibil câștigă premiul bonus afișat — nu ai nevoie de o înscriere separată sau de taxă suplimentară.",
+      "howItWorksNote": "Extragerile bonus sunt separate de extragerea principală. Câștigătorii sunt aleși aleator din biletele eligibile la fiecare etapă."
     },
     "instantWins": {
       "heading": "Câștiguri instant",
