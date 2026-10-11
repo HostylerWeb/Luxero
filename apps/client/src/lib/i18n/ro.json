@@ -953,7 +953,17 @@
       "winner": "Câștigător",
       "reached": "ATINS",
       "milestonePct": "ETAPĂ {percent}%",
-      "pctToGo": "{percent}% rămas"
+      "pctToGo": "{percent}% rămas",
+      "nextBonusDraw": "Următoarea extragere bonus",
+      "nextBonusDrawDesc": "Se declanșează automat la {percent}% din bilete vândute",
+      "ticketsToGo": "{count} bilete rămase",
+      "ticketsToGoOne": "1 bilet rămas",
+      "ticketsToGoLabel": "bilete până la extragere",
+      "milestoneComplete": "Extragere finalizată",
+      "salesProgressSold": "{percent}% vândut",
+      "salesProgressTarget": "Următorul la {percent}%",
+      "showAllMilestones": "Arată toate cele {count} etape",
+      "showFewer": "Arată mai puține etape"
     },
     "instantWins": {
       "heading": "Câștiguri instant",

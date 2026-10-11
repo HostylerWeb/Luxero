@@ -953,7 +953,17 @@
       "winner": "Winner",
       "reached": "REACHED",
       "milestonePct": "{percent}% MILESTONE",
-      "pctToGo": "{percent}% to go"
+      "pctToGo": "{percent}% to go",
+      "nextBonusDraw": "Next bonus draw",
+      "nextBonusDrawDesc": "Fires automatically when {percent}% of tickets are sold",
+      "ticketsToGo": "{count} tickets to go",
+      "ticketsToGoOne": "1 ticket to go",
+      "ticketsToGoLabel": "tickets until this draw",
+      "milestoneComplete": "Draw completed",
+      "salesProgressSold": "{percent}% sold",
+      "salesProgressTarget": "Next at {percent}%",
+      "showAllMilestones": "Show all {count} milestones",
+      "showFewer": "Show fewer milestones"
     },
     "instantWins": {
       "heading": "Instant Wins",
