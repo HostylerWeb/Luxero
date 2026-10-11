@@ -5,7 +5,6 @@ import type { PublicBonusAwardEntry, PublicBonusAwardWinDTO } from "@luxero/type
 import { useMemo, useState } from "react";
 import { GoldOutlineButton } from "@/components/buttons";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { formatCurrency, formatNumber, useTranslation } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { BonusAwardCard } from "./BonusAwardCard";
@@ -128,24 +127,23 @@ export function BonusAwardsSection({
                 : t("competitions.bonusAwards.noBonusDraws")}
             </p>
             {awards.length > 0 ? (
-              <Collapsible className="pt-1">
-                <CollapsibleTrigger
-                  className="group flex w-full items-center gap-2 rounded-lg py-1.5 text-left text-sm font-medium text-gold transition-colors hover:text-gold/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
-                  type="button"
+              <details className="group pt-1">
+                <summary
+                  className="flex cursor-pointer list-none items-center gap-2 rounded-lg py-1.5 text-sm font-medium text-gold transition-colors hover:text-gold/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 [&::-webkit-details-marker]:hidden"
                 >
                   <ChevronDown
-                    className="size-4 shrink-0 transition-transform group-data-[state=open]:rotate-180"
+                    className="size-4 shrink-0 transition-transform group-open:rotate-180"
                     aria-hidden
                   />
                   {t("competitions.bonusAwards.howItWorksToggle")}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-2 pt-2 text-sm leading-relaxed text-muted-foreground">
+                </summary>
+                <div className="space-y-2 pt-2 text-sm leading-relaxed text-muted-foreground">
                   <p>{t("competitions.bonusAwards.howItWorksBody")}</p>
                   <p className="text-xs text-muted-foreground/90">
                     {t("competitions.bonusAwards.howItWorksNote")}
                   </p>
-                </CollapsibleContent>
-              </Collapsible>
+                </div>
+              </details>
             ) : null}
           </div>
         </div>

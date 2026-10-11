@@ -33,6 +33,7 @@ export default defineConfig({
       "@luxero/types",
       "@luxero/utils",
       "@luxero/auth-admin",
+      "@radix-ui/react-collapsible",
     ],
     external: [
       "react",
