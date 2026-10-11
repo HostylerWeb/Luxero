@@ -1,4 +1,5 @@
 import {
+  BonusAward,
   Competition,
   InstantPrize,
   Profile,
@@ -88,6 +89,16 @@ export async function replaceStoredUrlsForKey(
 
     if (Object.keys(updates).length > 0) {
       await Competition.updateOne({ _id: row._id }, { $set: updates });
+      documentsUpdated += 1;
+    }
+  }
+
+  const bonusAwards = await BonusAward.find({}).select("_id images").lean();
+  for (const doc of bonusAwards) {
+    const row = doc as { _id: unknown; images?: string[] };
+    const images = mapArrayUrls(row.images, normalizedOriginal, newUrl);
+    if (images) {
+      await BonusAward.updateOne({ _id: row._id }, { $set: { images } });
       documentsUpdated += 1;
     }
   }

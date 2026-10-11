@@ -1,3 +1,4 @@
+import { getCspAssetOriginsClause, getNextAssetRemotePatterns } from "@luxero/env/origin-policy";
 import { getBool } from "@luxero/env/next";
 import type { NextConfig } from "next";
 
@@ -35,8 +36,7 @@ const nextConfig: NextConfig = {
 
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "assets.luxero.win" },
-      { protocol: "https", hostname: "assets.staging.luxero.win" },
+      ...getNextAssetRemotePatterns(),
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "googleuserconsent.com" },
       { protocol: "http", hostname: "localhost", port: "9011", pathname: "/luxero-assets/**" },
@@ -97,15 +97,16 @@ const nextConfig: NextConfig = {
   async headers() {
     const devAssetHosts =
       process.env.NODE_ENV !== "production" ? " http://localhost:9011 http://127.0.0.1:9011" : "";
+    const cspDeploymentOrigins = getCspAssetOriginsClause();
     const csp =
       "base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; default-src 'self'; " +
-      `media-src 'self' https://assets.luxero.win https://assets.staging.luxero.win${devAssetHosts}; ` +
+      `media-src 'self'${cspDeploymentOrigins}${devAssetHosts}; ` +
       "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.facebook.net https://challenges.cloudflare.com https://umami.luxero.win https://js.stripe.com; " +
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "frame-src https://*.facebook.net https://challenges.cloudflare.com https://js.stripe.com; " +
       "worker-src 'self' blob:; child-src 'self' blob:; " +
-      `connect-src 'self' https://assets.luxero.win https://assets.staging.luxero.win https://*.facebook.net https://challenges.cloudflare.com https://umami.luxero.win https://api.stripe.com${devAssetHosts}; ` +
-      `img-src 'self' data: https://assets.luxero.win https://assets.staging.luxero.win https://lh3.googleusercontent.com${devAssetHosts}; ` +
+      `connect-src 'self'${cspDeploymentOrigins} https://*.facebook.net https://challenges.cloudflare.com https://umami.luxero.win https://api.stripe.com${devAssetHosts}; ` +
+      `img-src 'self' data: https://lh3.googleusercontent.com${cspDeploymentOrigins}${devAssetHosts}; ` +
       "font-src 'self' https://fonts.gstatic.com";
 
     return [

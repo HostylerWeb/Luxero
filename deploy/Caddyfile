@@ -1,0 +1,19 @@
+{
+	email hostyler@luxero.win
+}
+
+srv2011364.hstgr.cloud {
+	reverse_proxy client:3000
+}
+
+admin.srv2011364.hstgr.cloud {
+	reverse_proxy admin:3000
+}
+
+shop.srv2011364.hstgr.cloud {
+	reverse_proxy shop:3000
+}
+
+assets.srv2011364.hstgr.cloud {
+	reverse_proxy minio:9000
+}

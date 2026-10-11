@@ -19,6 +19,7 @@ import {
   paymentRateLimit,
   rateLimitBodyReader,
 } from "@luxero/api-server/middleware/rate-limit";
+import { resolveCorsOrigin } from "@luxero/env/origin-policy";
 import { csrfProtection } from "@luxero/api-server/middleware/csrf";
 import authEmergency from "@luxero/api-server/routes/admin/auth/emergency";
 import authSetup from "@luxero/api-server/routes/admin/auth/setup";
@@ -241,17 +242,10 @@ app.use("*", async (c, next) => {
 });
 
 // CORS (admin origins)
-const ALLOWED_ORIGIN_PATTERNS = [
-  /^http:\/\/localhost(:\d+)?$/,
-  /^https:\/\/.*\.luxero\.win$/,
-  /^https:\/\/luxero\.win$/,
-];
-
 app.use(
   "*",
   cors({
-    origin: (origin) =>
-      !origin || ALLOWED_ORIGIN_PATTERNS.some((re) => re.test(origin)) ? origin : null,
+    origin: (origin) => resolveCorsOrigin(origin),
     credentials: true,
     allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: [

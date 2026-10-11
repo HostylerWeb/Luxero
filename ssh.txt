@@ -77,12 +77,26 @@ H — Dead DNS (not in Caddy; HTTP 503 — do not create on Hostinger)
 
 Hostinger — only create these (prod, terminal/nginx, no Coolify, no staging, no panels)
 ---------------------------------------------------------------------------------------
-A — luxero.win, www.luxero.win          (customer; do not create app.*)
-B — shop.luxero.win, www.shop.luxero.win
-C — admin.luxero.win, www.admin.luxero.win
-D — assets.luxero.win                   (S3 + public image URLs; bucket luxero-assets)
+Final DNS (after cutover from luxero.win):
+  A — luxero.win, www.luxero.win          (customer; do not create app.*)
+  B — shop.luxero.win, www.shop.luxero.win
+  C — admin.luxero.win, www.admin.luxero.win
+  D — assets.luxero.win                   (S3 + public image URLs; bucket luxero-assets)
 
-Env: APP_URL=https://luxero.win, S3_ENDPOINT=https://assets.luxero.win, ASSET_BASE_URL=https://assets.luxero.win/luxero-assets
+Phase / pre-DNS hostname (current VPS — same IP, Caddy vhosts):
+  A — https://srv2011364.hstgr.cloud
+  B — https://shop.srv2011364.hstgr.cloud
+  C — https://admin.srv2011364.hstgr.cloud
+  D — https://assets.srv2011364.hstgr.cloud  (MinIO + public /luxero-assets/*)
+
+Deploy tree on 187.7.28.125:
+  Code:   /var/www/luxero/turborepo-main
+  Stack:  /var/www/luxero/deploy/docker-compose.hostinger.yml
+  Env:    /root/luxero-app.env, luxero-client.env, luxero-admin.env, luxero-shop.env, luxero-secrets.env
+  Redeploy: cd /var/www/luxero/deploy && docker compose -f docker-compose.hostinger.yml build <service> && docker compose -f docker-compose.hostinger.yml up -d <service>
+
+Env (Hetzner): APP_URL=https://luxero.win, S3_ENDPOINT=https://assets.luxero.win, ASSET_BASE_URL=https://assets.luxero.win/luxero-assets
+Env (Hostinger phase): see deploy/scripts/hostinger-env.sh — APP_URL / ADMIN_URL / SHOP_URL / ASSET_BASE_URL must use the *.hstgr.cloud hosts above (client, admin, shop each get their own APP_URL file).
 Local dev: MinIO http://localhost:9011 (not :9010 — that is console only).
 Manage files via admin Media Library (/media), not a storage GUI.
 
@@ -153,6 +167,52 @@ On cutover, copy both:
 Then: deploy apps, point env (MONGODB_URI, S3_*, APP_URL), flip DNS for A–D subdomains above.
 Keep assets.luxero.win URLs in Mongo if the public asset hostname stays the same after bucket sync.
 Smoke-test: admin login, media library grid, one competition image, checkout upload.
+
+
+Origin policy — CSRF, CORS, CSP (why Hostinger broke saves / images)
+---------------------------------------------------------------------
+Code (single source of truth): packages/env/src/origin-policy.ts
+  Re-export for API paths: packages/api/server/src/lib/allowed-origins.ts → @luxero/env/origin-policy
+
+What it controls:
+  1) CSRF middleware (packages/api/server/src/middleware/csrf.ts)
+     — Browser sends Origin on POST/PUT/PATCH/DELETE. If the origin is not allowed, API returns
+       403 {"message":"Origin not allowed"} (e.g. admin Media Converter save).
+  2) CORS (client bootstrap, apps/admin/app/api/[[...route]]/route.ts, shop API route)
+     — Same allowlist via resolveCorsOrigin().
+  3) CSP on HTML responses (client bootstrap.ts, apps/admin/next.config.ts headers)
+     — img-src / media-src / connect-src must include your public asset host or images load with
+       naturalWidth 0 even when curl to the asset URL returns 200.
+  4) Better Auth trusted origins (packages/auth/admin/src/trusted-origins.ts)
+     — Session cookies and auth callbacks for the deployed hostnames.
+
+How allowlist is built (do not hardcode hosts in random files):
+  • DEFAULT_ORIGIN_HOST_SUFFIXES — luxero.win, hstgr.cloud (edit in origin-policy.ts)
+  • Optional env: ORIGIN_ALLOW_HOST_SUFFIXES=other.com,other.net
+  • URL env vars listed in DEPLOYMENT_ORIGIN_ENV_KEYS (APP_URL, ADMIN_URL, SHOP_URL,
+    S3_ENDPOINT, ASSET_BASE_URL, NEXT_PUBLIC_*, etc.) → exact origins for CSP/CSRF
+  • Optional env: AUTH_TRUSTED_ORIGINS_EXTRA=https://extra.origin,https://other.origin
+
+Hostinger checklist after changing hostnames or env:
+  1) Regenerate or edit /root/luxero-*.env so APP_URL / ASSET_BASE_URL match the phase URLs.
+  2) Rebuild Docker images (env is baked into Next at build for NEXT_PUBLIC_*).
+  3) Smoke tests:
+       curl -s -X PUT -H 'Origin: https://admin.srv2011364.hstgr.cloud' -H 'Content-Type: application/json' \
+         -d '{}' https://admin.srv2011364.hstgr.cloud/api/admin/media-converter-settings
+       → must NOT return "Origin not allowed" (401 without cookie is OK).
+       curl -sI https://srv2011364.hstgr.cloud/ | grep -i content-security-policy
+       → must include https://assets.srv2011364.hstgr.cloud in img-src.
+  4) If Mongo still has https://assets.luxero.win/... strings, run deploy/scripts/migrate-asset-urls.js
+     after restore (or keep URLs if DNS will still point assets.luxero.win at the same bucket).
+  5) After media-converter bulk (PNG/JPG → WebP in MinIO), update Mongo URL strings:
+       docker exec -w /app/apps/admin luxero_admin bun -e \
+         "import { migrateAllRasterAssetUrlsToWebp } from '@luxero/api-server/lib/media-converter/migrate-raster-urls'; console.log(JSON.stringify(await migrateAllRasterAssetUrlsToWebp()));"
+     Or: mongosh "$DATABASE_URL" --file deploy/scripts/migrate-image-urls-to-webp.js
+     Logic: packages/api/server/src/lib/media-converter/rewrite-raster-urls.ts
+
+Admin bootstrap (one-off): docker exec -w /app/apps/admin luxero_admin bun -e \
+  "import { upsertAdminAccount } from '@luxero/auth-admin/auth-setup'; console.log(JSON.stringify(await upsertAdminAccount('you@luxero.win')));"
+  — Only when you need a new admin password; requires luxero_admin container running.
 
 
 Optional: ~/.ssh/config shortcuts

@@ -11,7 +11,8 @@
     "./next": "./src/next.ts",
     "./server": "./src/server.ts",
     "./client": "./src/vike.ts",
-    "./admin": "./src/next.ts"
+    "./admin": "./src/next.ts",
+    "./origin-policy": "./src/origin-policy.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit --skipLibCheck",

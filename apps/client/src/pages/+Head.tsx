@@ -22,11 +22,13 @@ export function Head() {
   const avatarPreloadHref = profileInitialData?.data?.avatarUrl
     ? withAssetCacheVersion(profileInitialData.data.avatarUrl, profileInitialData.data.updatedAt)
     : null;
+  const nonce = pageContext.nonce ?? undefined;
 
   return (
     <>
       <script
         id="hostyler-console-notice"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: HOSTYLER_CONSOLE_NOTICE_INLINE }}
       />
       <html lang={locale} />
@@ -53,6 +55,7 @@ export function Head() {
 
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",

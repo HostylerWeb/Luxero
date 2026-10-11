@@ -1,5 +1,6 @@
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { error } from "@luxero/api-infra/response";
+import { isAllowedRequestOrigin } from "@luxero/env/origin-policy";
 import type { MiddlewareHandler } from "hono";
 
 const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
@@ -13,18 +14,7 @@ const SKIP_PATH_PREFIXES = [
   "/api/internal/jobs",
 ];
 
-const ALLOWED_ORIGIN_PATTERNS = [
-  /^https?:\/\/localhost(:\d+)?$/,
-  /^capacitor:\/\/localhost(:\d+)?$/,
-  /^https:\/\/.*\.luxero\.win$/,
-  /^https:\/\/luxero\.win$/,
-];
-
 const LUXERO_CLIENT_HEADER = "x-luxero-client";
-
-function isAllowedOrigin(origin: string): boolean {
-  return ALLOWED_ORIGIN_PATTERNS.some((re) => re.test(origin));
-}
 
 function shouldSkipCsrf(path: string): boolean {
   return SKIP_PATH_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
@@ -44,7 +34,7 @@ export function csrfProtection(): MiddlewareHandler {
 
     const origin = c.req.header("origin");
     if (origin) {
-      if (!isAllowedOrigin(origin)) {
+      if (!isAllowedRequestOrigin(origin)) {
         return error(c, ErrorCodes.FORBIDDEN, "Origin not allowed", 403);
       }
     } else {

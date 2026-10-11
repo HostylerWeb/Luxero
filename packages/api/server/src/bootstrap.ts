@@ -15,6 +15,7 @@ import "./types";
 
 import { ensureComplianceSettings } from "@luxero/api-compliance/settings";
 import { AVATAR_MAX_BYTES } from "@luxero/api-server/lib/avatar/process-upload";
+import { getCspAssetOriginsClause, resolveCorsOrigin } from "@luxero/env/origin-policy";
 import { ensureMediaConverterSettings } from "@luxero/api-server/lib/media-converter/settings";
 import { dbConnect } from "@luxero/api-db";
 import { PaymentMethod } from "@luxero/api-db/models";
@@ -385,6 +386,7 @@ app.use("*", async (c, next) => {
     : `'self' 'unsafe-inline' https://fonts.googleapis.com`;
 
   const devAssetHosts = isDev ? " http://localhost:9011 http://127.0.0.1:9011" : "";
+  const cspDeploymentOrigins = getCspAssetOriginsClause();
 
   c.res.headers.set("X-Frame-Options", "DENY");
   c.res.headers.set("X-Content-Type-Options", "nosniff");
@@ -392,7 +394,7 @@ app.use("*", async (c, next) => {
   c.res.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
   c.res.headers.set(
     "Content-Security-Policy",
-    `base-uri 'self'; form-action 'self' https://gateway.paytriot.co.uk; object-src 'none'; default-src 'self'; script-src ${scriptSrc}; frame-src https://challenges.cloudflare.com https://gateway.paytriot.co.uk https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://luxero.win https://staging.luxero.win https://assets.luxero.win https://assets.staging.luxero.win https://umami.luxero.win https://challenges.cloudflare.com https://*.facebook.net https://tiny-glitter-95dd.luxero-win.workers.dev https://api.stripe.com https://www.google.com https://pay.google.com https://payments.google.com https://m.stripe.com https://q.stripe.com${devAssetHosts}; img-src 'self' data: https://assets.luxero.win https://assets.staging.luxero.win https://lh3.googleusercontent.com${devAssetHosts}; media-src 'self' https://assets.luxero.win https://assets.staging.luxero.win${devAssetHosts}; style-src ${styleSrc}; font-src 'self' https://fonts.gstatic.com https://js.stripe.com`
+    `base-uri 'self'; form-action 'self' https://gateway.paytriot.co.uk; object-src 'none'; default-src 'self'; script-src ${scriptSrc}; frame-src https://challenges.cloudflare.com https://gateway.paytriot.co.uk https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self'${cspDeploymentOrigins} https://umami.luxero.win https://challenges.cloudflare.com https://*.facebook.net https://tiny-glitter-95dd.luxero-win.workers.dev https://api.stripe.com https://www.google.com https://pay.google.com https://payments.google.com https://m.stripe.com https://q.stripe.com${devAssetHosts}; img-src 'self' data: https://lh3.googleusercontent.com${cspDeploymentOrigins}${devAssetHosts}; media-src 'self'${cspDeploymentOrigins}${devAssetHosts}; style-src ${styleSrc}; font-src 'self' https://fonts.gstatic.com https://js.stripe.com`
   );
   if (runtimeConfig.enableHsts) {
     c.res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
@@ -422,18 +424,10 @@ app.use("*", async (c, next) => {
 });
 
 // CORS
-const ALLOWED_ORIGIN_PATTERNS = [
-  /^https?:\/\/localhost(:\d+)?$/,
-  /^capacitor:\/\/localhost(:\d+)?$/,
-  /^https:\/\/.*\.luxero\.win$/,
-  /^https:\/\/luxero\.win$/,
-];
-
 app.use(
   "*",
   cors({
-    origin: (origin) =>
-      !origin || ALLOWED_ORIGIN_PATTERNS.some((re) => re.test(origin)) ? origin : null,
+    origin: (origin) => resolveCorsOrigin(origin),
     credentials: true,
     allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: [

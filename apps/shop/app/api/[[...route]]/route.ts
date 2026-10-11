@@ -3,6 +3,7 @@ import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { runtimeConfig } from "@luxero/api-infra/runtime-config";
 import { captureRouteError, flushSentry, initSentry } from "@luxero/api-infra/sentry";
 import { sessionMiddleware } from "@luxero/api-server/middleware/auth";
+import { resolveCorsOrigin } from "@luxero/env/origin-policy";
 import { csrfProtection } from "@luxero/api-server/middleware/csrf";
 import {
   emailRateLimit,
@@ -123,17 +124,10 @@ app.use("*", async (c, next) => {
 });
 
 // CORS
-const ALLOWED_ORIGIN_PATTERNS = [
-  /^http:\/\/localhost(:\d+)?$/,
-  /^https:\/\/.*\.luxero\.win$/,
-  /^https:\/\/luxero\.win$/,
-];
-
 app.use(
   "*",
   cors({
-    origin: (origin) =>
-      !origin || ALLOWED_ORIGIN_PATTERNS.some((re) => re.test(origin)) ? origin : null,
+    origin: (origin) => resolveCorsOrigin(origin),
     credentials: true,
     allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: [
