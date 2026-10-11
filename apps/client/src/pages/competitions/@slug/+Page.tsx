@@ -72,6 +72,7 @@ import {
   useTranslation,
 } from "@/lib/i18n";
 import { mapComp } from "@/lib/map-competition";
+import { cn } from "@/lib/utils";
 import type { Data } from "./+data";
 
 function ticketLimitWarningToast(
@@ -496,9 +497,32 @@ export default function Page() {
   const images = allImages.filter((url) => !failedImages.has(url));
   const mainImageUrl = images[currentImageIndex] ?? null;
 
+  const hasSkillQuestion =
+    !!competition.question &&
+    !!competition.questionOptions &&
+    competition.questionOptions.length > 0;
+  const needsSkillAnswer = hasSkillQuestion && answerIndex < 0;
+  const canEnterFlow = !competition.requireSignIn || !isAnonymous;
+  const purchaseHardDisabled =
+    competition.status !== "active" || isAdding || maxCartQuantity === 0;
+  const purchaseSoftBlocked =
+    purchaseHardDisabled ||
+    quantity < 1 ||
+    quantity > maxCartQuantity ||
+    needsSkillAnswer;
+
+  const handlePurchaseClick = () => {
+    if (purchaseHardDisabled) return;
+    if (purchaseSoftBlocked) {
+      handleDisabledClick();
+      return;
+    }
+    handleAddToCart();
+  };
+
   return (
     <>
-      <div className="luxero-container-wide py-4 lg:py-8 pb-20">
+      <div className="luxero-container-wide py-4 lg:py-8 pb-28 lg:pb-8">
         <CompetitionInfo competition={competition} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
@@ -508,7 +532,7 @@ export default function Page() {
                 <img
                   src={mainImageUrl}
                   alt={competition.title}
-                  className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
+                  className="absolute inset-0 w-full h-full object-contain bg-zinc-950/90 cursor-zoom-in"
                   onClick={() => setLightboxOpen(true)}
                   onError={() => setFailedImages((prev) => new Set(prev).add(mainImageUrl))}
                   data-umami-event="competition:image-click"
@@ -541,6 +565,7 @@ export default function Page() {
                     onClick={() =>
                       setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
                     }
+                    aria-label={t("competitions.detail.galleryPrev")}
                     data-umami-event="competition:image-prev"
                   >
                     <ChevronLeft className="w-5 h-5" />
@@ -552,6 +577,7 @@ export default function Page() {
                     onClick={() =>
                       setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
                     }
+                    aria-label={t("competitions.detail.galleryNext")}
                     data-umami-event="competition:image-next"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -592,7 +618,8 @@ export default function Page() {
                     }}
                     data-umami-event="competition:thumbnail-click"
                     data-umami-event-index={idx}
-                    className={`h-16 w-16 lg:h-32 lg:w-32 rounded-lg lg:rounded-xl border-2 flex-shrink-0 snap-start transition-all overflow-hidden relative ${
+                    aria-label={t("competitions.detail.galleryThumb", { n: idx + 1 })}
+                    className={`h-16 w-16 lg:h-28 lg:w-28 rounded-lg lg:rounded-xl border-2 flex-shrink-0 snap-start transition-all overflow-hidden relative ${
                       idx === currentImageIndex
                         ? "border-gold ring-2 ring-gold/30"
                         : "border-border hover:border-gold/50 opacity-80 hover:opacity-100"
@@ -610,7 +637,7 @@ export default function Page() {
             )}
           </div>
 
-          <div className="space-y-4 lg:space-y-6">
+          <div className="space-y-4 lg:space-y-6 lg:sticky lg:top-[7.5rem] lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:overscroll-contain">
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-1.5 lg:mb-2 leading-tight">
                 {competition.title}
@@ -873,31 +900,32 @@ export default function Page() {
                         </p>
                       ) : null}
 
+                      {needsSkillAnswer ? (
+                        <p className="text-center text-sm text-amber-400/95">
+                          {t("competitions.detail.answerQuestionToContinue")}
+                        </p>
+                      ) : null}
+
+                      <div className="flex items-center justify-center gap-4 pb-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Shield className="w-4 h-4" />
+                          {t("competitions.detail.securePayment")}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Ticket className="w-4 h-4" />
+                          {t("competitions.detail.verifiedDraw")}
+                        </div>
+                      </div>
+
                       <GoldButton
                         size="lg"
-                        className="h-12 w-full rounded-xl text-base sm:h-14 sm:text-lg"
-                        onClick={() => {
-                          if (
-                            competition.status !== "active" ||
-                            isAdding ||
-                            quantity < 1 ||
-                            quantity > maxCartQuantity ||
-                            maxCartQuantity === 0 ||
-                            (!!competition.question && answerIndex < 0)
-                          ) {
-                            handleDisabledClick();
-                          } else {
-                            handleAddToCart();
-                          }
-                        }}
-                        disabled={
-                          competition.status !== "active" ||
-                          isAdding ||
-                          quantity < 1 ||
-                          quantity > maxCartQuantity ||
-                          maxCartQuantity === 0 ||
-                          (!!competition.question && answerIndex < 0)
-                        }
+                        className={cn(
+                          "h-12 w-full rounded-xl text-base sm:h-14 sm:text-lg",
+                          purchaseSoftBlocked && !purchaseHardDisabled && "opacity-90"
+                        )}
+                        onClick={handlePurchaseClick}
+                        disabled={purchaseHardDisabled}
+                        aria-disabled={purchaseSoftBlocked}
                         data-umami-event="competition:add-to-cart"
                         data-umami-event-quantity={quantity}
                         data-umami-event-total={totalPrice.toFixed(2)}
@@ -929,17 +957,6 @@ export default function Page() {
                             })}
                           </p>
                         )}
-
-                      <div className="flex items-center justify-center gap-4 pt-4 border-t border-gold/10">
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Shield className="w-4 h-4" />
-                          {t("competitions.detail.securePayment")}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Ticket className="w-4 h-4" />
-                          {t("competitions.detail.verifiedDraw")}
-                        </div>
-                      </div>
 
                       <div className="relative overflow-hidden rounded-xl border border-gold/20 bg-gradient-to-br from-gold/5 to-gold/10 p-4">
                         <div className="flex items-center gap-3">
@@ -1070,6 +1087,42 @@ export default function Page() {
 
         <CompetitionFaq competition={competition} />
       </div>
+
+      {canEnterFlow && competition.status === "active" && maxCartQuantity > 0 ? (
+        <div
+          className="lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-gold/25 bg-background/95 backdrop-blur-md px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.35)]"
+          aria-label={t("competitions.detail.ticketsLabel")}
+        >
+          <div className="mx-auto flex max-w-lg items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs text-muted-foreground">{competition.title}</p>
+              <p className="text-lg font-bold text-gold tabular-nums">
+                {formatCurrency(totalPrice, locale, "GBP")}
+                <span className="ml-1 text-xs font-normal text-muted-foreground">
+                  · {formatNumber(quantity, locale)} {t("competitions.detail.ticketsLabel").toLowerCase()}
+                </span>
+              </p>
+            </div>
+            <GoldButton
+              size="lg"
+              className="h-12 shrink-0 rounded-xl px-5 text-sm"
+              disabled={purchaseHardDisabled}
+              onClick={handlePurchaseClick}
+              data-umami-event="competition:add-to-cart-sticky"
+            >
+              {isAdding ? (
+                <Spinner size="sm" aria-hidden />
+              ) : needsSkillAnswer ? (
+                t("competitions.detail.answerCorrectly")
+              ) : currentInCart > 0 ? (
+                t("competitions.detail.updateCart")
+              ) : (
+                t("competitions.detail.addToCart")
+              )}
+            </GoldButton>
+          </div>
+        </div>
+      ) : null}
 
       <LuxeroDialog
         open={lightboxOpen}

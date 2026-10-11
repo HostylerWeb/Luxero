@@ -17,7 +17,9 @@ export default function CompetitionInfo({ competition }: { competition: Competit
         {t("competitions.detail.breadcrumbCompetitions")}
       </Link>
       <span>/</span>
-      <span className="text-foreground truncate">{competition.title}</span>
+      <span className="text-foreground truncate max-w-[42vw] sm:max-w-[50%] lg:max-w-none">
+        {competition.title}
+      </span>
     </nav>
   );
 }
