@@ -13,6 +13,7 @@ import type { OrderFulfillmentDeps } from "@luxero/api-payment-core";
 import { recordReferralPurchase } from "@luxero/api-referrals";
 import { sendPushNotification } from "@luxero/api-server/lib/push";
 import { processBonusAwardFires } from "@luxero/api-tickets/bonus-award-draw";
+import { creditSiteCreditForPrizeWin } from "@luxero/api-tickets/credit-site-credit-for-prize-win";
 import { checkInstantWins } from "@luxero/api-tickets/instant-prize-utils";
 import { reservePromoCodeUsage } from "@luxero/api-tickets/promo-codes";
 import {
@@ -20,6 +21,7 @@ import {
   releaseByOrderId,
   transferHeldToOwner,
 } from "@luxero/api-tickets/ticket-service";
+import { invalidateUser } from "@luxero/api-infra/cache/invalidate";
 import { Types } from "mongoose";
 import { sendInstantWinEmail, sendOrderConfirmationEmail } from "../orders";
 import { notifyBonusAwardWins } from "./notify-bonus-award-wins";
@@ -72,6 +74,10 @@ export function buildFulfillmentDeps(
     markInstantPrizeWinClaimed: async (winId, session) => {
       const update: Record<string, unknown> = { claimed: true, claimedAt: new Date() };
       await InstantPrizeWin.findByIdAndUpdate(winId, { $set: update }, session ? { session } : {});
+    },
+    creditSiteCreditForPrizeWin: async (params) => {
+      await creditSiteCreditForPrizeWin(params);
+      void invalidateUser(params.userId.toString()).catch(() => {});
     },
     updateCompetitionInstantPrizeClaimedCount: async (id, session) => {
       await CompetitionInstantPrize.findOneAndUpdate(

@@ -16,3 +16,4 @@ export * from "./payments";
 export * from "./referrals";
 export * from "./subscriptions";
 export * from "./user";
+export * from "./milestone-prize-setup";
