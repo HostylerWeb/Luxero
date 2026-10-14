@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  deriveComplianceFeatures,
   resolveContextualErrorFromUnknown,
   useAddCartItem,
   useAuth,
@@ -22,7 +23,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Gift,
-  Mail,
   Share2,
   Shield,
   ShoppingCart,
@@ -48,6 +48,7 @@ import { useData } from "vike-react/useData";
 import { usePageContext } from "vike-react/usePageContext";
 import { GoldButton, GoldOutlineButton } from "@/components/buttons";
 import { BonusAwardsSection } from "@/components/competitions/bonus-awards";
+import { PostalEntryInstructions } from "@/components/competitions/PostalEntryInstructions";
 import CompetitionFaq from "@/components/competitions/CompetitionFaq";
 import CompetitionInfo from "@/components/competitions/CompetitionInfo";
 import { CountdownTimer } from "@/components/competitions/CountdownTimer";
@@ -63,6 +64,7 @@ import { Button } from "@/components/ui/button";
 import { CompetitionProgressBar } from "@/components/ui/competition-progress-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isCashOnly } from "@/lib/competition-display";
 import {
   formatCurrency,
@@ -205,10 +207,11 @@ export default function Page() {
   useEffect(() => {
     setFailedImages(new Set());
   }, [competition?._id]);
-  const complianceFeaturesData = (pageContext as any).complianceFeaturesData;
-  const showPostalCta = !!(
-    complianceFeaturesData?.masterEnabled && complianceFeaturesData?.postalEntryProminenceEnabled
+  const complianceFeatures = deriveComplianceFeatures(
+    (pageContext as any).complianceFeaturesData?.data,
+    false
   );
+  const postalAddressOverride = complianceFeatures.postalEntryAddress.trim() || undefined;
 
   const { data: relatedRes } = useCompetitions({
     category: competition?.category ?? "",
@@ -637,7 +640,7 @@ export default function Page() {
             )}
           </div>
 
-          <div className="space-y-4 lg:space-y-6 lg:sticky lg:top-[7.5rem] lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:overscroll-contain">
+          <div className="space-y-4 lg:space-y-6 lg:sticky lg:top-[7.5rem] lg:self-start">
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-1.5 lg:mb-2 leading-tight">
                 {competition.title}
@@ -738,7 +741,29 @@ export default function Page() {
 
             <div className="relative overflow-hidden rounded-xl lg:rounded-[1.5rem]">
               <div className="p-1 lg:p-1.5 rounded-xl lg:rounded-[1.5rem] bg-white/5 ring-1 ring-white/10">
-                <div className="rounded-[calc(1.25rem-0.25rem)] lg:rounded-[calc(1.5rem-0.375rem)] bg-card p-3 lg:p-6 space-y-3 lg:space-y-6">
+                <div className="rounded-[calc(1.25rem-0.25rem)] lg:rounded-[calc(1.5rem-0.375rem)] bg-card p-3 lg:p-6">
+                  <Tabs defaultValue="online" className="gap-4 lg:gap-6">
+                    <TabsList
+                      className="grid h-auto w-full grid-cols-2 gap-2 rounded-xl border border-gold/15 bg-muted/40 p-1.5"
+                      aria-label={t("competitions.detail.entryTabOnline")}
+                    >
+                      <TabsTrigger
+                        value="online"
+                        className="h-10 rounded-lg border border-transparent px-3 text-sm font-semibold data-[state=active]:border-gold/40 data-[state=active]:bg-gold/15 data-[state=active]:text-gold data-[state=active]:shadow-none"
+                        data-umami-event="competition:entry-tab-online"
+                      >
+                        {t("competitions.detail.entryTabOnline")}
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="postal"
+                        className="h-10 rounded-lg border border-transparent px-3 text-sm font-semibold data-[state=active]:border-gold/40 data-[state=active]:bg-gold/15 data-[state=active]:text-gold data-[state=active]:shadow-none"
+                        data-umami-event="competition:entry-tab-postal"
+                      >
+                        {t("competitions.detail.entryTabPostal")}
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="online" className="mt-0 space-y-3 lg:space-y-6">
                   {competition.requireSignIn && isAnonymous ? (
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground text-center">
@@ -986,27 +1011,18 @@ export default function Page() {
                       <p className="text-center text-xs text-foreground pt-2">
                         {t("competitions.detail.ageNotice")}
                       </p>
-
-                      {showPostalCta ? (
-                        <Link
-                          href="/free-postal-entry"
-                          data-umami-event="competition:postal-entry-link"
-                          className="flex items-center gap-3 p-3 rounded-xl border border-gold/20 bg-gradient-to-r from-gold/5 to-gold/10 hover:border-gold/40 transition-colors"
-                        >
-                          <Mail className="w-5 h-5 text-gold flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-foreground">
-                              {t("competitions.detail.freePostalAvailable")}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {t("competitions.detail.freePostalDesc")}
-                            </p>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-gold flex-shrink-0" />
-                        </Link>
-                      ) : null}
                     </>
                   )}
+                    </TabsContent>
+
+                    <TabsContent value="postal" className="mt-0">
+                      <PostalEntryInstructions
+                        postalAddressOverride={postalAddressOverride}
+                        competitionTitle={competition.title}
+                        competitionQuestion={competition.question ?? null}
+                      />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
             </div>

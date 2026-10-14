@@ -2,7 +2,7 @@
 
 import { useCompetitionStream, useInfiniteEntries } from "@luxero/api-client";
 import { ArrowLeft, RefreshCw, Search, Ticket } from "@luxero/icons";
-import { formatTicketNumber, getTicketsSold, OrderNumberCell } from "@luxero/utils";
+import { formatTicketNumber, getTicketsSold } from "@luxero/utils";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -203,10 +203,7 @@ export default function Page() {
             </div>
           ) : (
             <div className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm">
-              <div className="grid grid-cols-[9rem_1fr_8rem] items-center border-b border-border/60 bg-muted/20 px-4 py-2">
-                <span className="text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                  {t("staticPages.entries.orderHeader")}
-                </span>
+              <div className="grid grid-cols-[1fr_8rem] items-center border-b border-border/60 bg-muted/20 px-4 py-2">
                 <span className="text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {t("staticPages.entries.nameHeader")}
                 </span>
@@ -219,15 +216,8 @@ export default function Page() {
                   {displayEntries.map((entry) => (
                     <div
                       key={entry.id}
-                      className="grid grid-cols-[9rem_1fr_8rem] items-center px-4 py-3 transition-colors hover:bg-muted/30"
+                      className="grid grid-cols-[1fr_8rem] items-center px-4 py-3 transition-colors hover:bg-muted/30"
                     >
-                      <div className="py-2 text-sm font-medium text-foreground">
-                        {entry.orderNumber ? (
-                          <OrderNumberCell value={entry.orderNumber} />
-                        ) : (
-                          <span className="text-sm text-muted-foreground">&mdash;</span>
-                        )}
-                      </div>
                       <div className="min-w-0 py-2 text-sm font-medium text-[var(--text-primary,theme(colors.foreground))]">
                         <p
                           className="truncate"

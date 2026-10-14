@@ -1,4 +1,11 @@
 import type { ContactInfoCard } from "./content-types";
+import { LEGAL_SITE_NAME } from "./legal";
+import { resolveContent } from "./locales";
+import {
+  COMPANY_ADDRESS as COMPANY_ADDRESS_RO,
+  COMPANY_NAME as COMPANY_NAME_RO,
+  COMPANY_NUMBER as COMPANY_NUMBER_RO,
+} from "./ro/contact";
 
 export const CONTACT_EMAIL = "contact@luxero.win";
 export const COMPANY_NAME = "LUXERO COMPETITIONS LTD";
@@ -14,6 +21,25 @@ export const contactHero = {
 
 export const contactFooterNote =
   "We respond within 24 hours on business days (Mon–Fri, 9am–5pm GMT).";
+
+export type PostalEntryCompanyDetails = {
+  postalDisplayName: string;
+  companyRegistration: string;
+  defaultAddress: string;
+};
+
+/** Company name, number, and address for postal entry (same source as contact page). */
+export function getPostalEntryCompanyDetails(locale: string): PostalEntryCompanyDetails {
+  const companyName = resolveContent(locale, COMPANY_NAME, COMPANY_NAME_RO);
+  const companyNumber = resolveContent(locale, COMPANY_NUMBER, COMPANY_NUMBER_RO);
+  const defaultAddress = resolveContent(locale, COMPANY_ADDRESS, COMPANY_ADDRESS_RO);
+
+  return {
+    postalDisplayName: LEGAL_SITE_NAME,
+    companyRegistration: `${companyName} — ${companyNumber}`,
+    defaultAddress,
+  };
+}
 
 export const CONTACT_INFO_CARDS: Omit<ContactInfoCard, "icon">[] = [
   {

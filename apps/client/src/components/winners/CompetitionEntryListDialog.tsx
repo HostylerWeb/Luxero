@@ -1,6 +1,5 @@
 "use client";
 
-import { useInfiniteEntries } from "@luxero/api-client";
 import { List, Trophy } from "@luxero/icons";
 import { formatTicketNumber } from "@luxero/utils";
 import { CompetitionEntryList } from "@/components/competitions/CompetitionEntryList";
@@ -11,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { formatNumber, useTranslation } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n";
 
 export type CompetitionEntryListDialogProps = {
   open: boolean;
@@ -30,10 +29,7 @@ export function CompetitionEntryListDialog({
   highlightTicketNumbers = [],
   winnerDisplayName,
 }: CompetitionEntryListDialogProps) {
-  const { t, locale } = useTranslation();
-
-  const { data: entriesData } = useInfiniteEntries(open && competitionId ? competitionId : "");
-  const entriesTotal = open ? entriesData?.pages[0]?.meta?.total : undefined;
+  const { t } = useTranslation();
 
   const winnerSummary =
     winnerDisplayName && highlightTicketNumbers.length > 0
@@ -58,11 +54,6 @@ export function CompetitionEntryListDialog({
                 <p className="flex items-center gap-1.5 text-xs text-gold sm:text-sm">
                   <Trophy className="h-3.5 w-3.5 shrink-0" />
                   {winnerSummary}
-                </p>
-              ) : null}
-              {entriesTotal != null ? (
-                <p className="text-xs text-muted-foreground">
-                  {formatNumber(entriesTotal, locale)} {t("staticPages.entries.totalEntries")}
                 </p>
               ) : null}
             </div>

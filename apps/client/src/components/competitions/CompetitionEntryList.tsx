@@ -3,7 +3,7 @@
 import { useCompetitionStream, useInfiniteEntries, type PublicEntry } from "@luxero/api-client";
 import type { ApiResponse } from "@luxero/types";
 import { Search, Ticket, Trophy } from "@luxero/icons";
-import { formatTicketNumber, OrderNumberCell } from "@luxero/utils";
+import { formatTicketNumber } from "@luxero/utils";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -182,10 +182,7 @@ export function CompetitionEntryList({
             isSearchPending && "opacity-60",
           )}
         >
-          <div className="grid grid-cols-[9rem_1fr_8rem] items-center border-b border-border/60 bg-muted/20 px-3 py-2 sm:px-4">
-            <span className="text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              {t("staticPages.entries.orderHeader")}
-            </span>
+          <div className="grid grid-cols-[1fr_8rem] items-center border-b border-border/60 bg-muted/20 px-3 py-2 sm:px-4">
             <span className="text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               {t("staticPages.entries.nameHeader")}
             </span>
@@ -203,17 +200,10 @@ export function CompetitionEntryList({
                     key={entry.id}
                     className={
                       isWinnerRow
-                        ? "grid grid-cols-[9rem_1fr_8rem] items-center bg-gold/10 px-3 py-2.5 sm:px-4"
-                        : "grid grid-cols-[9rem_1fr_8rem] items-center px-3 py-2.5 transition-colors hover:bg-muted/30 sm:px-4"
+                        ? "grid grid-cols-[1fr_8rem] items-center bg-gold/10 px-3 py-2.5 sm:px-4"
+                        : "grid grid-cols-[1fr_8rem] items-center px-3 py-2.5 transition-colors hover:bg-muted/30 sm:px-4"
                     }
                   >
-                    <div className="py-1 text-sm font-medium text-foreground">
-                      {entry.orderNumber ? (
-                        <OrderNumberCell value={entry.orderNumber} />
-                      ) : (
-                        <span className="text-muted-foreground">&mdash;</span>
-                      )}
-                    </div>
                     <div className="min-w-0 py-1 text-sm font-medium">
                       <p className="truncate" title={entry.displayName ?? entry.firstName ?? undefined}>
                         {entry.displayName ?? entry.firstName}
