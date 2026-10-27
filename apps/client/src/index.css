@@ -863,8 +863,8 @@
     @apply translate-y-0 bg-gold;
   }
 
+  .luxero-gold-cta,
   .comp-card-cta-gold {
-    border-top: 1px solid color-mix(in oklch, var(--gold-light) 60%, var(--gold));
     background-color: var(--gold);
     background-image: linear-gradient(
       100deg,
@@ -884,12 +884,29 @@
       filter 0.2s ease;
   }
 
+  .luxero-gold-cta {
+    border: 1px solid color-mix(in oklch, var(--gold-light) 60%, var(--gold));
+  }
+
+  .comp-card-cta-gold {
+    border-top: 1px solid color-mix(in oklch, var(--gold-light) 60%, var(--gold));
+  }
+
+  .luxero-gold-cta:disabled,
+  .luxero-gold-cta[aria-disabled="true"],
+  .comp-card-cta-gold:disabled {
+    animation: none;
+    background-image: none;
+  }
+
   @media (hover: hover) {
+    .luxero-gold-cta:hover:not(:disabled):not([aria-disabled="true"]),
     .group:hover .comp-card-cta-gold {
       filter: brightness(1.07);
     }
   }
 
+  .luxero-gold-cta:active:not(:disabled):not([aria-disabled="true"]),
   .group:active .comp-card-cta-gold {
     transform: scale(0.985);
   }
