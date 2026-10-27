@@ -67,6 +67,7 @@
 }
 
 @theme inline {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
   --color-gold-dark: var(--gold-dark);
@@ -118,10 +119,6 @@
 }
 
 @layer utilities {
-  .font-nav {
-    font-family: "Syne", system-ui, sans-serif;
-  }
-
   .luxero-container {
     width: 100%;
     margin-inline: auto;
@@ -361,7 +358,7 @@
     flex-direction: column;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground font-sans antialiased;
   }
   html {
     scroll-behavior: smooth;
@@ -871,10 +868,4 @@
     scrollbar-width: thin;
     scrollbar-color: rgb(var(--gold-rgb) / 0.25) transparent;
   }
-}
-
-h1,
-h2,
-h3 {
-  font-family: "Syne", system-ui, sans-serif;
 }

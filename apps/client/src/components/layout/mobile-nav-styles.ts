@@ -2,7 +2,7 @@ import { cn } from "@luxero/utils";
 
 export function mobileNavItemClass(active?: boolean) {
   return cn(
-    "font-nav flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold tracking-tight mb-1",
+    "flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold tracking-tight mb-1",
     "transition-[color,background-color,transform] duration-150 ease-out",
     "active:scale-[0.98] active:duration-75",
     "select-none touch-manipulation",
