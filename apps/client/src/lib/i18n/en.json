@@ -1553,6 +1553,7 @@
     "free": "Free Entry",
     "drawDate": "Draw · {date}",
     "drawDateShort": "Draw: {date}",
+    "drawDateAtTime": "Draw: {date} @{time}",
     "endsIn": "Ends In",
     "nextLiveDrawIn": "Next live draw",
     "nextLiveDrawHint": "Time until the next competition closes for entries.",

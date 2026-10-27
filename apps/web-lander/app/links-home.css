@@ -1,0 +1,12 @@
+body.luxero-official-links {
+  margin: 0 !important;
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+  font: 14px var(--sans) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.luxero-official-links .font-body,
+body.luxero-official-links .font-display {
+  font-family: inherit;
+}

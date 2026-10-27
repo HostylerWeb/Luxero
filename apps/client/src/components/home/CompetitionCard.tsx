@@ -12,7 +12,6 @@ import {
 
 import { useEffect, useState } from "react";
 import { Link } from "@/components/Link";
-import { CompetitionCardCountdown } from "@/components/home/CompetitionCardCountdown";
 import { useCountdown } from "@/components/ui";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -205,6 +204,13 @@ export function CompetitionCard({
 
   if (variant === "compact") {
     const drawDate = "drawDate" in comp ? comp.drawDate : undefined;
+    const drawBannerLabel =
+      drawDate != null
+        ? t("home.drawDateAtTime", {
+            date: formatDate(drawDate, "d MMM", locale),
+            time: formatDate(drawDate, "h:mma", locale).replace(/\s/g, "").toUpperCase(),
+          })
+        : null;
     const cardUmami = {
       "data-umami-event": umamiEvent || "competitions:card-click",
       "data-umami-event-id": getCompSlug(comp),
@@ -214,18 +220,13 @@ export function CompetitionCard({
     const cardClassName = "@container/card group block h-full min-w-0";
     const cardInner = (
         <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gold/10 border-b-0 bg-card shadow-sm transition-colors duration-300 hover:border-gold/30">
-          {drawDate && (
-            <div className="comp-card-draw-badge absolute top-1.5 right-1.5 @lg/card:top-3 @lg/card:right-3 z-10 max-w-[calc(100%-0.75rem)]">
-              <span className="block bg-gold/60 text-black backdrop-blur-sm text-[10px] @lg/card:text-sm font-bold px-2 @lg/card:px-4 py-0.5 @lg/card:py-1.5 rounded-md shadow-md">
-                <span className="@sm/card:hidden">
-                  {t("home.drawDateShort", { date: formatDate(drawDate, "d MMM", locale) })}
-                </span>
-                <span className="hidden @sm/card:inline">
-                  {t("home.drawDate", { date: formatDate(drawDate, "d MMMM yyyy", locale) })}
-                </span>
-              </span>
+          {drawBannerLabel ? (
+            <div
+              className="comp-card-draw-banner z-10 w-full shrink-0 border-b border-gold/30 bg-gold/90 px-2 py-1 text-center text-[10px] font-bold tracking-wide text-black @sm/card:text-xs @lg/card:text-sm"
+            >
+              {drawBannerLabel}
             </div>
-          )}
+          ) : null}
           <div className="relative aspect-[4/3] flex-shrink-0 overflow-hidden">
             {imageUrl && !imageFailed ? (
               <img
@@ -280,18 +281,6 @@ export function CompetitionCard({
                 }}
                 variant="card"
               />
-
-              {isActive && (
-                <CompetitionCardCountdown
-                  timeLeft={timeLeft}
-                  endDate={
-                    getCompetitionCountdownTarget({
-                      drawDate: "drawDate" in comp ? comp.drawDate : undefined,
-                      endDate: "endDate" in comp ? comp.endDate : undefined,
-                    }) ?? undefined
-                  }
-                />
-              )}
             </div>
           </div>
 
@@ -305,24 +294,15 @@ export function CompetitionCard({
             return (
               <div
                 className={cn(
-                  "mt-auto shrink-0 rounded-b-2xl p-px",
+                  "mt-auto flex shrink-0 items-center justify-center rounded-b-2xl py-1.5 text-center @sm/card:py-2.5",
+                  "text-[10px] @sm/card:text-sm @lg/card:text-base font-bold uppercase tracking-[0.1em] @sm/card:tracking-[0.14em]",
+                  "transition-all duration-200",
                   ctaActive
-                    ? "bg-gradient-to-r from-gold via-amber-500 to-orange-600"
-                    : "bg-gradient-to-r from-muted-foreground/25 to-muted-foreground/15"
+                    ? "bg-gradient-to-r from-gold via-amber-500 to-orange-600 text-black shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] group-hover:brightness-110 group-hover:shadow-md group-active:scale-[0.99] group-active:brightness-95"
+                    : "bg-muted/40 text-muted-foreground"
                 )}
               >
-                <div
-                  className={cn(
-                    "flex items-center justify-center rounded-b-[calc(1rem-1px)] py-1.5 text-center @sm/card:py-2.5",
-                    "text-[10px] @sm/card:text-sm @lg/card:text-base font-bold uppercase tracking-[0.1em] @sm/card:tracking-[0.14em]",
-                    "transition-colors duration-200",
-                    ctaActive
-                      ? "bg-card text-gold group-hover:bg-gold group-hover:text-primary-foreground"
-                      : "bg-card/90 text-muted-foreground"
-                  )}
-                >
-                  {ctaLabel}
-                </div>
+                {ctaLabel}
               </div>
             );
           })()}

@@ -17,6 +17,15 @@ export function SkillQuestionSelector({
   onSelect,
   instructionTitle,
 }: SkillQuestionSelectorProps) {
+  const answerGridClass =
+    options.length === 3
+      ? "grid grid-cols-3 gap-2"
+      : options.length === 2
+        ? "grid grid-cols-2 gap-2"
+        : options.length === 4
+          ? "grid grid-cols-2 gap-2 lg:grid-cols-4"
+          : "grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4";
+
   return (
     <div className="space-y-3 pt-2">
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 shadow-[0_5px_20px_rgba(0,0,0,0.15)]">
@@ -28,11 +37,7 @@ export function SkillQuestionSelector({
           {question}
         </p>
 
-        <div
-          className="grid grid-cols-2 gap-2 lg:grid-cols-4"
-          role="radiogroup"
-          aria-label={question}
-        >
+        <div className={answerGridClass} role="radiogroup" aria-label={question}>
           {options.map((option, idx) => {
             const selected = selectedIndex === idx;
             return (

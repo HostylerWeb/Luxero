@@ -127,10 +127,11 @@ export function PrizeAccordionItem({
 
   return (
     <AccordionItem value={prize.id} className={collapsibleItemClass}>
-      <div className="flex items-start gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4">
+      <AccordionPrimitive.Header className="flex items-start gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4">
         <div
           className={cn(collapsibleThumbnailClass, "cursor-pointer")}
-          onClick={() => {
+          onClick={(event) => {
+            event.stopPropagation();
             setLightboxIndex(0);
             setLightboxOpen(true);
           }}
@@ -138,6 +139,7 @@ export function PrizeAccordionItem({
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
+              e.stopPropagation();
               setLightboxIndex(0);
               setLightboxOpen(true);
             }
@@ -153,13 +155,11 @@ export function PrizeAccordionItem({
           ) : null}
         </div>
 
-        <AccordionPrimitive.Trigger className="flex min-w-0 flex-1 items-start gap-3 rounded-md text-left [&[data-state=open]] [data-slot=chevron]:rotate-180 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
-          <div className="flex-1">
-            <p
-              className="line-clamp-2 text-base font-semibold leading-snug text-foreground sm:truncate sm:text-lg"
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
-            >
+        <AccordionPrimitive.Trigger
+          className="flex min-w-0 flex-1 cursor-pointer items-start gap-3 rounded-md border-0 bg-transparent p-0 text-left [&[data-state=open]_[data-slot=chevron]]:rotate-180 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="line-clamp-2 text-base font-semibold leading-snug text-foreground sm:truncate sm:text-lg">
               {prize.instantPrize.title}
             </p>
 
@@ -194,11 +194,11 @@ export function PrizeAccordionItem({
             <PrizeTypeBadge isArchived={isArchived} />
             <ChevronDownIcon
               data-slot="chevron"
-              className="size-4 text-muted-foreground transition-transform duration-200"
+              className="size-4 text-muted-foreground transition-transform duration-200 pointer-events-none"
             />
           </div>
         </AccordionPrimitive.Trigger>
-      </div>
+      </AccordionPrimitive.Header>
 
       <AccordionContent className={collapsibleContentClass}>
         <div className={collapsiblePanelClass}>

@@ -1,13 +1,14 @@
 export const LEGAL_SITE_NAME = "Luxero Competitions";
 
 export const termsIntro = {
-  title: "Termeni și Condiții",
-  lastUpdated: "Mai 2026",
+  title: "Terms & Conditions",
+  lastUpdated: "24 October 2026",
   companyName: "LUXERO COMPETITIONS LTD",
-  companyNumber: "SC888260",
+  companyNumber: "Company no. SC888260",
   registeredOffice: "107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland",
-  website: "luxero.win",
-  pageSubtitle: "Termenii și Condițiile de Participare la Extragere",
+  website: "www.luxero.win",
+  pageSubtitle: "Prize draws, postal entries, instant wins and consumer protections",
+  contactLine: "contact@luxero.win   |   +44 744 3289228   |   www.luxero.win",
 };
 
 export const privacyIntro = {
@@ -23,4 +24,4 @@ export const cookiePolicyIntro = {
 
 export { cookiePolicySections } from "./legal/cookie-policy-sections";
 export { privacySections } from "./legal/privacy-sections";
-export { termsSections } from "./legal/terms-sections";
+export { termsSections } from "../legal/terms-sections-render";

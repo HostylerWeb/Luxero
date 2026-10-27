@@ -1553,6 +1553,7 @@
     "free": "Intrare Gratuită",
     "drawDate": "Extragere · {date}",
     "drawDateShort": "Extragere: {date}",
+    "drawDateAtTime": "Extragere: {date} @{time}",
     "endsIn": "Se încheie în",
     "nextLiveDrawIn": "Următoarea extragere live",
     "nextLiveDrawHint": "Timpul rămas până se închid înscrierile la următoarea competiție.",

@@ -17,12 +17,21 @@ export default function TermsPage() {
   return (
     <div className="luxero-container-content pb-8">
       <div className="py-8 lg:py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4 text-balance">
-            {t("staticPages.terms.heading")}
+        <div className="text-center mb-12 space-y-3 max-w-3xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-balance">
+            {intro.companyName}
           </h1>
-          <p className="text-muted-foreground">{intro.companyName}</p>
-          <p className="text-muted-foreground">{intro.pageSubtitle}</p>
+          <p className="text-2xl sm:text-3xl font-semibold text-foreground">{intro.title}</p>
+          <p className="text-muted-foreground text-lg">{intro.pageSubtitle}</p>
+          <p className="text-sm text-muted-foreground">
+            Last updated: {intro.lastUpdated}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {intro.companyNumber} | {intro.registeredOffice}
+          </p>
+          {"contactLine" in intro && intro.contactLine ? (
+            <p className="text-sm text-muted-foreground">{intro.contactLine}</p>
+          ) : null}
         </div>
 
         <div className="relative overflow-hidden rounded-[1.5rem] mb-8">

@@ -11,25 +11,16 @@ const landerUrl = process.env.NEXT_PUBLIC_APP_URL || "https://agro.luxero.win";
 
 export const metadata: Metadata = {
   title: {
-    default: "Win Premium Prizes — Luxero Competitions",
+    default: "LUXERO — Official Links",
     template: "%s — Luxero",
   },
   description:
-    "Enter to win incredible prizes with Luxero Competitions. Browse active competitions, answer skill questions, and win instantly.",
+    "Explore Luxero Competitions, Luxero Agro and our official community. Everyone deserves a fair chance at something extraordinary.",
   openGraph: {
     siteName: "Luxero",
     type: "website",
     locale: "en_GB",
     url: landerUrl,
-    images: [
-      {
-        url: "/og-default.png",
-        secureUrl: `${landerUrl}/og-default.png`,
-        type: "image/png",
-        width: 1200,
-        height: 630,
-      },
-    ],
   },
 };
 
