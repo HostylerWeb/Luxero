@@ -19,7 +19,6 @@ import {
   playSiteSound,
 } from "@luxero/api-client";
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Gift,
@@ -29,7 +28,6 @@ import {
   Star,
   Ticket,
   Trophy,
-  ZoomIn,
 } from "@luxero/icons";
 import type { PublicBonusAwardEntry, PublicBonusAwardWinDTO } from "@luxero/types";
 import {
@@ -40,19 +38,21 @@ import {
   getMaxPurchasable,
   getTicketsSold,
 } from "@luxero/utils";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { navigate } from "vike/client/router";
 import { useConfig } from "vike-react/useConfig";
 import { useData } from "vike-react/useData";
 import { usePageContext } from "vike-react/usePageContext";
 import { GoldButton, GoldOutlineButton } from "@/components/buttons";
-import { BonusAwardsSection } from "@/components/competitions/bonus-awards";
 import { PostalEntryInstructions } from "@/components/competitions/PostalEntryInstructions";
+import {
+  CompetitionDetailsTabs,
+  type CompetitionDetailsTab,
+} from "@/components/competitions/CompetitionDetailsTabs";
 import CompetitionFaq from "@/components/competitions/CompetitionFaq";
 import CompetitionInfo from "@/components/competitions/CompetitionInfo";
 import { CountdownTimer } from "@/components/competitions/CountdownTimer";
-import { InstantWinsSection } from "@/components/competitions/instant-wins";
 import RelatedCompetitions from "@/components/competitions/RelatedCompetitions";
 import { TicketQuantitySelector } from "@/components/competitions/TicketQuantitySelector";
 import { SkillQuestionSelector } from "@/components/competitions/SkillQuestionSelector";
@@ -188,7 +188,8 @@ export default function Page() {
   const quantitySectionRef = useRef<HTMLDivElement>(null);
   const quizSectionRef = useRef<HTMLDivElement>(null);
   const cartLoadedRef = useRef(false);
-  const [aboutOpen, setAboutOpen] = useState(true);
+  const [detailsTab, setDetailsTab] = useState<CompetitionDetailsTab>("description");
+  const detailsTabsRef = useRef<HTMLDivElement>(null);
   const [showCompactLoading, setShowCompactLoading] = useState(false);
   const { user: authUser, isAnonymous: authIsAnonymous } = useAuth();
   const serverUser = (pageContext as any).user;
@@ -279,6 +280,13 @@ export default function Page() {
     0
   );
   const bonusDrawsCount = bonusAwards.length;
+
+  const openDetailsTab = useCallback((tab: CompetitionDetailsTab) => {
+    setDetailsTab(tab);
+    requestAnimationFrame(() => {
+      detailsTabsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
 
   const guestReferralCode = profileRes?.data?.referredByCode ?? undefined;
   const myReferralCode =
@@ -419,29 +427,6 @@ export default function Page() {
     }
   }, [cartPending, currentInCart, maxCartQuantity]);
 
-  const statusConfig: Record<string, { label: string; className: string }> = {
-    active: {
-      label: t("competitions.detail.liveNow"),
-      className: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    },
-    ended: {
-      label: t("competitions.detail.ended"),
-      className: "bg-muted/20 text-muted-foreground border-border",
-    },
-    paused: {
-      label: t("competitions.detail.ended"),
-      className: "bg-muted/20 text-muted-foreground border-border",
-    },
-    drawn: {
-      label: t("competitions.detail.drawComplete"),
-      className: "bg-gold/20 text-gold border-gold/30",
-    },
-    coming: {
-      label: t("competitions.detail.comingSoon"),
-      className: "bg-gold/20 text-gold border-gold/30",
-    },
-  };
-
   if (!slug || isLoading) {
     if (!showCompactLoading) {
       return (
@@ -530,32 +515,17 @@ export default function Page() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
           <div className="space-y-4 lg:space-y-6">
-            <div className="relative aspect-[4/3] lg:aspect-[3/2] bg-gradient-to-br from-gold/20 to-gold/5 rounded-xl lg:rounded-2xl border border-gold/20 overflow-hidden group">
+            <div className="relative aspect-[4/3] lg:aspect-[3/2] bg-gradient-to-br from-gold/20 to-gold/5 rounded-xl lg:rounded-2xl border border-gold/20 overflow-hidden">
               {mainImageUrl && !failedImages.has(mainImageUrl) ? (
                 <img
                   src={mainImageUrl}
                   alt={competition.title}
-                  className="absolute inset-0 w-full h-full object-contain bg-zinc-950/90 cursor-zoom-in"
-                  onClick={() => setLightboxOpen(true)}
+                  className="absolute inset-0 size-full object-cover object-center pointer-events-none select-none"
                   onError={() => setFailedImages((prev) => new Set(prev).add(mainImageUrl))}
-                  data-umami-event="competition:image-click"
-                  data-umami-event-id={slug}
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Trophy className="w-24 h-24 text-gold/40" />
-                </div>
-              )}
-
-              {images.length > 0 && (
-                <div
-                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 cursor-zoom-in"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLightboxOpen(true);
-                  }}
-                >
-                  <ZoomIn className="w-10 h-10 text-white/80" />
                 </div>
               )}
 
@@ -564,7 +534,7 @@ export default function Page() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/65 hover:text-white"
                     onClick={() =>
                       setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
                     }
@@ -576,7 +546,7 @@ export default function Page() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white hover:bg-black/65 hover:text-white"
                     onClick={() =>
                       setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
                     }
@@ -598,18 +568,10 @@ export default function Page() {
                 <Badge className="absolute top-4 left-4 bg-red-500/20 text-red-400 border-red-500/30">
                   {t("competitions.detail.soldOut")}
                 </Badge>
-              ) : (
-                <Badge
-                  className={`absolute top-4 left-4 ${statusConfig[competition.status]?.className ?? statusConfig.active?.className}`}
-                >
-                  {statusConfig[competition.status]?.label ??
-                    statusConfig.active?.label ??
-                    t("competitions.detail.active")}
-                </Badge>
-              )}
+              ) : null}
             </div>
 
-            {images.length > 1 && (
+            {images.length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory lg:flex-wrap lg:overflow-x-visible lg:gap-3 lg:pb-2 lg:snap-none">
                 {images.map((img, idx) => (
                   <button
@@ -652,9 +614,7 @@ export default function Page() {
                       type="button"
                       onClick={(e) => {
                         e.preventDefault();
-                        document
-                          .getElementById("bonus-draws")
-                          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        openDetailsTab("milestones");
                       }}
                       className="inline-flex items-center gap-2 rounded-full border border-gold/60 bg-gradient-to-r from-gold-light to-gold px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-[filter,transform] hover:brightness-110 active:scale-95"
                     >
@@ -669,9 +629,7 @@ export default function Page() {
                       type="button"
                       onClick={(e) => {
                         e.preventDefault();
-                        document
-                          .getElementById("instant-wins")
-                          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        openDetailsTab("instant-wins");
                       }}
                       className="inline-flex items-center gap-2 rounded-full border border-gold/60 bg-gradient-to-r from-gold-light to-gold px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-black transition-[filter,transform] hover:brightness-110 active:scale-95"
                     >
@@ -1029,75 +987,19 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="mt-8">
-          <div className="relative overflow-hidden rounded-xl lg:rounded-[2rem]">
-            <div className="p-1 lg:p-1.5 rounded-xl lg:rounded-[2rem] bg-white/5 ring-1 ring-white/10">
-              <div className="rounded-[calc(1.25rem-0.25rem)] lg:rounded-[calc(2rem-0.375rem)] bg-card p-4 lg:p-8">
-                <h3 className="flex items-center justify-between w-full">
-                  <button
-                    type="button"
-                    onClick={() => setAboutOpen(!aboutOpen)}
-                    className="flex items-center justify-between w-full text-left"
-                    aria-expanded={aboutOpen}
-                    data-umami-event="competition:about-toggle"
-                  >
-                    <div className="flex items-center gap-2.5 lg:gap-3">
-                      <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl bg-gold/10 flex items-center justify-center">
-                        <Trophy className="w-4 h-4 lg:w-5 lg:h-5 text-gold" />
-                      </div>
-                      <span className="text-base lg:text-lg font-bold text-foreground">
-                        {t("competitions.detail.aboutThisPrize")}
-                      </span>
-                    </div>
-                    <ChevronDown
-                      className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${aboutOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                </h3>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    aboutOpen ? "max-h-[5000px] opacity-100 mt-4 lg:mt-6" : "max-h-0 opacity-0"
-                  }`}
-                >
-                  <div className="border-t border-gold/10 pt-4 lg:pt-6">
-                    <p className="text-sm lg:text-base text-foreground leading-relaxed whitespace-pre-wrap">
-                      {competition.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {(bonusAwards.length > 0 || bonusAwardWins.length > 0) && (
-          <div id="bonus-draws" className="mt-8 scroll-mt-24">
-            <BonusAwardsSection
-              awards={bonusAwards}
-              wins={bonusAwardWins}
-              ticketsSold={soldTickets}
-              maxTickets={maxTickets}
-            />
-          </div>
-        )}
-
-        {instantPrizesLoading ? (
-          <div id="instant-wins" className="mt-8 space-y-4 scroll-mt-24">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gold/10 animate-pulse" />
-              <div className="h-6 w-32 bg-gold/10 rounded animate-pulse" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2].map((i) => (
-                <Skeleton key={i} className="h-32 rounded-xl" shimmer />
-              ))}
-            </div>
-          </div>
-        ) : instantPrizes.length > 0 ? (
-          <div id="instant-wins" className="mt-8 scroll-mt-24">
-            <InstantWinsSection competitionId={competitionId} />
-          </div>
-        ) : null}
+        <CompetitionDetailsTabs
+          description={competition.description ?? ""}
+          competitionId={competitionId}
+          bonusAwards={bonusAwards}
+          bonusAwardWins={bonusAwardWins}
+          soldTickets={soldTickets}
+          maxTickets={maxTickets}
+          instantPrizesLoading={instantPrizesLoading}
+          hasInstantPrizes={instantPrizes.length > 0}
+          value={detailsTab}
+          onValueChange={setDetailsTab}
+          sectionRef={detailsTabsRef}
+        />
 
         {relatedComps.length > 0 && <RelatedCompetitions competitions={relatedComps} />}
 

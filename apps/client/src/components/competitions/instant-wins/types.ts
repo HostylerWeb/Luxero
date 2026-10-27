@@ -8,6 +8,8 @@ import {
 
 export interface InstantWinsSectionProps {
   competitionId: string;
+  /** Hide top summary card when nested in competition detail tabs */
+  embedded?: boolean;
 }
 
 export type TicketState = PrizeTicketState;

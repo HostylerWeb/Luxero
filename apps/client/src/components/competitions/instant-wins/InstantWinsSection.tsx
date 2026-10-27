@@ -8,7 +8,10 @@ import { formatNumber, useTranslation } from "@/lib/i18n";
 import { PrizeList } from "./PrizeList";
 import type { InstantWinsSectionProps } from "./types";
 
-export function InstantWinsSection({ competitionId }: InstantWinsSectionProps) {
+export function InstantWinsSection({
+  competitionId,
+  embedded = false,
+}: InstantWinsSectionProps) {
   const { t, locale } = useTranslation();
   const [openItems, setOpenItems] = useState<string[]>([]);
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
@@ -32,6 +35,7 @@ export function InstantWinsSection({ competitionId }: InstantWinsSectionProps) {
 
   return (
     <div className="space-y-4 overflow-x-hidden">
+      {!embedded ? (
       <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-gold/15 bg-gradient-to-r from-gold/5 via-card/80 to-card/80 p-4 sm:p-5">
         <div className="flex min-w-0 items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold/15 ring-1 ring-gold/20 sm:h-11 sm:w-11">
@@ -66,6 +70,7 @@ export function InstantWinsSection({ competitionId }: InstantWinsSectionProps) {
           </div>
         ) : null}
       </div>
+      ) : null}
 
       <PrizeList
         prizes={prizes}

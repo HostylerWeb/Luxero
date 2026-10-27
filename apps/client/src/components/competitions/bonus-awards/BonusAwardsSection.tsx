@@ -17,6 +17,8 @@ interface BonusAwardsSectionProps {
   wins: PublicBonusAwardWinDTO[];
   ticketsSold: number;
   maxTickets: number;
+  /** Hide top summary card when nested in competition detail tabs */
+  embedded?: boolean;
 }
 
 type EnrichedAward = {
@@ -34,6 +36,7 @@ export function BonusAwardsSection({
   wins,
   ticketsSold,
   maxTickets,
+  embedded = false,
 }: BonusAwardsSectionProps) {
   const { t, locale } = useTranslation();
   const [showAll, setShowAll] = useState(false);
@@ -97,6 +100,7 @@ export function BonusAwardsSection({
 
   return (
     <div className="space-y-5 overflow-x-hidden">
+      {!embedded ? (
       <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-gold/15 bg-gradient-to-r from-gold/5 via-card/80 to-card/80 p-4 sm:p-5">
         <div className="flex min-w-0 items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold/15 ring-1 ring-gold/20 sm:h-11 sm:w-11">
@@ -154,6 +158,7 @@ export function BonusAwardsSection({
           </div>
         ) : null}
       </div>
+      ) : null}
 
       {nextUpcoming && maxTickets > 0 ? (
         <div
