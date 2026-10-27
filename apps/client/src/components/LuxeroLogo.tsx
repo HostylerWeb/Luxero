@@ -12,7 +12,7 @@ export interface LuxeroLogoProps extends LuxeroLogoBaseProps {}
 
 export function LuxeroLogo({
   className,
-  "aria-label": ariaLabel = "Luxero",
+  "aria-label": ariaLabel = "LUXERO",
   "aria-hidden": ariaHidden,
 }: LuxeroLogoProps) {
   return (
@@ -43,7 +43,7 @@ export interface LuxeroLogoSquareProps extends LuxeroLogoBaseProps {}
 
 export function LuxeroLogoSquare({
   className,
-  "aria-label": ariaLabel = "Luxero",
+  "aria-label": ariaLabel = "LUXERO",
   "aria-hidden": ariaHidden,
 }: LuxeroLogoSquareProps) {
   return (

@@ -118,6 +118,57 @@ function BottomContent({ children, className }: { children: React.ReactNode; cla
   );
 }
 
+function HeroSlideCaption({
+  slide,
+  locale,
+  t,
+}: {
+  slide: Competition;
+  locale: string;
+  t: ReturnType<typeof useTranslation>["t"];
+}) {
+  return (
+    <div className="w-full max-w-4xl text-center">
+      <h1
+        className={cn(
+          "text-[clamp(1.5rem,4vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-gold break-words",
+          HERO_TITLE_SHADOW
+        )}
+      >
+        {slide.title}
+      </h1>
+      {(slide.shortDescription || slide.description) && (
+        <p
+          className={cn(
+            "mx-auto mt-2 max-w-2xl text-[clamp(1rem,1.4vw+0.55rem,1.375rem)] leading-relaxed text-white/90 break-words line-clamp-2 sm:line-clamp-3",
+            HERO_TEXT_SHADOW
+          )}
+        >
+          {slide.shortDescription || slide.description}
+        </p>
+      )}
+      <p className="text-[clamp(1.125rem,3vw,2.4375rem)] font-bold leading-[1.08] tracking-tight text-white/85 mt-2 sm:mt-3">
+        {slide.ticketPrice === 0 ? (
+          t("home.free")
+        ) : slide.originalPrice != null && slide.originalPrice > slide.ticketPrice ? (
+          <>
+            <span className="line-through text-white/50 mr-1.5">
+              {formatCurrency(slide.originalPrice, locale, "GBP")}
+            </span>
+            <span className="ml-1">{formatCurrency(slide.ticketPrice, locale, "GBP")}</span>
+            {t("home.perTicket")}
+          </>
+        ) : (
+          <>
+            {formatCurrency(slide.ticketPrice, locale, "GBP")}
+            {t("home.perTicket")}
+          </>
+        )}
+      </p>
+    </div>
+  );
+}
+
 export function HeroSlider({ competitions }: { competitions: Competition[] }) {
   const { t, locale } = useTranslation();
   const slides = competitions;
@@ -290,60 +341,28 @@ export function HeroSlider({ competitions }: { competitions: Competition[] }) {
                 )}
                 <SlideScrim />
               </div>
-
-              <BottomContent>
-                <div className="flex-1 min-h-0" />
-                <div className="shrink-0 mb-32 sm:mb-36 lg:mb-40">
-                  <h1
-                    className={cn(
-                      "text-[clamp(1.5rem,4vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-gold break-words",
-                      HERO_TITLE_SHADOW
-                    )}
-                  >
-                    {s.title}
-                  </h1>
-                  {(s.shortDescription || s.description) && (
-                    <p
-                      className={cn(
-                        "max-w-2xl text-[clamp(1rem,1.4vw+0.55rem,1.375rem)] leading-relaxed text-white/90 break-words line-clamp-2 sm:line-clamp-3",
-                        HERO_TEXT_SHADOW
-                      )}
-                    >
-                      {s.shortDescription || s.description}
-                    </p>
-                  )}
-                  <p className="text-[clamp(1.125rem,3vw,2.4375rem)] font-bold leading-[1.08] tracking-tight text-white/85 mt-2 sm:mt-3">
-                    {s.ticketPrice === 0 ? (
-                      t("home.free")
-                    ) : s.originalPrice != null && s.originalPrice > s.ticketPrice ? (
-                      <>
-                        <span className="line-through text-white/50 mr-1.5">
-                          {formatCurrency(s.originalPrice, locale, "GBP")}
-                        </span>
-                        {formatCurrency(s.ticketPrice, locale, "GBP")}
-                        {t("home.perTicket")}
-                      </>
-                    ) : (
-                      <>
-                        {formatCurrency(s.ticketPrice, locale, "GBP")}
-                        {t("home.perTicket")}
-                      </>
-                    )}
-                  </p>
-                </div>
-              </BottomContent>
             </div>
           );
         })}
       </div>
 
-      {slides.length > 1 && (
-        <SlideIndicators
-          count={slides.length}
-          current={currentSlide}
-          onSelect={goToSlide}
-          className={cn("absolute left-1/2 z-30 -translate-x-1/2", CAROUSEL_BOTTOM)}
-        />
+      {slides[currentSlide] && (
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-x-0 z-30 flex flex-col items-center gap-3 sm:gap-4 px-4 luxero-container-wide mx-auto",
+            CAROUSEL_BOTTOM
+          )}
+        >
+          <HeroSlideCaption slide={slides[currentSlide]} locale={locale} t={t} />
+          {slides.length > 1 && (
+            <SlideIndicators
+              count={slides.length}
+              current={currentSlide}
+              onSelect={goToSlide}
+              className="pointer-events-auto"
+            />
+          )}
+        </div>
       )}
 
       {slides.length > 1 && (
