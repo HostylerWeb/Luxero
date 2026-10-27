@@ -33,7 +33,7 @@ export function LuxeroLogo({
         fill="currentColor"
         letterSpacing="0.2"
       >
-        Luxero
+        LUXERO
       </text>
     </svg>
   );
