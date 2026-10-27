@@ -863,9 +863,66 @@
     @apply translate-y-0 bg-gold;
   }
 
+  .comp-card-cta-gold {
+    border-top: 1px solid color-mix(in oklch, var(--gold-light) 60%, var(--gold));
+    background-color: var(--gold);
+    background-image: linear-gradient(
+      100deg,
+      var(--gold-dark) 0%,
+      var(--gold-light) 30%,
+      var(--gold) 60%,
+      var(--gold-light) 85%,
+      var(--gold-dark) 100%
+    );
+    background-size: 220% 100%;
+    color: var(--primary-foreground);
+    animation:
+      luxero-gold-shift 5s ease-in-out infinite,
+      luxero-gold-pulse 2.4s ease-in-out infinite;
+    transition:
+      transform 0.2s ease,
+      filter 0.2s ease;
+  }
+
+  @media (hover: hover) {
+    .group:hover .comp-card-cta-gold {
+      filter: brightness(1.07);
+    }
+  }
+
+  .group:active .comp-card-cta-gold {
+    transform: scale(0.985);
+  }
+
   * {
     @apply border-border outline-ring/50;
     scrollbar-width: thin;
     scrollbar-color: rgb(var(--gold-rgb) / 0.25) transparent;
+  }
+}
+
+@keyframes luxero-gold-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes luxero-gold-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 12px color-mix(in oklch, var(--gold) 19%, transparent),
+      0 0 25px color-mix(in oklch, var(--gold) 9%, transparent),
+      inset 0 0 14px color-mix(in oklch, var(--gold-light) 10%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 21px color-mix(in oklch, var(--gold) 33%, transparent),
+      0 0 40px color-mix(in oklch, var(--gold) 16%, transparent),
+      inset 0 0 18px color-mix(in oklch, var(--gold-light) 19%, transparent);
   }
 }

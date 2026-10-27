@@ -282,9 +282,7 @@ export function CompetitionCard({
                   "mt-auto flex shrink-0 items-center justify-center rounded-b-2xl py-1.5 text-center @sm/card:py-2.5",
                   "text-[10px] @sm/card:text-sm @lg/card:text-base font-bold uppercase tracking-[0.1em] @sm/card:tracking-[0.14em]",
                   "transition-all duration-200",
-                  ctaActive
-                    ? "bg-gradient-to-r from-gold via-amber-500 to-orange-600 text-black shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] group-hover:brightness-110 group-hover:shadow-md group-active:scale-[0.99] group-active:brightness-95"
-                    : "bg-muted/40 text-muted-foreground"
+                  ctaActive ? "comp-card-cta-gold" : "bg-muted/40 text-muted-foreground"
                 )}
               >
                 {ctaLabel}
