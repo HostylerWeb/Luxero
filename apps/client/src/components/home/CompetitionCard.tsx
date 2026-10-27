@@ -222,7 +222,7 @@ export function CompetitionCard({
         <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gold/10 border-b-0 bg-card shadow-sm transition-colors duration-300 hover:border-gold/30">
           {drawBannerLabel ? (
             <div
-              className="comp-card-draw-banner z-10 w-full shrink-0 border-b border-gold/30 bg-gold/90 px-2 py-1 text-center text-[10px] font-bold tracking-wide text-black @sm/card:text-xs @lg/card:text-sm"
+              className="comp-card-draw-banner z-10 w-full shrink-0 border-b border-gold/30 bg-black px-2 py-1 text-center text-[10px] font-bold tracking-wide text-white @sm/card:text-xs @lg/card:text-sm"
             >
               {drawBannerLabel}
             </div>

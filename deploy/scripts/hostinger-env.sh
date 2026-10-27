@@ -5,6 +5,7 @@ set -euo pipefail
 SHARED=/root/luxero-app.env
 CLIENT=/root/luxero-client.env
 ADMIN=/root/luxero-admin.env
+LINK=/root/luxero-link.env
 
 if [[ -f "$SHARED" ]]; then
   echo "$SHARED already exists — remove luxero-* env files to regenerate." >&2
@@ -20,6 +21,7 @@ MINIO_PASS="$(rand_hex)"
 BASE=https://srv2011364.hstgr.cloud
 ADMIN_URL=https://admin.srv2011364.hstgr.cloud
 SHOP=https://shop.srv2011364.hstgr.cloud
+LINK_URL=https://link.srv2011364.hstgr.cloud
 ASSETS=https://assets.srv2011364.hstgr.cloud
 ASSET_BASE="${ASSETS}/luxero-assets"
 
@@ -88,6 +90,14 @@ EOF
   chmod 600 /root/luxero-shop.env
 }
 
+write_link() {
+  cat >"$LINK" <<EOF
+APP_URL=${LINK_URL}
+NEXT_PUBLIC_APP_URL=${LINK_URL}
+EOF
+  chmod 600 "$LINK"
+}
+
 write_admin() {
   cat >"$ADMIN" <<EOF
 FRAMEWORK=next
@@ -108,8 +118,9 @@ write_shared
 write_client
 write_admin
 write_shop
+write_link
 
-echo "Wrote $SHARED, $CLIENT, $ADMIN"
+echo "Wrote $SHARED, $CLIENT, $ADMIN, $LINK"
 echo ""
 echo "First admin: ${ADMIN_URL}/auth/setup"
 echo "SETUP_SECRET=${SETUP_SECRET}"

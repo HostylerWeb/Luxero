@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3333",
     "build": "next build",
-    "start": "next start -p 3333",
+    "start": "next start",
     "lint": "biome check app/ components/ lib/ hooks/",
     "lint:fix": "biome check --write app/ components/ lib/ hooks/",
     "format": "biome format --write .",
