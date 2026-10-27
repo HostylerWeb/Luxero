@@ -1,10 +1,9 @@
-import { ArrowRight, ChevronLeft, ChevronRight, TrendingUp } from "@luxero/icons";
+import { ArrowRight, ChevronLeft, ChevronRight } from "@luxero/icons";
 import type { Competition } from "@luxero/types";
 import { cn } from "@luxero/utils";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GoldOutlineButton } from "@/components/buttons";
-import { Badge } from "@/components/ui/badge";
 import { formatCurrency, useTranslation } from "@/lib/i18n";
 
 const SLIDE_MIN_HEIGHT = "min-h-[420px] sm:min-h-[480px] md:aspect-video md:max-h-[80vh]";
@@ -102,16 +101,6 @@ function SlideScrim() {
       <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
       <div className="absolute inset-0 z-10 hidden md:block bg-gradient-to-r from-black/30 via-black/5 to-transparent" />
     </>
-  );
-}
-
-function FeaturedBadge() {
-  const { t } = useTranslation();
-  return (
-    <Badge className="inline-flex max-w-full items-center bg-gold/90 text-primary-foreground border-0 px-3 py-1.5 text-xs sm:text-sm font-semibold tracking-wide uppercase whitespace-normal text-left shadow-sm">
-      <TrendingUp className="mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden />
-      {t("home.hero.featured")}
-    </Badge>
   );
 }
 
@@ -215,9 +204,6 @@ export function HeroSlider({ competitions }: { competitions: Competition[] }) {
         <SlideScrim />
 
         <BottomContent>
-          <div className="shrink-0 pt-2 sm:pt-3">
-            <FeaturedBadge />
-          </div>
           <div className="flex-1 min-h-0" />
           <div className="shrink-0 mb-32 sm:mb-36 lg:mb-40">
             <h1 className="max-w-4xl text-[clamp(1.75rem,5vw,3.5rem)] font-bold leading-[1.08] tracking-tight text-foreground break-words drop-shadow-sm">
@@ -306,9 +292,6 @@ export function HeroSlider({ competitions }: { competitions: Competition[] }) {
               </div>
 
               <BottomContent>
-                <div className="shrink-0 pt-2 sm:pt-3">
-                  <FeaturedBadge />
-                </div>
                 <div className="flex-1 min-h-0" />
                 <div className="shrink-0 mb-32 sm:mb-36 lg:mb-40">
                   <h1

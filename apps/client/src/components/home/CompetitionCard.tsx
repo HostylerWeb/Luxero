@@ -13,7 +13,6 @@ import {
 import { useEffect, useState } from "react";
 import { Link } from "@/components/Link";
 import { useCountdown } from "@/components/ui";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CompetitionProgressBar } from "@/components/ui/competition-progress-bar";
 import { formatCurrency, formatDate, useTranslation } from "@/lib/i18n";
@@ -95,7 +94,6 @@ function useCompCountdown(comp: CompetitionCardSource, enabled: boolean) {
 export function CompetitionCard({
   competition: comp,
   variant = "default",
-  categories,
   href: hrefOverride,
   umamiEvent,
   onCardClick,
@@ -116,12 +114,6 @@ export function CompetitionCard({
   useEffect(() => {
     setImageFailed(false);
   }, [imageUrl]);
-
-  const categoryLabel =
-    "category" in comp && comp.category
-      ? (categories?.find((c) => c.slug === comp.category)?.label ??
-        categories?.find((c) => c.slug === comp.category)?.name)
-      : undefined;
 
   if (variant === "hot") {
     return (
@@ -249,13 +241,6 @@ export function CompetitionCard({
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            {categoryLabel && (
-              <div className="absolute top-1.5 left-1.5 @lg/card:top-3 @lg/card:left-3 z-10 max-w-[55%]">
-                <span className="block truncate bg-gold/60 text-black backdrop-blur-sm text-[10px] @lg/card:text-sm font-bold px-2 @lg/card:px-4 py-0.5 @lg/card:py-1.5 rounded-md shadow-md">
-                  {categoryLabel}
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="flex flex-col flex-1 justify-between p-2 @sm/card:p-4 @lg/card:p-5 gap-1 @sm/card:gap-1.5 @lg/card:gap-2">
@@ -381,14 +366,6 @@ export function CompetitionCard({
                 )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
-
-                {categoryLabel && (
-                  <div className="absolute top-4 left-4 z-20">
-                    <Badge className="bg-gold/90 text-primary-foreground backdrop-blur-sm">
-                      {categoryLabel}
-                    </Badge>
-                  </div>
-                )}
 
                 {isActive && (
                   <div className="absolute bottom-0 left-0 right-0 z-20">
