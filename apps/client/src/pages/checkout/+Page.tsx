@@ -51,6 +51,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { formatCurrency, localeHref, useTranslation } from "@/lib/i18n";
+import { getPublicSiteOrigin } from "@/lib/site-origin";
 import { isProfileAddressValid, profileAddressFromProfile } from "@/lib/profile-address";
 import type { Data } from "./+data";
 
@@ -208,14 +209,13 @@ function CheckoutPageContent() {
   const t = _t as (key: string, params?: Record<string, string | number>) => string;
   const ssrData = useData<Data>();
   const config = useConfig();
-  const baseUrl =
-    (typeof window !== "undefined" ? window.location.origin : "") || "https://luxero.win";
+  const pageContext = usePageContext();
+  const baseUrl = getPublicSiteOrigin(pageContext);
   const title = t("checkout.meta.title");
   const searchParams =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search)
       : new URLSearchParams();
-  const pageContext = usePageContext();
   const hasRef =
     searchParams.has("ref") || (pageContext.urlParsed as any)?.search?.ref !== undefined;
   const globalRefOg = (pageContext as any).referralOgImageUrl as string | null | undefined;

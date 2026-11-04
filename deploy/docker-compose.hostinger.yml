@@ -63,6 +63,8 @@ services:
     build:
       context: ../turborepo-main
       dockerfile: apps/admin/Dockerfile
+      args:
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
     container_name: luxero_admin
     restart: unless-stopped
     env_file:
@@ -107,6 +109,41 @@ services:
     networks:
       - luxero_net
 
+  client-agro:
+    build:
+      context: ../turborepo-main
+      dockerfile: apps/client/Dockerfile
+    container_name: luxero_client_agro
+    restart: unless-stopped
+    env_file:
+      - /root/luxero-app.env
+      - /root/luxero-secrets.env
+      - /root/luxero-client-agro.env
+    environment:
+      PORT: "3000"
+      NODE_ENV: production
+    networks:
+      - luxero_net
+
+  admin-agro:
+    build:
+      context: ../turborepo-main
+      dockerfile: apps/admin/Dockerfile
+      args:
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+    container_name: luxero_admin_agro
+    restart: unless-stopped
+    env_file:
+      - /root/luxero-app.env
+      - /root/luxero-secrets.env
+      - /root/luxero-admin-agro.env
+    environment:
+      PORT: "3000"
+      NODE_ENV: production
+      FRAMEWORK: next
+    networks:
+      - luxero_net
+
   caddy:
     image: caddy:2-alpine
     container_name: luxero_caddy
@@ -120,7 +157,9 @@ services:
       - /var/www/luxero/data/caddy-config:/config
     depends_on:
       - client
+      - client-agro
       - admin
+      - admin-agro
       - shop
       - web-lander
       - minio

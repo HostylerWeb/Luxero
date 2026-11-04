@@ -30,7 +30,14 @@ RUN bun install --no-verify --ignore-scripts
 COPY --from=prune /app/out/full/ .
 COPY --from=prune /app/tsconfig.base.json .
 
-RUN BUILD_TS=$(date +%s) && echo "NEXT_PUBLIC_APP_VERSION=$BUILD_TS" > /app/apps/admin/.env.production
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY=""
+RUN BUILD_TS=$(date +%s) && \
+  { \
+    echo "NEXT_PUBLIC_APP_VERSION=$BUILD_TS"; \
+    if [ -n "$NEXT_PUBLIC_TURNSTILE_SITE_KEY" ]; then \
+      echo "NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY"; \
+    fi; \
+  } > /app/apps/admin/.env.production
 
 WORKDIR /app/apps/admin
 RUN NODE_OPTIONS='--max-old-space-size=2048 --max-semi-space-size=64' \

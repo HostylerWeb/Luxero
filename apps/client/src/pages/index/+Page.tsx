@@ -13,14 +13,14 @@ import { CategoryNavSection } from "@/components/home/sections/category-nav-sect
 import { CompetitionsSection } from "@/components/home/sections/competitions-section";
 import { HeroSection } from "@/components/home/sections/hero-section";
 import { WinnersSection } from "@/components/home/sections/winners-section";
+import { getPublicSiteOrigin } from "@/lib/site-origin";
 import type { Data } from "./+data";
 
 export default function Page() {
   const data = useData<Data>();
   const pageContext = usePageContext();
   const config = useConfig();
-  const baseUrl =
-    (typeof window !== "undefined" ? window.location.origin : "") || "https://luxero.win";
+  const baseUrl = getPublicSiteOrigin(pageContext);
   const urlParsed = pageContext.urlParsed as
     | { search?: Record<string, string>; searchAll?: Record<string, string[]> }
     | undefined;

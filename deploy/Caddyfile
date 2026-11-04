@@ -2,20 +2,58 @@
 	email hostyler@luxero.win
 }
 
+# Production (luxero.win)
+luxero.win, www.luxero.win {
+	reverse_proxy client:3000
+}
+
+agro.luxero.win {
+	reverse_proxy client-agro:3000
+}
+
+admin.luxero.win, www.admin.luxero.win {
+	reverse_proxy admin:3000
+}
+
+admin.agro.luxero.win {
+	reverse_proxy admin-agro:3000
+}
+
+shop.luxero.win, www.shop.luxero.win {
+	reverse_proxy shop:3000
+}
+
+link.luxero.win {
+	reverse_proxy web-lander:3000
+}
+
+assets.luxero.win {
+	reverse_proxy minio:9000
+}
+
+# Hostinger phase hostnames (keep for rollback / direct access)
 srv2011364.hstgr.cloud {
 	reverse_proxy client:3000
+}
+
+agro.srv2011364.hstgr.cloud {
+	reverse_proxy client-agro:3000
 }
 
 admin.srv2011364.hstgr.cloud {
 	reverse_proxy admin:3000
 }
 
-link.srv2011364.hstgr.cloud, link.luxero.win {
-	reverse_proxy web-lander:3000
+admin.agro.srv2011364.hstgr.cloud {
+	reverse_proxy admin-agro:3000
 }
 
 shop.srv2011364.hstgr.cloud {
 	reverse_proxy shop:3000
+}
+
+link.srv2011364.hstgr.cloud {
+	reverse_proxy web-lander:3000
 }
 
 assets.srv2011364.hstgr.cloud {

@@ -130,6 +130,10 @@ const nextConfig: NextConfig = {
         source: "/sw.js",
         headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
       },
+      {
+        source: "/sw-register.js",
+        headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+      },
       ...(process.env.NODE_ENV === "production"
         ? [
             {

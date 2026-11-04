@@ -157,6 +157,8 @@ export async function onCreatePageContext(pageContext: PageContextServer) {
 
   const nonce = ((globalThis as Record<string, unknown>).__luxero_nonce as string | null) ?? null;
 
+  const siteOrigin = getEnv("APP_URL")?.trim().replace(/\/$/, "") ?? null;
+
   if (!pageContext.locale) {
     pageContext.locale = detectLocale(cookie, pageContext.headers?.["accept-language"]);
   }
@@ -177,6 +179,7 @@ export async function onCreatePageContext(pageContext: PageContextServer) {
     userShell,
     sidebarDefaultOpen,
     nonce,
+    siteOrigin,
   });
 }
 
@@ -194,6 +197,7 @@ declare global {
       userShell: UserShell;
       sidebarDefaultOpen: boolean;
       nonce: string | null;
+      siteOrigin: string | null;
       locale: string;
       localeData: Record<string, unknown> | null;
     }

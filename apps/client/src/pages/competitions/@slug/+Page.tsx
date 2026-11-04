@@ -73,6 +73,7 @@ import {
   type TranslationKey,
   useTranslation,
 } from "@/lib/i18n";
+import { getPublicSiteOrigin } from "@/lib/site-origin";
 import { mapComp } from "@/lib/map-competition";
 import { cn } from "@/lib/utils";
 import type { Data } from "./+data";
@@ -116,8 +117,7 @@ export default function Page() {
   const config = useConfig();
 
   const comp = competitionData?.competition;
-  const baseUrl =
-    (typeof window !== "undefined" ? window.location.origin : "") || "https://luxero.win";
+  const baseUrl = getPublicSiteOrigin(pageContext);
   const urlParsed = pageContext.urlParsed as
     | { search?: Record<string, string>; searchAll?: Record<string, string[]> }
     | undefined;

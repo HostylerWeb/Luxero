@@ -14,6 +14,7 @@ import { usePageContext } from "vike-react/usePageContext";
 import { CompetitionCard } from "@/components/home/CompetitionCard";
 import { CompetitionsSearch } from "@/components/home/CompetitionsSearch";
 import { useTranslation } from "@/lib/i18n";
+import { getPublicSiteOrigin } from "@/lib/site-origin";
 import type { Data } from "./+data";
 
 export default function Page() {
@@ -25,8 +26,7 @@ export default function Page() {
   const [ready, setReady] = useState(false);
 
   const config = useConfig();
-  const baseUrl =
-    (typeof window !== "undefined" ? window.location.origin : "") || "https://luxero.win";
+  const baseUrl = getPublicSiteOrigin(pageContext);
   const heading = t("competitions.listing.heading");
   const description = t("competitions.listing.description");
   const hasRef = urlParsed?.searchAll?.ref !== undefined || urlParsed?.search?.ref !== undefined;
