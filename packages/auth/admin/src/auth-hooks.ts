@@ -170,12 +170,15 @@ export async function createGuestCheckoutProfile(
       _id: { $ne: new Types.ObjectId(userId) },
     }).lean();
     if (existingVerified) {
+      const verifiedId = existingVerified._id.toString();
       // The order lands on the verified account, but the checkout email must
       // also be visible to the anonymous session that paid (email-based order
       // inheritance on the read paths).
       await Profile.findByIdAndUpdate(userId, { $set: { email } });
+      await transferProfileData(userId, verifiedId);
       void invalidateUser(userId).catch(() => {});
-      return { orderUserId: existingVerified._id.toString() };
+      void invalidateUser(verifiedId).catch(() => {});
+      return { orderUserId: verifiedId };
     }
 
     const existingByEmail = await Profile.findOne({
@@ -560,14 +563,12 @@ export async function mergeAnonymousAccount({
       .lean();
 
     if (siblingGuestProfiles.length > 0) {
-      const siblingIds = siblingGuestProfiles.map((p) => p._id.toString());
-      await Order.updateMany(
-        { userId: { $in: siblingIds.map((id) => new Types.ObjectId(id)) } },
-        { $set: { userId: new Types.ObjectId(newId) } }
-      );
-      await Profile.deleteMany({
-        _id: { $in: siblingIds.map((id) => new Types.ObjectId(id)) },
-      });
+      for (const sibling of siblingGuestProfiles) {
+        const siblingId = sibling._id.toString();
+        await transferProfileData(siblingId, newId);
+        await Profile.deleteOne({ _id: sibling._id });
+        void invalidateUser(siblingId).catch(() => {});
+      }
     }
   }
 

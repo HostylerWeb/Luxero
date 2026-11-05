@@ -640,6 +640,64 @@ async function findSoldTicketsForOrder(
   return session ? query.session(session).lean() : query.lean();
 }
 
+function entryNameSnapshotFromProfile(
+  profile: Pick<ITicketFields, never> & {
+    firstName?: string | null;
+    lastName?: string | null;
+    showLastName?: boolean | null;
+  } | null
+): Pick<ITicketFields, "entryFirstName" | "entryLastName" | "entryShowLastName"> {
+  if (!profile?.firstName) return {};
+  return {
+    entryFirstName: profile.firstName,
+    entryLastName: profile.lastName ?? undefined,
+    entryShowLastName: profile.showLastName ?? true,
+  };
+}
+
+/** Align sold tickets on an order with `order.userId` and snapshot public entry names. */
+async function reconcileSoldTicketOwnersForOrder(
+  orderIdObj: Types.ObjectId,
+  compId: Types.ObjectId,
+  ownerIdObj: Types.ObjectId,
+  session?: ClientSession
+): Promise<LeanTicket[]> {
+  const soldQuery = Ticket.find({
+    orderId: orderIdObj,
+    competitionId: compId,
+    status: "sold",
+  }).sort({ number: 1 });
+  const sold = session ? await soldQuery.session(session).lean() : await soldQuery.lean();
+  if (sold.length === 0) return [];
+
+  const ownerProfile = await Profile.findById(ownerIdObj)
+    .select("firstName lastName showLastName")
+    .lean();
+  const nameSnapshot = entryNameSnapshotFromProfile(ownerProfile);
+
+  const toFix = sold.filter(
+    (t) => !t.ownerId?.equals(ownerIdObj) || (!t.entryFirstName && Boolean(nameSnapshot.entryFirstName))
+  );
+  if (toFix.length > 0) {
+    await Ticket.bulkWrite(
+      toFix.map((t) => ({
+        updateOne: {
+          filter: { _id: t._id, status: "sold" },
+          update: {
+            $set: {
+              ownerId: ownerIdObj,
+              ...nameSnapshot,
+            },
+          },
+        },
+      })),
+      sessionOpts(session)
+    );
+  }
+
+  return findSoldTicketsForOrder(orderIdObj, compId, ownerIdObj, session);
+}
+
 export async function claimTicketsForOrder(
   options: ClaimTicketsOptions
 ): Promise<ClaimTicketsResult> {
@@ -648,14 +706,25 @@ export async function claimTicketsForOrder(
     `[ticket.claim] ENTER compId=${competitionId} userId=${userId} orderId=${orderId} qty=${qty} answerIndex=${answerIndex} session=${Boolean(session)}`
   );
   const compId = toObjectId(competitionId);
-  const userIdObj = toObjectId(userId);
   const orderIdObj = toObjectId(orderId);
   const opts = { ...sessionOpts(session), ordered: false };
 
-  let claimed = await findSoldTicketsForOrder(orderIdObj, compId, userIdObj, session);
+  const order = await Order.findById(orderIdObj).select("orderNumber userId").lean();
+  if (!order) {
+    throw new Error(`Order ${orderId} not found`);
+  }
+  const ownerIdObj = order.userId ? toObjectId(String(order.userId)) : toObjectId(userId);
+  const effectiveUserId = ownerIdObj.toString();
+  if (effectiveUserId !== userId) {
+    log.warn(
+      `[ticket.claim] order.userId mismatch orderId=${orderId} requestedUserId=${userId} orderUserId=${effectiveUserId}`
+    );
+  }
+
+  let claimed = await reconcileSoldTicketOwnersForOrder(orderIdObj, compId, ownerIdObj, session);
   if (claimed.length >= qty) {
     log.debug(
-      `[ticket.claim] short-circuit already-claimed orderId=${orderId} compId=${competitionId} ownerId=${userId} claimed.length=${claimed.length} qty=${qty}`
+      `[ticket.claim] short-circuit already-claimed orderId=${orderId} compId=${competitionId} ownerId=${effectiveUserId} claimed.length=${claimed.length} qty=${qty}`
     );
     return {
       ticketIds: claimed.map((t) => t._id.toString()),
@@ -669,7 +738,7 @@ export async function claimTicketsForOrder(
   }
 
   const remaining = qty - claimed.length;
-  await checkAvailability(competitionId, remaining, userId);
+  await checkAvailability(competitionId, remaining, effectiveUserId);
   log.debug(
     `[ticket.claim] availability OK compId=${competitionId} remaining=${remaining} maxTickets=${competition.maxTickets} maxTicketsPerUser=${competition.maxTicketsPerUser}`
   );
@@ -679,12 +748,12 @@ export async function claimTicketsForOrder(
     competition.correctAnswer !== undefined ? answerIdx === competition.correctAnswer : undefined;
   const now = new Date();
 
-  const order = await Order.findById(orderIdObj).select("orderNumber").lean();
-  const orderNumberValue: number | undefined = order?.orderNumber;
+  const orderNumberValue: number | undefined = order.orderNumber;
 
-  const ownerProfile = await Profile.findById(userIdObj)
+  const ownerProfile = await Profile.findById(ownerIdObj)
     .select("firstName lastName showLastName")
     .lean();
+  const nameSnapshot = entryNameSnapshotFromProfile(ownerProfile);
 
   let iterations = 0;
   while (claimed.length < qty && iterations < MAX_CLAIM_ITERATIONS) {
@@ -725,19 +794,15 @@ export async function claimTicketsForOrder(
 
     const setFields: Record<string, unknown> = {
       status: "sold",
-      ownerId: userIdObj,
+      ownerId: ownerIdObj,
       orderId: orderIdObj,
       answerIndex: answerIdx,
       answerCorrect,
       soldAt: now,
+      ...nameSnapshot,
     };
     if (orderNumberValue !== undefined) {
       setFields.orderNumber = orderNumberValue;
-    }
-    if (ownerProfile?.firstName) {
-      setFields.entryFirstName = ownerProfile.firstName;
-      setFields.entryLastName = ownerProfile.lastName ?? undefined;
-      setFields.entryShowLastName = ownerProfile.showLastName ?? true;
     }
     const bulkResult = await Ticket.bulkWrite(
       candidates.map((t) => ({
@@ -759,7 +824,7 @@ export async function claimTicketsForOrder(
       });
     }
 
-    claimed = await findSoldTicketsForOrder(orderIdObj, compId, userIdObj, session);
+    claimed = await findSoldTicketsForOrder(orderIdObj, compId, ownerIdObj, session);
 
     if (claimed.length === prevCount) {
       await releaseByOrderId(orderId, session);

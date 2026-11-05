@@ -203,17 +203,65 @@ app.get(
         },
         { $unwind: { path: "$profile", preserveNullAndEmptyArrays: true } },
         {
+          $lookup: {
+            from: "orders",
+            localField: "orderId",
+            foreignField: "_id",
+            as: "orderDoc",
+            pipeline: [{ $project: { userId: 1 } }],
+          },
+        },
+        { $unwind: { path: "$orderDoc", preserveNullAndEmptyArrays: true } },
+        {
+          $lookup: {
+            from: "profiles",
+            localField: "orderDoc.userId",
+            foreignField: "_id",
+            as: "orderProfile",
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: [{ $ifNull: ["$deletedAt", null] }, null] },
+                },
+              },
+              { $project: { firstName: 1, lastName: 1, showLastName: 1 } },
+            ],
+          },
+        },
+        { $unwind: { path: "$orderProfile", preserveNullAndEmptyArrays: true } },
+        {
           $project: {
             _id: 1,
             entryNumber: "$number",
             orderNumber: 1,
             ownerId: 1,
             firstName: {
-              $ifNull: ["$entryFirstName", { $ifNull: ["$profile.firstName", "Anonymous"] }],
+              $ifNull: [
+                "$entryFirstName",
+                {
+                  $ifNull: [
+                    "$profile.firstName",
+                    { $ifNull: ["$orderProfile.firstName", "Anonymous"] },
+                  ],
+                },
+              ],
             },
-            lastName: { $ifNull: ["$entryLastName", "$profile.lastName"] },
+            lastName: {
+              $ifNull: [
+                "$entryLastName",
+                { $ifNull: ["$profile.lastName", "$orderProfile.lastName"] },
+              ],
+            },
             showLastName: {
-              $ifNull: ["$entryShowLastName", { $ifNull: ["$profile.showLastName", true] }],
+              $ifNull: [
+                "$entryShowLastName",
+                {
+                  $ifNull: [
+                    "$profile.showLastName",
+                    { $ifNull: ["$orderProfile.showLastName", true] },
+                  ],
+                },
+              ],
             },
             city: "$profile.city",
             createdAt: { $ifNull: ["$soldAt", "$$NOW"] },
