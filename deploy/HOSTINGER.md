@@ -19,22 +19,26 @@ Always run deploy from the VPS after merging to `main` — do not rely on `docke
 
 ## DNS must point at Hostinger (not Hetzner)
 
-Traffic goes to whichever IP DNS returns. Hostinger apps **always** use Hostinger Mongo (`mongodb://…@mongo:27017/luxero`). If DNS still sends users to **167.233.52.87**, they checkout on **Hetzner** and admin on Hostinger will not see those orders.
+**`CF_API_TOKEN`** is the **Cloudflare API token** you created under *My Profile → API Tokens* (the same `cfut_…` value you use as `Authorization: Bearer …` in the verify curl). It is **not** your Cloudflare account password. Store it only in your shell or a secrets file — never commit it.
 
-From a machine with `CF_API_TOKEN` (Zone DNS Edit for luxero.win):
+The script moves product DNS to Hostinger, points `*.luxero.win` at Hostinger, and **deletes staging** records (`staging.luxero.win`, `*.staging.luxero.win`, etc.).
 
 ```bash
-export CF_API_TOKEN='…'
+export CF_API_TOKEN='cfut_…'   # your token
 bash deploy/scripts/cloudflare-point-to-hostinger.sh
 ```
 
 Verify:
 
 ```bash
-dig +short A luxero.win staging.luxero.win
-# both should be 187.7.28.125
+dig +short A luxero.win
+# 187.7.28.125
+dig +short A staging.luxero.win
+# (no answer — staging removed)
+dig +short A randomname.luxero.win
+# 187.7.28.125 (wildcard)
 dig +short A build.coolify.luxero.win
-# still 95.216.158.37 (unchanged)
+# 95.216.158.37 (unchanged — build server)
 ```
 
 ## Catch-up orders after cutover
