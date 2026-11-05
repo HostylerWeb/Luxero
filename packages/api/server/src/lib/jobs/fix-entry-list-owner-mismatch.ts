@@ -17,6 +17,15 @@ function parseArgs(): { dryRun: boolean } {
   return { dryRun: !apply };
 }
 
+function deriveFirstNameFromOrderEmail(email: string | undefined): string | null {
+  if (!email || email.endsWith("@guest.luxero.local")) return null;
+  const local = email.split("@")[0]?.trim();
+  if (!local || local.length < 2) return null;
+  const token = local.split(/[._+-]/)[0]?.trim();
+  if (!token || token.length < 2) return null;
+  return token.charAt(0).toUpperCase() + token.slice(1).toLowerCase();
+}
+
 async function main(): Promise<void> {
   const { dryRun } = parseArgs();
   console.log(`[fix-entry-list-owner-mismatch] dryRun=${dryRun}`);
@@ -31,7 +40,7 @@ async function main(): Promise<void> {
 
   let fixed = 0;
   for (const ticket of soldWithOrder) {
-    const order = await Order.findById(ticket.orderId).select("userId").lean();
+    const order = await Order.findById(ticket.orderId).select("userId orderEmail").lean();
     if (!order?.userId) continue;
 
     const buyerId = order.userId;
@@ -43,7 +52,9 @@ async function main(): Promise<void> {
 
     const needsOwnerFix = !ownerMatches;
     const needsNameSnapshot =
-      !ticket.entryFirstName && Boolean(buyerProfile?.firstName?.trim());
+      !ticket.entryFirstName &&
+      (Boolean(buyerProfile?.firstName?.trim()) ||
+        Boolean(deriveFirstNameFromOrderEmail(order.orderEmail ?? undefined)));
     if (!needsOwnerFix && !needsNameSnapshot) continue;
 
     const update: Record<string, unknown> = { ownerId: buyerId };
@@ -51,6 +62,12 @@ async function main(): Promise<void> {
       update.entryFirstName = buyerProfile.firstName;
       update.entryLastName = buyerProfile.lastName ?? undefined;
       update.entryShowLastName = buyerProfile.showLastName ?? true;
+    } else {
+      const derived = deriveFirstNameFromOrderEmail(order.orderEmail ?? undefined);
+      if (derived) {
+        update.entryFirstName = derived;
+        update.entryShowLastName = true;
+      }
     }
 
     console.log(

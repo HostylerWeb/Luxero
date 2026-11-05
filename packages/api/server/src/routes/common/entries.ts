@@ -17,6 +17,7 @@ import { cursorPaginated, error, paginated, success } from "@luxero/api-infra/re
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { redisCacheRoute } from "@luxero/api-server/middleware/cache";
 import { publicFeedRateLimit } from "@luxero/api-server/middleware/rate-limit";
+import { isGuestProfileEmail } from "@luxero/auth-admin/auth-hooks";
 import { Hono } from "hono";
 import mongoose from "mongoose";
 
@@ -49,10 +50,24 @@ function parsePublicEntryCursor(
   return { entryNumber, _id: id };
 }
 
+function deriveFirstNameFromOrderEmail(email: string | null | undefined): string | null {
+  if (!email || isGuestProfileEmail(email)) return null;
+  const local = email.split("@")[0]?.trim();
+  if (!local || local.length < 2) return null;
+  const token = local.split(/[._+-]/)[0]?.trim();
+  if (!token || token.length < 2) return null;
+  return token.charAt(0).toUpperCase() + token.slice(1).toLowerCase();
+}
+
 function mapPublicEntry(entry: Record<string, unknown>) {
-  const firstName = entry.firstName as string;
+  let firstName = entry.firstName as string;
   const lastName = entry.lastName as string | null | undefined;
   const showLastName = entry.showLastName as boolean | null | undefined;
+
+  if (firstName === "Anonymous") {
+    const fromEmail = deriveFirstNameFromOrderEmail(entry.orderEmail as string | undefined);
+    if (fromEmail) firstName = fromEmail;
+  }
 
   return {
     id: (entry._id as mongoose.Types.ObjectId).toString(),
@@ -208,7 +223,7 @@ app.get(
             localField: "orderId",
             foreignField: "_id",
             as: "orderDoc",
-            pipeline: [{ $project: { userId: 1 } }],
+            pipeline: [{ $project: { userId: 1, orderEmail: 1 } }],
           },
         },
         { $unwind: { path: "$orderDoc", preserveNullAndEmptyArrays: true } },
@@ -235,6 +250,7 @@ app.get(
             entryNumber: "$number",
             orderNumber: 1,
             ownerId: 1,
+            orderEmail: "$orderDoc.orderEmail",
             firstName: {
               $ifNull: [
                 "$entryFirstName",
