@@ -17,7 +17,7 @@ const SKIP_PATH_PREFIXES = [
 const LUXERO_CLIENT_HEADER = "x-luxero-client";
 
 function shouldSkipCsrf(path: string): boolean {
-  return SKIP_PATH_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+  return SKIP_PATH_PREFIXES.some((prefix) => path === prefix || path.startsWith(prefix));
 }
 
 export function csrfProtection(): MiddlewareHandler {
