@@ -1,9 +1,9 @@
 import type { ContactInfoCard } from "../content-types";
 
 export const CONTACT_EMAIL = "contact@luxero.win";
-export const COMPANY_NAME = "LUXERO COMPETITIONS LTD";
-export const COMPANY_NUMBER = "Nr. Înreg. SC888260 (Scoția)";
-export const COMPANY_ADDRESS = "107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland";
+export const COMPANY_NAME = "LUXERO HOLDINGS LTD";
+export const COMPANY_NUMBER = "Nr. înreg. 17552908 (Anglia și Țara Galilor)";
+export const COMPANY_ADDRESS = "128 City Road, London, United Kingdom, EC1V 2NX";
 export const CONTACT_PHONE = "+44 744 328 9228";
 export const CONTACT_PHONE_HOURS = "Lun–Vin, 9:00–17:00 GMT";
 

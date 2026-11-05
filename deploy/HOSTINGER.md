@@ -1,5 +1,7 @@
 # Hostinger production (luxero.win)
 
+**How to deploy code changes:** see **[HOSTINGER-UPDATE.md](./HOSTINGER-UPDATE.md)** (git pull + `hostinger-deploy-from-git.sh` — do **not** full-repo rsync from a dev machine).
+
 Production runs entirely on the Hostinger VPS (`187.7.28.125`): Docker apps, Caddy, MinIO, MongoDB (`luxero` + `agro`). **Hetzner is not part of runtime** — only optional one-time scripts under `deploy/scripts/migration/`.
 
 ## GitHub deploy key (VPS → `HostylerWeb/Luxero`)

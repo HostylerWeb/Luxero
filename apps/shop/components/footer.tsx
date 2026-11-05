@@ -26,8 +26,8 @@ export function Footer() {
           </nav>
         </div>
         <p className="mt-6 text-center text-[10px] text-muted-foreground/60">
-          &copy; {new Date().getFullYear()} LUXERO COMPETITIONS LTD. All rights reserved. Company
-          No. SC888260.
+          &copy; {new Date().getFullYear()} LUXERO HOLDINGS LTD. All rights reserved. Company
+          No. 17552908.
         </p>
       </div>
     </footer>

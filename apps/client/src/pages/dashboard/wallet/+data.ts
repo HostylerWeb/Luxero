@@ -1,9 +1,10 @@
 import type { Balance, BalanceTransaction } from "@luxero/types";
 import type { PageContextServer } from "vike/types";
+import { getPageAuthCookie } from "@/lib/page-auth-cookie";
 import { serverFetch } from "@/lib/server-fetch";
 
 export async function data(pageContext: PageContextServer) {
-  const cookie = pageContext.headers?.cookie ?? "";
+  const cookie = getPageAuthCookie(pageContext);
 
   const [balanceRes, transactionsRes] = await Promise.all([
     serverFetch<Balance>("/api/balance", { cookieHeader: cookie }),

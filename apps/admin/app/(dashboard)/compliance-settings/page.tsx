@@ -66,7 +66,7 @@ const DEFAULTS: ComplianceFormValues = {
   selfExclusionEnabled: false,
   selfExclusionMinMonths: 6,
   marketingWebhookUrl: "",
-  postalEntryAddress: "107 Dalriada Crescent, Motherwell ML1 3XT",
+  postalEntryAddress: "128 City Road, London EC1V 2NX, United Kingdom",
   postalEntryProminenceEnabled: false,
   compliancePageEnabled: false,
   guestCheckoutEnabled: true,

@@ -56,9 +56,9 @@ export const ABOUT_SECTIONS: AboutSection[] = [
     title: "Company Information",
     icon: "Building",
     companyInfo: {
-      name: "LUXERO COMPETITIONS LTD",
-      number: "SC888260",
-      address: "107 Dalriada Crescent, Motherwell, Scotland ML1 3XT, United Kingdom",
+      name: "LUXERO HOLDINGS LTD",
+      number: "17552908",
+      address: "128 City Road, London, EC1V 2NX, United Kingdom",
       email: "contact@luxero.win",
     },
   },

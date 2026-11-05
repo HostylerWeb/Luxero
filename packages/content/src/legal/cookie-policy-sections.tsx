@@ -183,9 +183,9 @@ export const cookiePolicySections = [
               contact@luxero.win
             </a>
           </li>
-          <li>Company: LUXERO COMPETITIONS LTD (Company No.SC888260, registered in Scotland)</li>
+          <li>Company: LUXERO HOLDINGS LTD (Company No. 17552908, registered in England and Wales)</li>
           <li>
-            Registered office: 107 Dalriada Crescent, Motherwell, Scotland ML1 3XT, United Kingdom
+            Registered office: 128 City Road, London, EC1V 2NX, United Kingdom
           </li>
         </ul>
       </div>

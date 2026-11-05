@@ -1,4 +1,5 @@
 import { getServerSession } from "@luxero/auth-admin";
+import { resolveBestSessionFromCookieHeader } from "@luxero/auth-admin/resolve-best-session";
 import { getEnv } from "@luxero/env/server";
 import type {
   ApiResponse,
@@ -7,14 +8,11 @@ import type {
   PublicComplianceSettings,
   SessionUser,
 } from "@luxero/types";
-import { getDisplayName, getProfileInitials, getSessionCookiePrefix } from "@luxero/utils";
+import { getDisplayName, getProfileInitials } from "@luxero/utils";
 import type { PageContextServer } from "vike/types";
 import { loadLocaleData, setLocaleData } from "@/lib/i18n";
 import { detectLocale } from "@/lib/i18n/locale-detection";
 import { serverFetch } from "@/lib/server-fetch";
-
-const CLIENT_COOKIE_PREFIX = getSessionCookiePrefix(getEnv("APP_URL"), "client");
-const SESSION_COOKIE_NAME = `__Secure-${CLIENT_COOKIE_PREFIX}.session_token`;
 
 interface UserShell {
   user: SessionUser | null;
@@ -40,68 +38,13 @@ async function loadUserShell(user: SessionUser, _cookie: string): Promise<UserSh
   return { user, displayName, initials };
 }
 
-function parseSessionTokens(cookieHeader: string): string[] {
-  const tokens: string[] = [];
-  for (const pair of cookieHeader.split(";")) {
-    const trimmed = pair.trim();
-    if (trimmed.startsWith(`${SESSION_COOKIE_NAME}=`)) {
-      tokens.push(trimmed.slice(SESSION_COOKIE_NAME.length + 1));
-    }
-  }
-  return tokens;
-}
-
-interface ResolvedSession {
-  user: SessionUser | null;
-  /** Cookie header to use for authenticated API calls (may be a single token). */
-  authCookie: string;
-}
-
-async function resolveBestSession(cookie: string): Promise<ResolvedSession> {
-  const empty: ResolvedSession = { user: null, authCookie: cookie };
-
-  if (!cookie) return empty;
-
-  const tokens = parseSessionTokens(cookie);
-
-  if (tokens.length > 1) {
-    let anonymousFallback: ResolvedSession | null = null;
-
-    for (const token of tokens) {
-      const authCookie = `${SESSION_COOKIE_NAME}=${token}`;
-      const h = new Headers();
-      h.set("cookie", authCookie);
-      try {
-        const candidate = await getServerSession("client", h);
-        if (!candidate) continue;
-        if (!candidate.isAnonymous) {
-          return { user: candidate, authCookie };
-        }
-        if (!anonymousFallback) {
-          anonymousFallback = { user: candidate, authCookie };
-        }
-      } catch {
-        // Token failed, try the next one
-      }
-    }
-
-    if (anonymousFallback) return anonymousFallback;
-    return empty;
-  }
-
-  const headers = new Headers();
-  headers.set("cookie", cookie);
-  const user = await getServerSession("client", headers);
-  return { user, authCookie: cookie };
-}
-
 export async function onCreatePageContext(pageContext: PageContextServer) {
   const cookie = pageContext.headers?.cookie ?? "";
 
   let user: SessionUser | null = null;
   let authCookie = cookie;
   try {
-    const resolved = await resolveBestSession(cookie);
+    const resolved = await resolveBestSessionFromCookieHeader("client", cookie);
     user = resolved.user;
     authCookie = resolved.authCookie;
   } catch {
@@ -169,6 +112,7 @@ export async function onCreatePageContext(pageContext: PageContextServer) {
 
   Object.assign(pageContext, {
     user,
+    authCookie,
     cartInitialData,
     profileInitialData,
     complianceFeaturesData,
@@ -187,6 +131,8 @@ declare global {
   namespace Vike {
     interface PageContext {
       user: SessionUser | null;
+      /** Prefer this over raw Cookie for authenticated serverFetch calls. */
+      authCookie: string;
       cartInitialData: ApiResponse<ICart> | null;
       profileInitialData: ApiResponse<Profile> | null;
       complianceFeaturesData: ApiResponse<PublicComplianceSettings> | null;

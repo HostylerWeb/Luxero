@@ -28,12 +28,12 @@ export default function TermsPage() {
             <p className="mt-3">
               These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of the
               website at luxero.win (the &ldquo;Site&rdquo;) and the purchase of products from
-              LUXERO COMPETITIONS LTD. By using the Site or placing an order, you agree to be bound
+              LUXERO HOLDINGS LTD. By using the Site or placing an order, you agree to be bound
               by these Terms.
             </p>
             <p className="mt-2">
-              LUXERO COMPETITIONS LTD is a company registered in Scotland (company number SC888260).
-              Registered office: 107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland.
+              LUXERO HOLDINGS LTD is a company registered in England and Wales (company number 17552908).
+              Registered office: 128 City Road, London, United Kingdom, EC1V 2NX.
             </p>
             <p className="mt-2">
               If you have any questions about these Terms, please contact us at{" "}
@@ -178,7 +178,7 @@ export default function TermsPage() {
               8. Limitation of Liability
             </h2>
             <p className="mt-3">
-              To the fullest extent permitted by Scottish law, LUXERO COMPETITIONS LTD shall not be
+              To the fullest extent permitted by Scottish law, LUXERO HOLDINGS LTD shall not be
               liable for any indirect, incidental, or consequential damages arising out of or in
               connection with the use of the Site or the purchase of products, including but not
               limited to loss of profits, data, or business opportunity.
@@ -198,8 +198,8 @@ export default function TermsPage() {
             <p className="mt-3">
               The name &ldquo;LUXERO&rdquo;, the LUXERO logo, and all related product names,
               designs, graphics, slogans, and trade dress are trademarks or registered trademarks of
-              LUXERO COMPETITIONS LTD. All content on the Site, including text, images, graphics,
-              videos, and software, is the property of LUXERO COMPETITIONS LTD or its licensors and
+              LUXERO HOLDINGS LTD. All content on the Site, including text, images, graphics,
+              videos, and software, is the property of LUXERO HOLDINGS LTD or its licensors and
               is protected by copyright and other intellectual property laws.
             </p>
             <p className="mt-2">
@@ -245,7 +245,7 @@ export default function TermsPage() {
               </li>
               <li>Phone: +44 744 328 9228</li>
               <li>
-                Post: LUXERO COMPETITIONS LTD, 107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland,
+                Post: LUXERO HOLDINGS LTD, 128 City Road, London, United Kingdom, EC1V 2NX,
                 United Kingdom
               </li>
             </ul>

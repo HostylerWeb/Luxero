@@ -232,7 +232,7 @@ export function OfficialLinksPage() {
 
         <footer className="footer">
           <div className="footer-main">
-            <span>© 2026 LUXERO COMPETITIONS LTD</span>
+            <span>© 2026 LUXERO HOLDINGS LTD</span>
             <span className="official-label">
               <span className="diamond" aria-hidden="true" />
               <span>OFFICIAL LINKS</span>

@@ -79,13 +79,9 @@ app.delete("/unsubscribe", async (c) => {
   }
 });
 
-app.get("/preferences", async (c) => {
+app.get("/preferences", requireSession, async (c) => {
   try {
-    const userId = c.get("userId");
-    if (!userId) {
-      return error(c, ErrorCodes.UNAUTHORIZED, "Authentication required", 401);
-    }
-
+    const userId = c.get("userId")!;
     await dbConnect();
 
     const sub = await PushSubscription.findOne({ userId, active: true }, { preferences: 1 })

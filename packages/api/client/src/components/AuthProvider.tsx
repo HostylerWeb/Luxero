@@ -143,6 +143,13 @@ export function AuthProvider({
       return;
     }
     if (session) {
+      if (
+        session.user.isAnonymous &&
+        initialUserRef.current &&
+        initialUserRef.current.isAnonymous === false
+      ) {
+        return;
+      }
       updateSessionSnapshot(session);
       if (typeof window !== "undefined" && !session.user.isAnonymous) {
         (window as any).umami?.identify({ id: session.user.email!, email: session.user.email! });

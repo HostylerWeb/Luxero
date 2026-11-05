@@ -7,8 +7,8 @@ export const termsSections = [
     content: (
       <div className="space-y-3 text-muted-foreground">
         <p>
-          SUNTEM LUXERO COMPETITIONS LTD, o companie înregistrată în Scoția cu numărul de companie
-          SC888260. Sediu nostru social este la 107 Dalriada Crescent, Motherwell, ML1 3XT, Scoția.
+          SUNTEM LUXERO HOLDINGS LTD, o companie înregistrată în Anglia și Țara Galilor cu numărul de companie
+          17552908. Sediu nostru social este la 128 City Road, London, EC1V 2NX, United Kingdom.
           Suntem &ldquo;Promotorul&rdquo; extragerii cu premii (&ldquo;Extragerea&rdquo;) operată la
           LUXERO &ndash; Site-ul Oficial Luxero Competitions &ndash; Donează și câștigă mașini,
           bani, premii instant (luxero.win) (&ldquo;Site-ul Web&rdquo;), ceea ce înseamnă că suntem
@@ -148,7 +148,7 @@ export const termsSections = [
         <p>
           Te rugăm să trimiți o carte poștală cu numele tău, numărul de cont Luxero, adresa poștală,
           data nașterii, adresa de email și numărul de telefon și numele concursului la care
-          participi la 107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland.
+          participi la 128 City Road, London, United Kingdom, EC1V 2NX.
         </p>
         <p>Participările gratuite valide vor fi găsite în istoricul contului tău.</p>
         <p>O participare per carte poștală pentru fiecare Extragere.</p>
@@ -541,7 +541,7 @@ export const termsSections = [
           </a>{" "}
           ; sau
         </p>
-        <p>8.13.3. 107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland</p>
+        <p>8.13.3. 128 City Road, London, United Kingdom, EC1V 2NX</p>
         <p>
           8.14. Acești Termeni și orice dispută sau revendicare (inclusiv dispute sau revendicări
           necontractuale) care decurg din sau în legătură cu aceștia sau obiectul sau formarea lor

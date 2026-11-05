@@ -5,16 +5,19 @@ import type {
   SelfExclusionDuration,
 } from "@luxero/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getSessionSnapshot } from "../../auth/session-snapshot";
 import { api } from "../../client";
 import { STALE_TIME_USER } from "../../constants";
 import { queryKeys } from "../../keys";
 
 export function useSaferPlay(options?: { initialData?: ApiResponse<SaferPlayState> }) {
+  const hasAccount = Boolean(getSessionSnapshot().user && !getSessionSnapshot().isAnonymous);
   return useQuery<ApiResponse<SaferPlayState>>({
     queryKey: queryKeys.my.saferPlay(),
     queryFn: () => api.get("/api/me/safer-play"),
     staleTime: STALE_TIME_USER,
     initialData: options?.initialData,
+    enabled: hasAccount,
   });
 }
 

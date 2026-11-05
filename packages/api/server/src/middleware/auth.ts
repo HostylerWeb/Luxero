@@ -10,6 +10,7 @@ import { Profile } from "@luxero/api-db/models";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { error } from "@luxero/api-infra/response";
 import type { AuthSessionData, AuthUser } from "@luxero/auth-admin/auth-client";
+import { getServerAuthSession } from "@luxero/auth-admin/server-session";
 import type { Context, Next } from "hono";
 
 declare module "hono" {
@@ -92,9 +93,7 @@ function applySession(
 
 export async function resolveSession(c: Context): Promise<void> {
   if (c.get("sessionResolved")) return;
-  const auth = c.get("authInstance");
-  if (!auth) return;
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  const session = await getServerAuthSession("client", c.req.raw);
   applySession(c, session);
 }
 

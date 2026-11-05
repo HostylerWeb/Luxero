@@ -7,7 +7,7 @@ export const privacySections = [
     content: (
       <div className="space-y-3 text-muted-foreground">
         <p>
-          LUXERO COMPETITIONS LTD (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed
+          LUXERO HOLDINGS LTD (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed
           to protecting and respecting your privacy. This Privacy Policy explains how we collect,
           use, disclose, and safeguard your information when you use our website and services.
         </p>
@@ -400,10 +400,10 @@ export const privacySections = [
             </a>
           </li>
           <li>
-            Post: Luxero Competitions, 107 Dalriada Crescent, Motherwell, Scotland ML1 3XT, United
+            Post: Luxero Competitions, 128 City Road, London, EC1V 2NX, United
             Kingdom
           </li>
-          <li>Company: LUXERO COMPETITIONS LTD (Company No.SC888260, registered in Scotland)</li>
+          <li>Company: LUXERO HOLDINGS LTD (Company No. 17552908, registered in England and Wales)</li>
         </ul>
       </div>
     ),

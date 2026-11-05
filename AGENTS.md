@@ -47,6 +47,17 @@ Dev server names defined in each app's `devservers.yml`.
 - `turbo.json` `concurrency` is set to `"1"`. **Do not raise it** — the build server has limited RAM (768MB max-old-space-size). Higher concurrency causes OOM kills and hangs.
 - Run tasks with `--concurrency=1` explicitly if overriding the config.
 
+## Production deploy (luxero.win on Hostinger)
+
+**Always follow** `deploy/HOSTINGER-UPDATE.md`. Summary:
+
+1. Push to `HostylerWeb/Luxero` `main`.
+2. On VPS `187.7.28.125`: `bash /var/www/luxero/turborepo-main/deploy/scripts/hostinger-deploy-from-git.sh`
+3. **Never** `rsync --delete` the whole monorepo from a dev machine (~12GB).
+4. Env/secrets live in `/root/luxero-*.env` — use `docker compose up -d --force-recreate` after env changes.
+
+Prestige Prizes is **Krystal**, not Hostinger — see `/var/www/prestigeprizes/ssh.txt`.
+
 ## Database
 MongoDB with Mongoose. replica set required (for Better Auth sessions + transactions).
 Models in `packages/api-db/src/models/`.

@@ -1,11 +1,13 @@
+import { LUXERO_LEGAL_ENTITY } from "./legal/company-entity.ts";
+
 export const LEGAL_SITE_NAME = "Luxero Competitions";
 
 export const termsIntro = {
   title: "Terms & Conditions",
-  lastUpdated: "24 October 2026",
-  companyName: "LUXERO COMPETITIONS LTD",
-  companyNumber: "Company no. SC888260",
-  registeredOffice: "107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland",
+  lastUpdated: "5 November 2026",
+  companyName: LUXERO_LEGAL_ENTITY.name,
+  companyNumber: LUXERO_LEGAL_ENTITY.numberLabelEn,
+  registeredOffice: LUXERO_LEGAL_ENTITY.registeredOffice,
   website: "www.luxero.win",
   pageSubtitle: "Prize draws, postal entries, instant wins and consumer protections",
   contactLine: "contact@luxero.win   |   +44 744 3289228   |   www.luxero.win",
@@ -13,8 +15,8 @@ export const termsIntro = {
 
 export const privacyIntro = {
   title: "Privacy Policy",
-  lastUpdated: "May 2026",
-  dataController: "LUXERO COMPETITIONS LTD",
+  lastUpdated: "November 2026",
+  dataController: LUXERO_LEGAL_ENTITY.name,
 };
 
 export const cookiePolicyIntro = {

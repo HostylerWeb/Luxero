@@ -154,8 +154,8 @@ export const cookiePolicySections = [
               contact@luxero.win
             </a>
           </li>
-          <li>Companie: LUXERO COMPETITIONS LTD (Nr. Înreg. SC888260, înregistrată în Scoția)</li>
-          <li>Sediu social: 107 Dalriada Crescent, Motherwell, Scotland ML1 3XT, United Kingdom</li>
+          <li>Companie: LUXERO HOLDINGS LTD (Nr. înreg. 17552908, înregistrată în Anglia și Țara Galilor)</li>
+          <li>Sediu social: 128 City Road, London, EC1V 2NX, United Kingdom</li>
         </ul>
       </div>
     ),

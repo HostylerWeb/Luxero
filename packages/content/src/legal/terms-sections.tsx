@@ -7,8 +7,8 @@ export const termsSections = [
     content: (
       <div className="space-y-3 text-muted-foreground">
         <p>
-          We are LUXERO COMPETITIONS LTD, a company incorporated in Scotland with company number
-          SC888260. Our registered office is at 107 Dalriada Crescent, Motherwell, ML1 3XT,
+          We are LUXERO HOLDINGS LTD, a company incorporated in England and Wales with company number
+          17552908. Our registered office is at 128 City Road, London, EC1V 2NX, United Kingdom,
           Scotland. We are the &ldquo;Promotor&rdquo; of the prize draw (&ldquo;Draw&rdquo;)
           operated at LUXERO &ndash; Official Site Luxero Competitions &ndash; Donate and win cars,
           money, instant prizes (luxero.win) (&ldquo;the Website&rdquo;) which means that we are
@@ -140,7 +140,7 @@ export const termsSections = [
         <p>
           Please send a postcard with your name, Luxero account number, postal address, date of
           birth, email address and telephone number and the name of the competition you are entering
-          to 107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland.
+          to 128 City Road, London, United Kingdom, EC1V 2NX.
         </p>
         <p>Valid free entries will be found within the history of your account.</p>
         <p>One entry per postcard to each Draw.</p>
@@ -504,7 +504,7 @@ export const termsSections = [
           </a>{" "}
           ; or
         </p>
-        <p>8.13.3. 107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland</p>
+        <p>8.13.3. 128 City Road, London, United Kingdom, EC1V 2NX</p>
         <p>
           8.14. These Terms and any dispute or claim (including non-contractual disputes or claims)
           arising out of or in connection with them or their subject matter or formation shall be

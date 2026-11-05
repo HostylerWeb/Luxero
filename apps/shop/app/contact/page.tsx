@@ -47,11 +47,11 @@ export default function ContactPage() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-gold">Address</h3>
             <address className="mt-2 not-italic text-muted-foreground leading-relaxed">
-              107 Dalriada Crescent
+              128 City Road
               <br />
-              Motherwell, ML1 3XT
+              London, EC1V 2NX
               <br />
-              Scotland, United Kingdom
+              United Kingdom
             </address>
           </div>
           <div>

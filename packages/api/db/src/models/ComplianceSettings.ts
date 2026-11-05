@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 import { m } from "../db";
 
-const DEFAULT_POSTAL_ADDRESS = "107 Dalriada Crescent, Motherwell ML1 3XT";
+const DEFAULT_POSTAL_ADDRESS = "128 City Road, London EC1V 2NX, United Kingdom";
 
 const ComplianceSettingsSchema = new Schema(
   {

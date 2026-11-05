@@ -7,7 +7,7 @@ export const privacySections = [
     content: (
       <div className="space-y-3 text-muted-foreground">
         <p>
-          LUXERO COMPETITIONS LTD (&quot;noi&quot;, &quot;al nostru&quot; sau &quot;nouă&quot;) se
+          LUXERO HOLDINGS LTD (&quot;noi&quot;, &quot;al nostru&quot; sau &quot;nouă&quot;) se
           angajează să protejeze și să respecte confidențialitatea ta. Această Politică de
           Confidențialitate explică cum colectăm, folosim, dezvăluim și protejăm informațiile tale
           când folosești site-ul și serviciile noastre.
@@ -415,10 +415,10 @@ export const privacySections = [
             </a>
           </li>
           <li>
-            Poștă: Luxero Competitions, 107 Dalriada Crescent, Motherwell, Scotland ML1 3XT, United
+            Poștă: Luxero Competitions, 128 City Road, London, EC1V 2NX, United
             Kingdom
           </li>
-          <li>Companie: LUXERO COMPETITIONS LTD (Nr. Înreg. SC888260, înregistrată în Scoția)</li>
+          <li>Companie: LUXERO HOLDINGS LTD (Nr. înreg. 17552908, înregistrată în Anglia și Țara Galilor)</li>
         </ul>
       </div>
     ),

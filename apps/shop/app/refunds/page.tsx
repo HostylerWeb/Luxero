@@ -125,13 +125,13 @@ export default function RefundsPage() {
               </a>
             </p>
             <p>
-              LUXERO COMPETITIONS LTD
+              LUXERO HOLDINGS LTD
               <br />
-              107 Dalriada Crescent
+              128 City Road
               <br />
-              Motherwell, ML1 3XT
+              London, EC1V 2NX
               <br />
-              Scotland, United Kingdom
+              United Kingdom
             </p>
           </div>
         </section>

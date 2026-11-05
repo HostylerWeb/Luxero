@@ -1,5 +1,6 @@
 import type { MeOrderDto } from "@luxero/types";
 import type { PageContextServer } from "vike/types";
+import { getPageAuthCookie } from "@/lib/page-auth-cookie";
 import { serverFetch } from "@/lib/server-fetch";
 
 async function jsonFetch<T>(path: string, cookie: string): Promise<T | null> {
@@ -8,7 +9,7 @@ async function jsonFetch<T>(path: string, cookie: string): Promise<T | null> {
 }
 
 export async function data(pageContext: PageContextServer) {
-  const cookie = pageContext.headers?.cookie ?? "";
+  const cookie = getPageAuthCookie(pageContext);
   const ordersPage1 = await jsonFetch<MeOrderDto[]>("/api/me/orders?page=1&limit=20", cookie);
 
   return {

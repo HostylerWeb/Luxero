@@ -21,7 +21,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         gold:
-          "luxero-gold-cta shadow-none font-semibold hover:bg-transparent focus-visible:ring-gold/40",
+          "luxero-gold-cta shadow-none font-semibold focus-visible:ring-gold/40",
       },
       size: {
         default: "h-9 px-4 py-2 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",

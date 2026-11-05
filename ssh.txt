@@ -93,7 +93,15 @@ Deploy tree on 187.7.28.125:
   Code:   /var/www/luxero/turborepo-main
   Stack:  /var/www/luxero/deploy/docker-compose.hostinger.yml
   Env:    /root/luxero-app.env, luxero-client.env, luxero-admin.env, luxero-shop.env, luxero-secrets.env
-  Redeploy: cd /var/www/luxero/deploy && docker compose -f docker-compose.hostinger.yml build <service> && docker compose -f docker-compose.hostinger.yml up -d <service>
+
+  HOW TO UPDATE PRODUCTION (read this first):
+    deploy/HOSTINGER-UPDATE.md
+  Normal deploy (on VPS as root):
+    bash /var/www/luxero/turborepo-main/deploy/scripts/hostinger-deploy-from-git.sh
+  Do NOT rsync the whole repo from a laptop (~12GB) — sync only changed files or use git pull.
+
+  Single service (after sourcing /root/luxero-app.env + client/admin env + secrets — see HOSTINGER-UPDATE.md):
+    cd /var/www/luxero/deploy && docker compose -f docker-compose.hostinger.yml build <service> && docker compose -f docker-compose.hostinger.yml up -d --force-recreate <service>
 
 Env (Hetzner): APP_URL=https://luxero.win, S3_ENDPOINT=https://assets.luxero.win, ASSET_BASE_URL=https://assets.luxero.win/luxero-assets
 Env (Hostinger phase): see deploy/scripts/hostinger-env.sh — APP_URL / ADMIN_URL / SHOP_URL / ASSET_BASE_URL must use the *.hstgr.cloud hosts above (client, admin, shop each get their own APP_URL file).

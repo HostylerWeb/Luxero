@@ -24,10 +24,10 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold tracking-tight text-foreground">1. Who We Are</h2>
             <p className="mt-3">
-              LUXERO COMPETITIONS LTD (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;)
-              operates the website at luxero.win. We are a company registered in Scotland (company
-              number SC888260) with our registered address at 107 Dalriada Crescent, Motherwell, ML1
-              3XT, Scotland. We are the data controller of your personal data for the purposes of UK
+              LUXERO HOLDINGS LTD (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;)
+              operates the website at luxero.win. We are a company registered in England and Wales (company
+              number 17552908) with our registered address at 128 City Road, London, EC1V 2NX,
+              United Kingdom. We are the data controller of your personal data for the purposes of UK
               data protection law.
             </p>
             <p className="mt-2">
@@ -316,7 +316,7 @@ export default function PrivacyPage() {
                 </a>
               </li>
               <li>
-                Post: LUXERO COMPETITIONS LTD, 107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland,
+                Post: LUXERO HOLDINGS LTD, 128 City Road, London, United Kingdom, EC1V 2NX,
                 United Kingdom
               </li>
             </ul>

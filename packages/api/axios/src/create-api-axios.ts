@@ -69,7 +69,12 @@ export function createApiAxios(options: ApiAxiosOptions): AxiosInstance {
         return Promise.reject(error);
       }
 
-      if (path.startsWith("/api/cart") || path.includes("/api/referral-code/claim")) {
+      if (
+        path.startsWith("/api/cart") ||
+        path.includes("/api/referral-code/claim") ||
+        path.startsWith("/api/me/safer-play") ||
+        path.startsWith("/api/push/preferences")
+      ) {
         return Promise.reject(error);
       }
 
@@ -80,7 +85,6 @@ export function createApiAxios(options: ApiAxiosOptions): AxiosInstance {
       sessionStorage?.setItem(lastKey, String(now));
 
       setSessionLoggingOut?.(true);
-      Promise.resolve().then(() => logoutAll?.());
       clearQueryClient?.();
 
       if (typeof window !== "undefined") {

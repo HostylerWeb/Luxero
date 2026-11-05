@@ -125,11 +125,11 @@ export default function AboutPage() {
       <section className="mx-auto mt-16 max-w-3xl border-t border-border-subtle pt-12">
         <h2 className="text-2xl font-bold tracking-tight">Visit Us</h2>
         <p className="mt-4 text-muted-foreground leading-relaxed">
-          107 Dalriada Crescent
+          128 City Road
           <br />
-          Motherwell, ML1 3XT
+          London, EC1V 2NX
           <br />
-          Scotland, United Kingdom
+          United Kingdom
         </p>
         <p className="mt-4 text-muted-foreground">
           Email:{" "}

@@ -10,6 +10,7 @@ import {
   signInWithPassword,
 } from "../actions";
 import { normalizeAuthEmail } from "../normalize-email";
+import { authClient } from "../client";
 import { refreshAuthSession } from "../refresh-session";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import {
@@ -104,6 +105,11 @@ export function SignInForm({
     setError(null);
     try {
       const normalizedEmail = normalizeAuthEmail(email);
+      try {
+        await authClient.signOut();
+      } catch {
+        // No guest session — continue.
+      }
       const result = await signInWithPassword(
         normalizedEmail,
         password,

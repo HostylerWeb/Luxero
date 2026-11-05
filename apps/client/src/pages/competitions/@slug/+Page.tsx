@@ -918,6 +918,8 @@ export default function Page() {
                             <Spinner size="sm" className="mr-2" aria-hidden />
                             {t("competitions.detail.saving")}
                           </>
+                        ) : needsSkillAnswer ? (
+                          t("competitions.detail.answerCorrectly")
                         ) : (
                           <>
                             <ShoppingCart className="mr-2 size-5 sm:size-6" />

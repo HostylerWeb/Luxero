@@ -904,6 +904,11 @@
     .group:hover .comp-card-cta-gold {
       filter: brightness(1.07);
     }
+
+    .luxero-gold-cta[aria-disabled="true"]:hover,
+    .luxero-gold-cta:disabled:hover {
+      filter: none;
+    }
   }
 
   .luxero-gold-cta:active:not(:disabled):not([aria-disabled="true"]),

@@ -8,9 +8,11 @@ import {
 } from "./ro/contact";
 
 export const CONTACT_EMAIL = "contact@luxero.win";
-export const COMPANY_NAME = "LUXERO COMPETITIONS LTD";
-export const COMPANY_NUMBER = "Company No. SC888260 (Scotland)";
-export const COMPANY_ADDRESS = "107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland";
+import { LUXERO_LEGAL_ENTITY } from "./legal/company-entity.ts";
+
+export const COMPANY_NAME = LUXERO_LEGAL_ENTITY.name;
+export const COMPANY_NUMBER = LUXERO_LEGAL_ENTITY.numberLabelEnLong;
+export const COMPANY_ADDRESS = LUXERO_LEGAL_ENTITY.registeredOffice;
 export const CONTACT_PHONE = "+44 744 328 9228";
 export const CONTACT_PHONE_HOURS = "Mon–Fri, 9am–5pm GMT";
 

@@ -121,7 +121,7 @@
     "cookiePolicy": "Cookie Policy",
     "freePostalEntry": "Free Postal Entry",
     "acceptedPayments": "Accepted payment methods",
-    "copyright": "© {year} LUXERO COMPETITIONS LTD SC888260. All rights reserved.",
+    "copyright": "© {year} LUXERO HOLDINGS LTD 17552908. All rights reserved.",
     "installApp": "Install App"
   },
   "pwa": {
@@ -1663,9 +1663,9 @@
         "email": "contact@luxero.win",
         "phone": "+44 744 328 9228",
         "hours": "Mon–Fri, 9am–5pm GMT",
-        "address": "107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland",
-        "companyName": "LUXERO COMPETITIONS LTD",
-        "companyNumber": "Company No. SC888260 (Scotland)"
+        "address": "128 City Road, London, United Kingdom, EC1V 2NX",
+        "companyName": "LUXERO HOLDINGS LTD",
+        "companyNumber": "Company No. 17552908 (England and Wales)"
       },
       "footerNote": "We respond within 24 hours on business days (Mon–Fri, 9am–5pm GMT)."
     },
@@ -1726,8 +1726,8 @@
       "intro": "You may enter the competition using the Postal Entry Route by complying with the following conditions.",
       "sendTo": "Send your entry to",
       "companyName": "Luxero Competitions",
-      "address": "107 Dalriada Crescent, Motherwell, ML1 3XT, Scotland",
-      "companyRegistration": "LUXERO COMPETITIONS LTD — Company No. SC888260 (Scotland)",
+      "address": "128 City Road, London, United Kingdom, EC1V 2NX",
+      "companyRegistration": "LUXERO HOLDINGS LTD — Company No. 17552908 (England and Wales)",
       "includeHeading": "Include with your entry",
       "includeItems": [
         "your full name;",
