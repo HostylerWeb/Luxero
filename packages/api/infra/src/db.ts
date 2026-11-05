@@ -68,7 +68,7 @@ async function dbConnect(): Promise<typeof mongoose> {
         maxPoolSize: 50,
         minPoolSize: 5,
         serverSelectionTimeoutMS: 5_000,
-        socketTimeoutMS: 30_000,
+        socketTimeoutMS: Number(getEnv("MONGODB_SOCKET_TIMEOUT_MS", { optional: true }) || 30_000),
         maxIdleTimeMS: 60_000,
         ...mongoOptions,
       })
