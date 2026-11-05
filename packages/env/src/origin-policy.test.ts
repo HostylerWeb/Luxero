@@ -14,7 +14,7 @@ describe("origin-policy", () => {
 
   it("allows luxero.win subdomains via suffix regex", () => {
     expect(isAllowedRequestOrigin("https://admin.luxero.win")).toBe(true);
-    expect(isAllowedRequestOrigin("https://assets.staging.luxero.win")).toBe(true);
+    expect(isAllowedRequestOrigin("https://assets.luxero.win")).toBe(true);
   });
 
   it("allows hstgr.cloud subdomains via suffix regex", () => {

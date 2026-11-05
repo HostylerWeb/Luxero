@@ -23,7 +23,7 @@ export function BaseEmail({
   settings?: IEmailSettings;
   frontendUrl?: string;
 }) {
-  const effectiveUrl = frontendUrl ?? "https://staging.luxero.win";
+  const effectiveUrl = frontendUrl ?? "https://luxero.win";
   const social = settings?.social ?? ({} as NonNullable<IEmailSettings["social"]>);
   return (
     <Tailwind

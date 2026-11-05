@@ -1,48 +1,52 @@
 # Hostinger production (luxero.win)
 
-## One-command deploy on the VPS
+Production runs entirely on the Hostinger VPS (`187.7.28.125`): Docker apps, Caddy, MinIO, MongoDB (`luxero` + `agro`). **Hetzner is not part of runtime** — only optional one-time scripts under `deploy/scripts/migration/`.
 
-After SSH to Hostinger as root:
+## Deploy after `git pull`
 
 ```bash
 bash /var/www/luxero/turborepo-main/deploy/scripts/hostinger-deploy-from-git.sh
 ```
 
-This will:
+Rebuilds client/admin with `source /root/luxero-*.env` so Turnstile and `PUBLIC_ENV__*` stay correct.
 
-1. `git pull origin main`
-2. Re-apply `hostinger-cutover-luxero-win-env.sh` (luxero.win URLs)
-3. **Rebuild** client, client-agro, admin, admin-agro, shop (with `source /root/luxero-*.env` so Turnstile and `PUBLIC_ENV__*` are baked into Vite/Next builds)
-4. `docker compose up -d`
+## Verify no Hetzner dependency (before powering off Hetzner)
 
-Always run deploy from the VPS after merging to `main` — do not rely on `docker compose up` alone after code changes.
-
-## DNS must point at Hostinger (not Hetzner)
-
-**`CF_API_TOKEN`** is the **Cloudflare API token** you created under *My Profile → API Tokens* (the same `cfut_…` value you use as `Authorization: Bearer …` in the verify curl). It is **not** your Cloudflare account password. Store it only in your shell or a secrets file — never commit it.
-
-The script moves product DNS to Hostinger, points `*.luxero.win` at Hostinger, and **deletes staging** records (`staging.luxero.win`, `*.staging.luxero.win`, etc.).
+On the VPS:
 
 ```bash
-export CF_API_TOKEN='cfut_…'   # your token
+bash /var/www/luxero/turborepo-main/deploy/scripts/verify-hostinger-independence.sh
+```
+
+## DNS (Cloudflare)
+
+Use your **API token** (`CF_API_TOKEN` = the `cfut_…` Bearer token from Cloudflare → API Tokens):
+
+```bash
+export CF_API_TOKEN='cfut_…'
 bash deploy/scripts/cloudflare-point-to-hostinger.sh
 ```
 
-Verify:
+This points product DNS + `*.luxero.win` to Hostinger and **deletes staging DNS records**.
+
+Check:
 
 ```bash
-dig +short A luxero.win
-# 187.7.28.125
-dig +short A staging.luxero.win
-# (no answer — staging removed)
-dig +short A randomname.luxero.win
-# 187.7.28.125 (wildcard)
-dig +short A build.coolify.luxero.win
-# 95.216.158.37 (unchanged — build server)
+dig +short A luxero.win @1.1.1.1          # 187.7.28.125
+dig +short A foo.luxero.win @1.1.1.1      # 187.7.28.125
+dig +short A build.coolify.luxero.win @1.1.1.1  # 95.216.158.37 (build server — stays)
 ```
 
-## Catch-up orders after cutover
+## Shut down Hetzner (operator checklist)
 
-```bash
-bash deploy/scripts/sync-recent-orders-hetzner-to-hostinger.sh
-```
+1. Run `verify-hostinger-independence.sh` — all OK.
+2. Stop Luxero Coolify apps on **167.233.52.87** (main + agro + staging).
+3. Optional final backup of Hetzner Mongo, then stop Mongo containers.
+4. Power off / cancel Hetzner VPS when satisfied.
+5. Remove `167.233.52.87` from `ssh.txt` / personal notes; rotate any secrets that only lived on Hetzner.
+
+**Do not** run migration sync scripts after Hetzner is off.
+
+## Why an order once missed admin
+
+Hostinger apps **always** used Hostinger Mongo. A checkout hit **Hetzner’s website** because **DNS** still sent some hostnames to `167.233.52.87`, not because `DATABASE_URL` pointed at Hetzner.

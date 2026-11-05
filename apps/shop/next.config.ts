@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "assets.luxero.win" },
-      { protocol: "https", hostname: "assets.staging.luxero.win" },
       { protocol: "http", hostname: "localhost", port: "9011", pathname: "/luxero-assets/**" },
       { protocol: "http", hostname: "127.0.0.1", port: "9011", pathname: "/luxero-assets/**" },
     ],

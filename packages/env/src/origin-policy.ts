@@ -7,7 +7,7 @@
  * URL-shaped env vars (APP_URL, S3_ENDPOINT, ASSET_BASE_URL, etc.) are listed in DEPLOYMENT_ORIGIN_ENV_KEYS.
  */
 
-/** Primary public product domain (Hetzner production). Hostinger phase uses *.hstgr.cloud via env URLs + suffix list. */
+/** Primary public product domain (Hostinger production). */
 export const PRIMARY_PRODUCT_HOST = "luxero.win";
 
 /** Default HTTPS host suffixes matched by origin regex (any subdomain). Extend with ORIGIN_ALLOW_HOST_SUFFIXES. */
@@ -23,7 +23,6 @@ export const DEPLOYMENT_ORIGIN_ENV_KEYS = [
   "SHOP_URL",
   "PUBLIC_ENV__APP_URL",
   "PUBLIC_ENV__ADMIN_URL",
-  "STAGING_APP_URL",
   "S3_ENDPOINT",
   "ASSET_BASE_URL",
   "NEXT_PUBLIC_ASSET_BASE_URL",
@@ -37,9 +36,14 @@ export function getPrimaryPlatformOrigins(): string[] {
   return [
     `https://${h}`,
     `https://www.${h}`,
-    `https://staging.${h}`,
     `https://assets.${h}`,
-    `https://assets.staging.${h}`,
+    `https://admin.${h}`,
+    `https://www.admin.${h}`,
+    `https://shop.${h}`,
+    `https://www.shop.${h}`,
+    `https://agro.${h}`,
+    `https://admin.agro.${h}`,
+    `https://link.${h}`,
   ];
 }
 

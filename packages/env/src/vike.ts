@@ -1,8 +1,8 @@
 import type { EnvKey } from "./types";
 
 const DEFAULTS: Partial<Record<EnvKey, string>> = {
-  APP_URL: "https://staging.luxero.win",
-  ADMIN_URL: "https://admin.staging.luxero.win",
+  APP_URL: "http://localhost:3555",
+  ADMIN_URL: "http://localhost:3222",
   SENTRY_ENVIRONMENT: "development",
 };
 

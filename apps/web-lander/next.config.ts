@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "assets.luxero.win" },
-      { protocol: "https", hostname: "assets.staging.luxero.win" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "googleuserconsent.com" },
       { protocol: "http", hostname: "localhost", port: "9011", pathname: "/luxero-assets/**" },
@@ -28,13 +27,13 @@ const nextConfig: NextConfig = {
         : "";
     const csp =
       "base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; default-src 'self'; " +
-      `media-src 'self' https://assets.luxero.win https://assets.staging.luxero.win${devAssetHosts}; ` +
+      `media-src 'self' https://assets.luxero.win${devAssetHosts}; ` +
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "worker-src 'self' blob:; child-src 'self' blob:; " +
-      `connect-src 'self' https://assets.luxero.win https://assets.staging.luxero.win${devAssetHosts}${devClient}; ` +
-      `img-src 'self' data: blob: https://assets.luxero.win https://assets.staging.luxero.win https://luxero.win https://lh3.googleusercontent.com${devAssetHosts}; ` +
+      `connect-src 'self' https://assets.luxero.win${devAssetHosts}${devClient}; ` +
+      `img-src 'self' data: blob: https://assets.luxero.win https://luxero.win https://lh3.googleusercontent.com${devAssetHosts}; ` +
       "font-src 'self' https://fonts.gstatic.com data:";
 
     return [

@@ -80,9 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <link rel="preconnect" href="https://assets.luxero.win" />
-        <link rel="preconnect" href="https://assets.staging.luxero.win" />
         <link rel="dns-prefetch" href="https://assets.luxero.win" />
-        <link rel="dns-prefetch" href="https://assets.staging.luxero.win" />
         {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <script
             defer
