@@ -30,7 +30,23 @@ RUN bun install --no-verify --ignore-scripts
 COPY --from=prune /app/out/full/ .
 COPY --from=prune /app/tsconfig.base.json .
 
-RUN BUILD_TS=$(date +%s) && echo "VITE_APP_VERSION=$BUILD_TS" > /app/apps/client/.env.production
+ARG PUBLIC_ENV__TURNSTILE_SITE_KEY=""
+ARG PUBLIC_ENV__APP_URL=""
+ARG PUBLIC_ENV__ADMIN_URL=""
+ARG PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY=""
+ARG PUBLIC_ENV__PAYMENT_BYPASS=""
+ARG PUBLIC_ENV__PAYMENT_DEBUG=""
+RUN rm -f /app/apps/client/.env /app/apps/client/.env.local /app/apps/client/.env.production && \
+  BUILD_TS=$(date +%s) && \
+  { \
+    echo "VITE_APP_VERSION=$BUILD_TS"; \
+    [ -n "$PUBLIC_ENV__TURNSTILE_SITE_KEY" ] && echo "PUBLIC_ENV__TURNSTILE_SITE_KEY=$PUBLIC_ENV__TURNSTILE_SITE_KEY"; \
+    [ -n "$PUBLIC_ENV__APP_URL" ] && echo "PUBLIC_ENV__APP_URL=$PUBLIC_ENV__APP_URL"; \
+    [ -n "$PUBLIC_ENV__ADMIN_URL" ] && echo "PUBLIC_ENV__ADMIN_URL=$PUBLIC_ENV__ADMIN_URL"; \
+    [ -n "$PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY" ] && echo "PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY=$PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY"; \
+    [ -n "$PUBLIC_ENV__PAYMENT_BYPASS" ] && echo "PUBLIC_ENV__PAYMENT_BYPASS=$PUBLIC_ENV__PAYMENT_BYPASS"; \
+    [ -n "$PUBLIC_ENV__PAYMENT_DEBUG" ] && echo "PUBLIC_ENV__PAYMENT_DEBUG=$PUBLIC_ENV__PAYMENT_DEBUG"; \
+  } > /app/apps/client/.env.production
 
 WORKDIR /app/apps/client
 RUN NODE_OPTIONS='--max-old-space-size=2048' bun run build

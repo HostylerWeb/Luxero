@@ -47,6 +47,13 @@ services:
     build:
       context: ../turborepo-main
       dockerfile: apps/client/Dockerfile
+      args:
+        PUBLIC_ENV__TURNSTILE_SITE_KEY: ${PUBLIC_ENV__TURNSTILE_SITE_KEY:-}
+        PUBLIC_ENV__APP_URL: ${PUBLIC_ENV__APP_URL:-}
+        PUBLIC_ENV__ADMIN_URL: ${PUBLIC_ENV__ADMIN_URL:-}
+        PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY: ${PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY:-}
+        PUBLIC_ENV__PAYMENT_BYPASS: ${PUBLIC_ENV__PAYMENT_BYPASS:-}
+        PUBLIC_ENV__PAYMENT_DEBUG: ${PUBLIC_ENV__PAYMENT_DEBUG:-}
     container_name: luxero_client
     restart: unless-stopped
     env_file:
@@ -113,6 +120,13 @@ services:
     build:
       context: ../turborepo-main
       dockerfile: apps/client/Dockerfile
+      args:
+        PUBLIC_ENV__TURNSTILE_SITE_KEY: ${PUBLIC_ENV__TURNSTILE_SITE_KEY:-}
+        PUBLIC_ENV__APP_URL: ${PUBLIC_ENV__APP_URL:-}
+        PUBLIC_ENV__ADMIN_URL: ${PUBLIC_ENV__ADMIN_URL:-}
+        PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY: ${PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY:-}
+        PUBLIC_ENV__PAYMENT_BYPASS: ${PUBLIC_ENV__PAYMENT_BYPASS:-}
+        PUBLIC_ENV__PAYMENT_DEBUG: ${PUBLIC_ENV__PAYMENT_DEBUG:-}
     container_name: luxero_client_agro
     restart: unless-stopped
     env_file:
