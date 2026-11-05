@@ -2,6 +2,39 @@
 
 Production runs entirely on the Hostinger VPS (`187.7.28.125`): Docker apps, Caddy, MinIO, MongoDB (`luxero` + `agro`). **Hetzner is not part of runtime** — only optional one-time scripts under `deploy/scripts/migration/`.
 
+## GitHub deploy key (VPS → `HostylerWeb/Luxero`)
+
+The VPS pulls with a **read-only deploy key** (not your personal SSH key):
+
+| Item | Location |
+|------|-----------|
+| Private key | `/root/.ssh/github_luxero_deploy` (mode `600`, do not copy off-server) |
+| SSH alias | `github-luxero` in `/root/.ssh/config` |
+| Git remote | `git@github-luxero:HostylerWeb/Luxero.git` in `/var/www/luxero/turborepo-main` |
+| GitHub | Repo → **Settings → Deploy keys** → “Hostinger VPS (187.7.28.125) deploy” (read-only) |
+
+**One-time setup (already done on prod):**
+
+```bash
+# On VPS as root
+ssh-keygen -t ed25519 -C "hostinger-luxero-deploy" -f /root/.ssh/github_luxero_deploy -N ""
+# Paste github_luxero_deploy.pub in GitHub → Luxero → Settings → Deploy keys (read-only)
+
+cat >>/root/.ssh/config <<'EOF'
+Host github-luxero
+  HostName github.com
+  User git
+  IdentityFile /root/.ssh/github_luxero_deploy
+  IdentitiesOnly yes
+EOF
+
+git -C /var/www/luxero/turborepo-main remote set-url origin git@github-luxero:HostylerWeb/Luxero.git
+ssh -T github-luxero   # expect: "Hi HostylerWeb/Luxero! You've successfully authenticated..."
+git -C /var/www/luxero/turborepo-main fetch origin main
+```
+
+Use **read-only** unless the VPS must push (normally it should not). Each deploy key can only attach to **one** repo — correct for Luxero-only access.
+
 ## Deploy after `git pull`
 
 ```bash
