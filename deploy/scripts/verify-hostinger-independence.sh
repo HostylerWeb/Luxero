@@ -33,6 +33,18 @@ for f in /root/luxero-app.env /root/luxero-client.env /root/luxero-secrets.env; 
   fi
 done
 
+if [[ -f /root/luxero-secrets.env ]] && ! grep -q '^RESEND_API_KEY=.' /root/luxero-secrets.env; then
+  warn "RESEND_API_KEY missing from luxero-secrets.env (transactional email disabled)"
+elif docker exec luxero_client printenv RESEND_API_KEY 2>/dev/null | grep -q .; then
+  ok "client has RESEND_API_KEY"
+else
+  warn "luxero_client missing RESEND_API_KEY — run compose --force-recreate"
+fi
+
+if [[ -f /root/luxero-app.env ]] && grep -q '^SEND_EMAIL=false' /root/luxero-app.env; then
+  warn "SEND_EMAIL=false in luxero-app.env (set true for production parity with Hetzner)"
+fi
+
 for c in luxero_client luxero_admin luxero_mongo; do
   if docker inspect "$c" &>/dev/null; then
     db=$(docker exec "$c" printenv DATABASE_URL 2>/dev/null || true)
