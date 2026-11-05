@@ -10,15 +10,25 @@ interface FreeCheckoutProps {
   isFormValid: boolean;
   onLocalBypass?: () => void;
   localBypassPending?: boolean;
+  onInvalidFormAttempt?: () => void;
 }
 
 export function FreeCheckout({
   isFormValid,
   onLocalBypass,
   localBypassPending,
+  onInvalidFormAttempt,
 }: FreeCheckoutProps) {
   const { t } = useTranslation();
-  const disabled = !isFormValid || localBypassPending === true;
+  const disabled = localBypassPending === true;
+
+  const handleClick = () => {
+    if (!isFormValid) {
+      onInvalidFormAttempt?.();
+      return;
+    }
+    onLocalBypass?.();
+  };
 
   return (
     <div className="flex flex-col gap-4" data-testid="free-checkout">
@@ -39,7 +49,7 @@ export function FreeCheckout({
       <Button
         type="button"
         variant="gold"
-        onClick={onLocalBypass}
+        onClick={handleClick}
         disabled={disabled}
         className="h-14 w-full rounded-xl text-base"
         data-testid="free-entry-button"

@@ -44,6 +44,7 @@ interface StripeCheckoutProps extends CheckoutProviderPanelProps {
   providersResponse?: ApiResponse<PaymentProviderInfo[]>;
   configError?: Error | null;
   compliance?: { dob?: string };
+  onInvalidFormAttempt?: () => void;
 }
 
 function StripeCheckoutLoading() {
@@ -82,6 +83,7 @@ export function StripeCheckout({
   providersResponse,
   configError,
   compliance,
+  onInvalidFormAttempt,
 }: StripeCheckoutProps) {
   const { t, locale } = useTranslation();
   const features = useComplianceFeatures();
@@ -250,7 +252,14 @@ export function StripeCheckout({
   }
 
   if (!sessionId || !orderId) {
-    const payButtonDisabled = !isFormValid || createSession.isPending;
+    const payButtonDisabled = createSession.isPending;
+    const handlePayClick = () => {
+      if (!isFormValid) {
+        onInvalidFormAttempt?.();
+        return;
+      }
+      void handleCreateSession();
+    };
     return (
       <div className="flex flex-col gap-4">
         <div className="rounded-xl border border-gold/20 bg-card p-4 text-sm text-muted-foreground">
@@ -265,7 +274,7 @@ export function StripeCheckout({
 
         <Button
           type="button"
-          onClick={() => void handleCreateSession()}
+          onClick={handlePayClick}
           disabled={payButtonDisabled}
           className="h-14 w-full rounded-xl text-sm"
           data-testid="stripe-pay-button"

@@ -11,6 +11,7 @@ interface SiteCreditFullCheckoutProps {
   siteCreditApplied: number;
   currency?: string;
   onPay: () => void;
+  onInvalidFormAttempt?: () => void;
 }
 
 export function SiteCreditFullCheckout({
@@ -19,9 +20,18 @@ export function SiteCreditFullCheckout({
   siteCreditApplied,
   currency = "GBP",
   onPay,
+  onInvalidFormAttempt,
 }: SiteCreditFullCheckoutProps) {
   const { t, locale } = useTranslation();
-  const disabled = !isFormValid || pending === true;
+  const disabled = pending === true;
+
+  const handleClick = () => {
+    if (!isFormValid) {
+      onInvalidFormAttempt?.();
+      return;
+    }
+    onPay();
+  };
 
   return (
     <div className="flex flex-col gap-4" data-testid="site-credit-full-checkout">
@@ -29,7 +39,7 @@ export function SiteCreditFullCheckout({
       <Button
         type="button"
         variant="gold"
-        onClick={onPay}
+        onClick={handleClick}
         disabled={disabled}
         className="h-14 w-full rounded-xl text-base"
         data-umami-event="checkout:site-credit-full-pay"

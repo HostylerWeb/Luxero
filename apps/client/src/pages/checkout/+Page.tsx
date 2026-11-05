@@ -31,7 +31,7 @@ import type { ApiResponse, ProfileAddress, PublicComplianceSettings } from "@lux
 import { roundCurrency } from "@luxero/utils";
 import { DEFAULT_PROFILE_ADDRESS } from "@luxero/types";
 import { cn } from "@luxero/utils";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { navigate } from "vike/client/router";
 import { useConfig } from "vike-react/useConfig";
 import { useData } from "vike-react/useData";
@@ -72,6 +72,8 @@ interface ContactFieldsProps {
   onContactChange: (field: keyof ContactInfo, value: string) => void;
   showEmailError: boolean;
   showPhoneError: boolean;
+  showFirstNameError?: boolean;
+  showLastNameError?: boolean;
   profileFillActive: boolean;
   onBlur: (field: string) => void;
 }
@@ -81,6 +83,8 @@ const ContactFields = memo(function ContactFields({
   onContactChange,
   showEmailError,
   showPhoneError,
+  showFirstNameError = false,
+  showLastNameError = false,
   profileFillActive,
   onBlur,
 }: ContactFieldsProps) {
@@ -109,10 +113,16 @@ const ContactFields = memo(function ContactFields({
               value={contact.firstName}
               onChange={(e) => onContactChange("firstName", e.target.value)}
               onBlur={() => onBlur("firstName")}
-              className="h-9"
+              className={cn(
+                "h-9",
+                showFirstNameError && "border-red-400 focus-visible:ring-red-400/50"
+              )}
               autoComplete="given-name"
               required
             />
+            {showFirstNameError ? (
+              <p className="text-xs text-red-400 mt-1">{t("checkout.firstNameRequired")}</p>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="review-lastName">
@@ -124,10 +134,16 @@ const ContactFields = memo(function ContactFields({
               value={contact.lastName}
               onChange={(e) => onContactChange("lastName", e.target.value)}
               onBlur={() => onBlur("lastName")}
-              className="h-9"
+              className={cn(
+                "h-9",
+                showLastNameError && "border-red-400 focus-visible:ring-red-400/50"
+              )}
               autoComplete="family-name"
               required
             />
+            {showLastNameError ? (
+              <p className="text-xs text-red-400 mt-1">{t("checkout.lastNameRequired")}</p>
+            ) : null}
           </div>
         </div>
         <div className="space-y-2">
@@ -326,6 +342,9 @@ function CheckoutPageContent() {
   const [paymentError, setPaymentError] = useState<ContextualError | null>(null);
   const [addressEdited, setAddressEdited] = useState(false);
   const isSubmittingRef = useRef<boolean>(false);
+  const contactSectionRef = useRef<HTMLDivElement>(null);
+  const dobSectionRef = useRef<HTMLDivElement>(null);
+  const addressSectionRef = useRef<HTMLDivElement>(null);
   const geoResolvedRef = useRef(false);
   const geoDefaultSetRef = useRef(false);
 
@@ -475,12 +494,22 @@ function CheckoutPageContent() {
     setTouched((prev) => ({ ...prev, [field]: true }));
   }, []);
 
-  const isContactValid = contact.email.trim().length > 0 && contact.email.includes("@");
+  const isFirstNameValid = contact.firstName.trim().length > 0;
+  const isLastNameValid = contact.lastName.trim().length > 0;
+  const isContactValid =
+    isFirstNameValid &&
+    isLastNameValid &&
+    contact.email.trim().length > 0 &&
+    contact.email.includes("@");
   const isPhoneValid = isCheckoutPhoneValid(contact.phone);
   const isAddressValid = isProfileAddressValid(address);
   const isDobValid = isGuest ? dob.trim().length > 0 : true;
   const isFormValid = isContactValid && isPhoneValid && isAddressValid && isDobValid;
-  const showEmailError = Boolean(touched.email && !isContactValid);
+  const showFirstNameError = Boolean(touched.firstName && !isFirstNameValid);
+  const showLastNameError = Boolean(touched.lastName && !isLastNameValid);
+  const showEmailError = Boolean(
+    touched.email && (contact.email.trim().length === 0 || !contact.email.includes("@"))
+  );
   const showPhoneError = Boolean(touched.phone && !isPhoneValid);
   const showDobError = Boolean(touched.dob && isGuest && !isDobValid);
   const showAddressError = Boolean(
@@ -488,6 +517,45 @@ function CheckoutPageContent() {
       !isAddressValid &&
       (!address.addressLine1.trim() || !address.city.trim() || !address.postcode.trim())
   );
+
+  const scrollToCheckoutSection = useCallback((el: HTMLElement | null) => {
+    if (!el) return;
+    const headerOffset = 91 + 16;
+    const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+    window.scrollTo({ top, behavior: "smooth" });
+  }, []);
+
+  const highlightIncompleteCheckoutForm = useCallback(() => {
+    setTouched({
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      dob: true,
+      address: true,
+    });
+    setPaymentError({ message: t("checkout.formIncompleteSummary") });
+
+    const sections: Array<{ ok: boolean; ref: RefObject<HTMLDivElement | null> }> = [
+      {
+        ok: isFirstNameValid && isLastNameValid && isContactValid && isPhoneValid,
+        ref: contactSectionRef,
+      },
+      { ok: isDobValid, ref: dobSectionRef },
+      { ok: isAddressValid, ref: addressSectionRef },
+    ];
+    const firstIncomplete = sections.find((section) => !section.ok);
+    scrollToCheckoutSection(firstIncomplete?.ref.current ?? contactSectionRef.current);
+  }, [
+    isAddressValid,
+    isContactValid,
+    isDobValid,
+    isFirstNameValid,
+    isLastNameValid,
+    isPhoneValid,
+    scrollToCheckoutSection,
+    t,
+  ]);
 
   const cartItems = useMemo(
     () =>
@@ -798,14 +866,18 @@ function CheckoutPageContent() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col gap-6">
-                  <ContactFields
-                    contact={contact}
-                    onContactChange={handleContactChange}
-                    showEmailError={showEmailError}
-                    showPhoneError={showPhoneError}
-                    profileFillActive={profileFillActive}
-                    onBlur={markTouched}
-                  />
+                  <div ref={contactSectionRef} className="scroll-mt-28">
+                    <ContactFields
+                      contact={contact}
+                      onContactChange={handleContactChange}
+                      showEmailError={showEmailError}
+                      showPhoneError={showPhoneError}
+                      showFirstNameError={showFirstNameError}
+                      showLastNameError={showLastNameError}
+                      profileFillActive={profileFillActive}
+                      onBlur={markTouched}
+                    />
+                  </div>
 
                   {isGuest && emailRegistered ? (
                     <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-3 text-xs text-amber-800 dark:text-amber-200">
@@ -822,7 +894,7 @@ function CheckoutPageContent() {
                   ) : null}
 
                   {isGuest ? (
-                    <div className="flex flex-col gap-4">
+                    <div ref={dobSectionRef} className="flex flex-col gap-4 scroll-mt-28">
                       <div className="flex items-center gap-2 pb-2 border-b border-gold/10">
                         <h3 className="font-semibold text-sm text-foreground">
                           {t("checkout.dateOfBirth")}
@@ -849,7 +921,7 @@ function CheckoutPageContent() {
                     </div>
                   ) : null}
 
-                  <div className="flex flex-col gap-4">
+                  <div ref={addressSectionRef} className="flex flex-col gap-4 scroll-mt-28">
                     <div className="flex items-center gap-2 pb-2 border-b border-gold/10">
                       <h3 className="font-semibold text-sm text-foreground">
                         {t("checkout.shippingAddress.heading")}
@@ -932,6 +1004,7 @@ function CheckoutPageContent() {
                         onApplySiteCreditChange={setApplySiteCredit}
                         onSiteCreditFullPay={handleSiteCreditFullPay}
                         siteCreditFullPayPending={isSubmitting}
+                        onInvalidFormAttempt={highlightIncompleteCheckoutForm}
                       />
                     )}
                   </div>

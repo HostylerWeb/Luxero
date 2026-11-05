@@ -319,19 +319,36 @@ export default function Page() {
     return () => clearInterval(interval);
   }, []);
 
-  function handleDisabledClick() {
+  function scrollToPurchaseSection(el: HTMLElement | null) {
+    if (!el) return;
     const headerHeight = 64 + 48;
-    const scrollTo = (el: HTMLElement) => {
-      const top = el.getBoundingClientRect().top + window.scrollY - headerHeight;
-      window.scrollTo({ top, behavior: "smooth" });
-      setTimeout(() => el.focus(), 300);
-    };
+    const top = el.getBoundingClientRect().top + window.scrollY - headerHeight;
+    window.scrollTo({ top, behavior: "smooth" });
+    el.setAttribute("tabindex", "-1");
+    setTimeout(() => el.focus({ preventScroll: true }), 350);
+  }
 
+  function handleDisabledClick() {
     if (quantity < 1) {
-      quantitySectionRef.current && scrollTo(quantitySectionRef.current);
+      scrollToPurchaseSection(quantitySectionRef.current);
+    } else if (needsSkillAnswer) {
+      scrollToPurchaseSection(quizSectionRef.current);
     } else if (competition?.question && answerIndex < 0) {
-      quizSectionRef.current && scrollTo(quizSectionRef.current);
+      scrollToPurchaseSection(quizSectionRef.current);
     }
+  }
+
+  function handlePurchaseClick() {
+    if (purchaseHardDisabled) return;
+    if (needsSkillAnswer) {
+      scrollToPurchaseSection(quizSectionRef.current);
+      return;
+    }
+    if (purchaseSoftBlocked) {
+      handleDisabledClick();
+      return;
+    }
+    handleAddToCart();
   }
 
   function handleAddToCart() {
@@ -498,15 +515,6 @@ export default function Page() {
     quantity < 1 ||
     quantity > maxCartQuantity ||
     needsSkillAnswer;
-
-  const handlePurchaseClick = () => {
-    if (purchaseHardDisabled) return;
-    if (purchaseSoftBlocked) {
-      handleDisabledClick();
-      return;
-    }
-    handleAddToCart();
-  };
 
   return (
     <>
@@ -807,7 +815,7 @@ export default function Page() {
                       {competition.question &&
                         competition.questionOptions &&
                         competition.questionOptions.length > 0 && (
-                          <div ref={quizSectionRef}>
+                          <div ref={quizSectionRef} className="scroll-mt-28 outline-none focus-visible:ring-2 focus-visible:ring-gold/40 rounded-xl">
                             <SkillQuestionSelector
                               question={competition.question}
                               options={competition.questionOptions}

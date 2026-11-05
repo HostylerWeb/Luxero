@@ -65,6 +65,7 @@ export interface PaymentMethodSelectorProps {
   onApplySiteCreditChange?: (apply: boolean) => void;
   onSiteCreditFullPay?: () => void;
   siteCreditFullPayPending?: boolean;
+  onInvalidFormAttempt?: () => void;
 }
 
 function readStoredSelection(enabledIds: string[]): string | null {
@@ -263,6 +264,7 @@ interface ProviderCheckoutPanelProps {
   onLocalBypass?: () => void;
   localBypassPending?: boolean;
   compliance?: { dob?: string };
+  onInvalidFormAttempt?: () => void;
 }
 
 const ProviderCheckoutPanel = memo(function ProviderCheckoutPanel({
@@ -280,6 +282,7 @@ const ProviderCheckoutPanel = memo(function ProviderCheckoutPanel({
   onLocalBypass,
   localBypassPending,
   compliance,
+  onInvalidFormAttempt,
 }: ProviderCheckoutPanelProps) {
   const Checkout = checkoutComponents[providerId];
 
@@ -307,6 +310,7 @@ const ProviderCheckoutPanel = memo(function ProviderCheckoutPanel({
       onLocalBypass={onLocalBypass}
       localBypassPending={localBypassPending}
       compliance={compliance}
+      onInvalidFormAttempt={onInvalidFormAttempt}
     />
   );
 });
@@ -333,6 +337,7 @@ function PaymentMethodSelectorInner({
   onApplySiteCreditChange,
   onSiteCreditFullPay,
   siteCreditFullPayPending,
+  onInvalidFormAttempt,
 }: PaymentMethodSelectorProps) {
   const { t, locale } = useTranslation();
   const enabledProviders = useMemo(
@@ -460,6 +465,7 @@ function PaymentMethodSelectorInner({
     onLocalBypass,
     localBypassPending,
     compliance,
+    onInvalidFormAttempt,
   };
 
   if (cart.total <= 0) {
@@ -469,6 +475,7 @@ function PaymentMethodSelectorInner({
         isFormValid={isFormValid}
         onLocalBypass={onLocalBypass}
         localBypassPending={localBypassPending}
+        onInvalidFormAttempt={onInvalidFormAttempt}
       />
     );
   }
@@ -584,6 +591,7 @@ function PaymentMethodSelectorInner({
           siteCreditApplied={siteCreditApplied}
           currency={siteCreditCurrency}
           onPay={() => onSiteCreditFullPay?.()}
+          onInvalidFormAttempt={onInvalidFormAttempt}
         />
       ) : null}
 

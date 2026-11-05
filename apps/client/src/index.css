@@ -784,12 +784,16 @@
     @apply flex h-10 min-w-10 items-center justify-center rounded-full border-2 border-white/15 bg-white/5 px-2 text-sm font-bold text-foreground transition-all;
   }
 
-  .ticket-preset-btn:hover:not(:disabled) {
+  .ticket-preset-btn:hover:not(:disabled):not(.ticket-preset-btn-active) {
     @apply border-gold/50 bg-gold/10;
   }
 
   .ticket-preset-btn-active {
     @apply border-gold bg-gold text-primary-foreground shadow-[0_0_15px_rgb(var(--gold-rgb)/0.25)];
+  }
+
+  .ticket-preset-btn-active:hover:not(:disabled) {
+    @apply border-gold bg-gold text-primary-foreground;
   }
 
   .ticket-preset-btn:disabled {

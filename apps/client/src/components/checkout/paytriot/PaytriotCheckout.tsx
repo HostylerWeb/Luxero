@@ -72,6 +72,7 @@ interface PaytriotCheckoutProps extends CheckoutProviderPanelProps {
   providersResponse?: ApiResponse<PaymentProviderInfo[]>;
   configError: Error | null;
   compliance?: { dob?: string };
+  onInvalidFormAttempt?: () => void;
 }
 
 function parsePaytriotConfig(
@@ -145,6 +146,7 @@ export function PaytriotCheckout({
   providersResponse,
   configError,
   compliance,
+  onInvalidFormAttempt,
 }: PaytriotCheckoutProps) {
   const { t, locale } = useTranslation();
   const features = useComplianceFeatures();
@@ -302,6 +304,10 @@ export function PaytriotCheckout({
   };
 
   const handlePayClick = () => {
+    if (!isFormValid) {
+      onInvalidFormAttempt?.();
+      return;
+    }
     if (checkoutMode === "popup") {
       if (!window.PaytriotCheckout?.initPopup) {
         setSubmitError(t("checkout.cardPaymentPopupNotOpened"));
@@ -340,9 +346,7 @@ export function PaytriotCheckout({
       <Button
         type="button"
         onClick={handlePayClick}
-        disabled={
-          !isFormValid || isRedirecting || createSession.isPending || scriptsStatus === "loading"
-        }
+        disabled={isRedirecting || createSession.isPending || scriptsStatus === "loading"}
         className="h-14 w-full rounded-xl text-sm"
         data-testid="paytriot-pay-button"
         data-umami-event="checkout:paytriot-pay"
