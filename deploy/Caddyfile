@@ -31,7 +31,32 @@ assets.luxero.win {
 	reverse_proxy minio:9000
 }
 
-# Hostinger phase hostnames (keep for rollback / direct access)
+# Staging hostnames → same Hostinger stack (DNS must point here, not Hetzner)
+staging.luxero.win, www.staging.luxero.win, app.staging.luxero.win {
+	reverse_proxy client:3000
+}
+
+admin.staging.luxero.win {
+	reverse_proxy admin:3000
+}
+
+shop.staging.luxero.win {
+	reverse_proxy shop:3000
+}
+
+assets.staging.luxero.win {
+	reverse_proxy minio:9000
+}
+
+agro.staging.luxero.win {
+	reverse_proxy client-agro:3000
+}
+
+admin.agro.staging.luxero.win {
+	reverse_proxy admin-agro:3000
+}
+
+# Hostinger phase hostnames (direct access / rollback)
 srv2011364.hstgr.cloud {
 	reverse_proxy client:3000
 }

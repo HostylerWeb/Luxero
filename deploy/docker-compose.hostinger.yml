@@ -13,7 +13,7 @@ services:
     env_file:
       - /root/luxero-app.env
     environment:
-      MINIO_SERVER_URL: https://assets.srv2011364.hstgr.cloud
+      MINIO_SERVER_URL: https://assets.luxero.win
     volumes:
       - /var/www/luxero/data/minio:/data
     networks:
