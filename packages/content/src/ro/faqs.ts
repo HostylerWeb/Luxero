@@ -114,7 +114,7 @@ export const FAQS_BY_CATEGORY: Record<string, FaqItem[]> = {
     {
       question: "Cum funcționează autoexcluderea?",
       answer:
-        "Te poți autoexclude pentru 6 luni, 1 an, 5 ani sau permanent din Joc responsabil, în panoul de control. Cât ești exclus, contul este suspendat, emailurile de marketing se opresc și nu poți participa la concursuri. Contactează-ne dacă ai nevoie de ajutor după ce o excludere temporară expiră.",
+        "Te poți autoexclude pentru 1 săptămână, 2 săptămâni, 1 lună, 2 luni, 3 luni, 6 luni sau 1 an din Joc responsabil, în panoul de control. Cât ești exclus, contul este suspendat, emailurile de marketing se opresc și nu poți participa la concursuri. Contactează-ne dacă ai nevoie de ajutor după ce o excludere temporară expiră.",
     },
   ],
   referrals: [

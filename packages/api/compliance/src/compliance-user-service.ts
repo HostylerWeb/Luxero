@@ -72,22 +72,40 @@ function addMonths(date: Date, months: number): Date {
   return result;
 }
 
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
 export function resolveSelfExclusionUntil(
   duration: SelfExclusionDuration,
-  minMonths: number
+  _minMonths: number
 ): Date | null {
   const now = new Date();
   switch (duration) {
+    case "1week":
+      return addDays(now, 7);
+    case "2weeks":
+      return addDays(now, 14);
+    case "1month":
+      return addMonths(now, 1);
+    case "2months":
+      return addMonths(now, 2);
+    case "3months":
+      return addMonths(now, 3);
     case "6months":
-      return addMonths(now, Math.max(6, minMonths));
+      return addMonths(now, 6);
     case "1year":
       return addMonths(now, 12);
     case "5years":
       return addMonths(now, 60);
     case "permanent":
       return null;
-    default:
-      return addMonths(now, minMonths);
+    default: {
+      const _exhaustive: never = duration;
+      return _exhaustive;
+    }
   }
 }
 

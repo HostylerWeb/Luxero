@@ -11,8 +11,11 @@ import { error, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { sendPushNotification } from "@luxero/api-server/lib/push";
 import { requireSession } from "@luxero/api-server/middleware/auth";
-import { createOverrideRequestSchema, userSpendLimitUpdateSchema } from "@luxero/api-validation";
-import type { SelfExclusionDuration } from "@luxero/types";
+import {
+  createOverrideRequestSchema,
+  userSelfExclusionDurationSchema,
+  userSpendLimitUpdateSchema,
+} from "@luxero/api-validation";
 import { Hono } from "hono";
 import mongoose from "mongoose";
 
@@ -82,12 +85,12 @@ app.post("/self-exclude", async (c) => {
     const body = await c.req.json();
     await dbConnect();
 
-    const duration = body.duration as SelfExclusionDuration | undefined;
-    if (!duration || !["6months", "1year", "5years", "permanent"].includes(duration)) {
+    const parsedDuration = userSelfExclusionDurationSchema.safeParse(body.duration);
+    if (!parsedDuration.success) {
       return error(c, ErrorCodes.VALIDATION_ERROR, "Invalid self-exclusion duration", 400);
     }
 
-    const result = await applySelfExclusion(userId, duration, {
+    const result = await applySelfExclusion(userId, parsedDuration.data, {
       reason: "User self-excluded via Responsible Play",
       source: "user",
     });

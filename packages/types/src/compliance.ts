@@ -43,7 +43,24 @@ export type PublicComplianceSettings = Pick<
 
 export type AgeVerificationMethod = "dob" | "admin" | "provider";
 
-export type SelfExclusionDuration = "6months" | "1year" | "5years" | "permanent";
+/** Durations customers can choose in Responsible Play. */
+export const USER_SELF_EXCLUSION_DURATIONS = [
+  "1week",
+  "2weeks",
+  "1month",
+  "2months",
+  "3months",
+  "6months",
+  "1year",
+] as const;
+
+export type UserSelfExclusionDuration = (typeof USER_SELF_EXCLUSION_DURATIONS)[number];
+
+/** Admin may still impose legacy long / permanent exclusions. */
+export type SelfExclusionDuration =
+  | UserSelfExclusionDuration
+  | "5years"
+  | "permanent";
 
 export interface SaferPlayState {
   monthlySpendLimit: number | null;

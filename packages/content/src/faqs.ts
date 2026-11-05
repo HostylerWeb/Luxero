@@ -114,7 +114,7 @@ export const FAQS_BY_CATEGORY: Record<string, FaqItem[]> = {
     {
       question: "How does self-exclusion work?",
       answer:
-        "You can self-exclude for 6 months, 1 year, 5 years, or permanently from Responsible Play in your dashboard. While you are excluded, your account is suspended, marketing emails stop, and you cannot enter competitions. Contact us if you need help after a temporary exclusion expires.",
+        "You can self-exclude for 1 week, 2 weeks, 1 month, 2 months, 3 months, 6 months, or 1 year from Responsible Play in your dashboard. While you are excluded, your account is suspended, marketing emails stop, and you cannot enter competitions. Contact us if you need help after a temporary exclusion expires.",
     },
   ],
   referrals: [

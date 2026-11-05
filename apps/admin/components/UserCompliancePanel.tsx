@@ -62,9 +62,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
+import type { SelfExclusionDuration } from "@luxero/types";
+import { USER_SELF_EXCLUSION_DURATIONS } from "@luxero/types";
+
 const EXCLUSION_OPTIONS: { value: SelfExclusionDuration; label: string }[] = [
-  { value: "6months", label: "6 months" },
-  { value: "1year", label: "1 year" },
+  ...USER_SELF_EXCLUSION_DURATIONS.map((value) => {
+    const labels: Record<(typeof USER_SELF_EXCLUSION_DURATIONS)[number], string> = {
+      "1week": "1 week",
+      "2weeks": "2 weeks",
+      "1month": "1 month",
+      "2months": "2 months",
+      "3months": "3 months",
+      "6months": "6 months",
+      "1year": "1 year",
+    };
+    return { value, label: labels[value] };
+  }),
   { value: "5years", label: "5 years" },
   { value: "permanent", label: "Permanent" },
 ];
@@ -197,7 +210,7 @@ export function UserCompliancePanel({ userId, hideQuickActions }: UserCompliance
   const [reason, setReason] = useState("");
   const [spendLimit, setSpendLimit] = useState("");
   const [bypassCooldown, setBypassCooldown] = useState(false);
-  const [exclusionDuration, setExclusionDuration] = useState<SelfExclusionDuration>("6months");
+  const [exclusionDuration, setExclusionDuration] = useState<SelfExclusionDuration>("1week");
   const [acknowledgePermanent, setAcknowledgePermanent] = useState(false);
   const [ageVerifiedTarget, setAgeVerifiedTarget] = useState(true);
   const [overrideError, setOverrideError] = useState("");
@@ -243,7 +256,7 @@ export function UserCompliancePanel({ userId, hideQuickActions }: UserCompliance
     setReason("");
     setBypassCooldown(false);
     setAcknowledgePermanent(false);
-    setExclusionDuration("6months");
+    setExclusionDuration("1week");
     setAgeVerifiedTarget(compliance.isAgeVerified);
     setSpendLimit(action === "set_spend_limit" ? seedSpendLimitFromCompliance(compliance) : "");
     setOverrideError("");

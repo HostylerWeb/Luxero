@@ -20,6 +20,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,13 +34,12 @@ import { FocusReasonBanner, useFocusFromQuery } from "@/hooks/useFocusFromQuery"
 import { formatCurrency, useTranslation } from "@/lib/i18n";
 import { formatDateTime } from "@/lib/utils";
 import type { Data } from "./+data";
+import {
+  DEFAULT_USER_SELF_EXCLUSION_DURATION,
+  USER_SELF_EXCLUSION_OPTIONS,
+} from "./self-exclusion-duration-options";
 
-const EXCLUSION_OPTIONS: { value: SelfExclusionDuration; labelKey: string }[] = [
-  { value: "6months", labelKey: "dashboard.responsiblePlay.exclusionOptions.sixMonths" },
-  { value: "1year", labelKey: "dashboard.responsiblePlay.exclusionOptions.oneYear" },
-  { value: "5years", labelKey: "dashboard.responsiblePlay.exclusionOptions.fiveYears" },
-  { value: "permanent", labelKey: "dashboard.responsiblePlay.exclusionOptions.permanent" },
-];
+const EXCLUSION_OPTIONS = USER_SELF_EXCLUSION_OPTIONS;
 
 export default function DashboardResponsiblePlayView() {
   const { t, locale } = useTranslation();
@@ -51,7 +57,9 @@ export default function DashboardResponsiblePlayView() {
   const state = saferPlayResponse?.data;
   const effectiveSelfExcluded = resolveEffectiveSelfExcluded(state);
   const [limitInput, setLimitInput] = useState("");
-  const [selectedExclusion, setSelectedExclusion] = useState<SelfExclusionDuration>("6months");
+  const [selectedExclusion, setSelectedExclusion] = useState<SelfExclusionDuration>(
+    DEFAULT_USER_SELF_EXCLUSION_DURATION
+  );
   const [confirmExclusion, setConfirmExclusion] = useState(false);
   const [overrideReason, setOverrideReason] = useState("");
 
@@ -345,29 +353,35 @@ export default function DashboardResponsiblePlayView() {
             <CardTitle className="text-base text-destructive">
               {t("dashboard.responsiblePlay.selfExclusion")}
             </CardTitle>
-            <CardDescription>
-              {t("dashboard.responsiblePlay.selfExclusionDesc")}
-              {state.selfExclusionMinMonths}
-              {t("dashboard.responsiblePlay.months")}
-            </CardDescription>
+            <CardDescription>{t("dashboard.responsiblePlay.selfExclusionDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:grid-cols-4">
-              {EXCLUSION_OPTIONS.map((opt) => (
-                <Button
-                  key={opt.value}
-                  type="button"
-                  variant={selectedExclusion === opt.value ? "default" : "outline"}
-                  onClick={() => setSelectedExclusion(opt.value)}
-                  disabled={effectiveSelfExcluded}
-                  className="w-full"
+            <Field>
+              <FieldLabel htmlFor="self-exclusion-duration">
+                {t("dashboard.responsiblePlay.exclusionDurationLabel")}
+              </FieldLabel>
+              <Select
+                value={selectedExclusion}
+                onValueChange={(v) => setSelectedExclusion(v as SelfExclusionDuration)}
+                disabled={effectiveSelfExcluded}
+              >
+                <SelectTrigger
+                  id="self-exclusion-duration"
+                  className="w-full sm:max-w-xs"
                   data-umami-event="responsible-play:exclusion-duration-select"
-                  data-umami-event-duration={opt.value}
+                  data-umami-event-duration={selectedExclusion}
                 >
-                  {t(opt.labelKey as any)}
-                </Button>
-              ))}
-            </div>
+                  <SelectValue placeholder={t("dashboard.responsiblePlay.exclusionDurationLabel")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {EXCLUSION_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {t(opt.labelKey)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
             <label className="flex items-start gap-2 text-sm">
               <input
                 type="checkbox"

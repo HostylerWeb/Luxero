@@ -1,6 +1,23 @@
 import { z } from "zod";
 
-const selfExclusionDurationSchema = z.enum(["6months", "1year", "5years", "permanent"]);
+/** Keep in sync with USER_SELF_EXCLUSION_DURATIONS in @luxero/types */
+const userSelfExclusionDurations = [
+  "1week",
+  "2weeks",
+  "1month",
+  "2months",
+  "3months",
+  "6months",
+  "1year",
+] as const;
+
+const selfExclusionDurationSchema = z.enum([
+  ...userSelfExclusionDurations,
+  "5years",
+  "permanent",
+]);
+
+export const userSelfExclusionDurationSchema = z.enum(userSelfExclusionDurations);
 
 const reasonSchema = z.string().trim().min(10, "Reason must be at least 10 characters");
 

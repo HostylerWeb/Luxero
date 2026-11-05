@@ -33,7 +33,7 @@ export const RESPONSIBLE_PLAY_SECTIONS: ResponsiblePlaySection[] = [
     id: "self-exclusion",
     title: "Self-exclusion",
     content:
-      "You can self-exclude for 6 months, 1 year, 5 years, or permanently. During exclusion your account is suspended, marketing emails stop, and you cannot enter competitions. Contact us if you need help reversing a temporary exclusion after it expires.",
+      "You can self-exclude for 1 week, 2 weeks, 1 month, 2 months, 3 months, 6 months, or 1 year from your dashboard. During exclusion your account is suspended, marketing emails stop, and you cannot enter competitions. Contact us if you need help after a temporary exclusion expires.",
   },
   {
     id: "postal",

@@ -93,6 +93,14 @@ describe("card-scheme", () => {
 
 describe("self-exclusion resolution", () => {
   describe("resolveSelfExclusionUntil", () => {
+    test("returns a date ~1 week ahead for 1week", () => {
+      const result = resolveSelfExclusionUntil("1week", 6);
+      expect(result).toBeInstanceOf(Date);
+      const daysAhead = (result!.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      expect(daysAhead).toBeGreaterThanOrEqual(6.9);
+      expect(daysAhead).toBeLessThanOrEqual(7.1);
+    });
+
     test("returns a date ~6 months in the future for 6months", () => {
       const result = resolveSelfExclusionUntil("6months", 6);
       expect(result).toBeInstanceOf(Date);
