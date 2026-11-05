@@ -1,6 +1,8 @@
 import { Balance, BalanceTransaction, ComplianceAuditLog, Profile } from "@luxero/api-db/models";
+import { sendSiteCreditCreditedEmail } from "@luxero/api-email/send-site-credit-credited-email";
 import { CH, invalidateByChannelSafe, invalidateUser } from "@luxero/api-infra/cache";
 import dbConnect from "@luxero/api-infra/db";
+import { getCurrentContext } from "@luxero/api-infra/env";
 import { ErrorCodes } from "@luxero/api-infra/error-codes";
 import { escapeRegex } from "@luxero/api-infra/fuzzy-search";
 import { parsePagination, parseSort } from "@luxero/api-infra/pagination";
@@ -8,6 +10,7 @@ import { error, paginated, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { requireAdmin } from "@luxero/api-server/middleware/auth";
 import { ADMIN_BALANCE_TABLE } from "@luxero/types";
+import { getEnv } from "@luxero/env/server";
 import { Hono } from "hono";
 import mongoose from "mongoose";
 
@@ -234,6 +237,25 @@ app.post("/adjust", async (c) => {
       after: { available: balanceAfter },
       source: "admin",
     });
+
+    if (amount > 0 && profile.email) {
+      const userName = profile.firstName
+        ? `${profile.firstName}${profile.lastName ? ` ${profile.lastName}` : ""}`
+        : profile.email.split("@")[0] || "Customer";
+      const { frontendUrl: contextUrl } = getCurrentContext();
+      const frontendUrl =
+        process.env.NEXT_PUBLIC_FRONTEND_URL?.trim() ||
+        getEnv("FRONTEND_URL")?.trim() ||
+        contextUrl;
+      void sendSiteCreditCreditedEmail({
+        recipientEmail: profile.email,
+        userName,
+        creditAmount: amount,
+        balanceAfter: balance.available,
+        currency: balance.currency ?? "GBP",
+        frontendUrl,
+      });
+    }
 
     return success(c, {
       balance: {

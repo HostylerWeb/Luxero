@@ -95,4 +95,10 @@ export type EmailTemplateProps = {
   milestonePct?: number;
   bonusPrizeTitle?: string;
   bonusPrizeValue?: number;
+
+  /** site-credit-credited */
+  creditAmount?: number;
+  balanceAfter?: number;
+  currency?: string;
+  walletUrl?: string;
 };
