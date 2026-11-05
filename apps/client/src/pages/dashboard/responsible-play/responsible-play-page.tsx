@@ -20,19 +20,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { FocusReasonBanner, useFocusFromQuery } from "@/hooks/useFocusFromQuery";
 import { formatCurrency, useTranslation } from "@/lib/i18n";
-import { formatDateTime } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import type { Data } from "./+data";
 import {
   DEFAULT_USER_SELF_EXCLUSION_DURATION,
@@ -360,27 +353,23 @@ export default function DashboardResponsiblePlayView() {
               <FieldLabel htmlFor="self-exclusion-duration">
                 {t("dashboard.responsiblePlay.exclusionDurationLabel")}
               </FieldLabel>
-              <Select
+              <select
+                id="self-exclusion-duration"
                 value={selectedExclusion}
-                onValueChange={(v) => setSelectedExclusion(v as SelfExclusionDuration)}
+                onChange={(e) => setSelectedExclusion(e.target.value as SelfExclusionDuration)}
                 disabled={effectiveSelfExcluded}
+                className={cn(
+                  "border-input bg-background ring-offset-background focus-visible:ring-ring flex h-10 w-full max-w-xs rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                )}
+                data-umami-event="responsible-play:exclusion-duration-select"
+                data-umami-event-duration={selectedExclusion}
               >
-                <SelectTrigger
-                  id="self-exclusion-duration"
-                  className="w-full sm:max-w-xs"
-                  data-umami-event="responsible-play:exclusion-duration-select"
-                  data-umami-event-duration={selectedExclusion}
-                >
-                  <SelectValue placeholder={t("dashboard.responsiblePlay.exclusionDurationLabel")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {EXCLUSION_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {t(opt.labelKey)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {EXCLUSION_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {t(opt.labelKey)}
+                  </option>
+                ))}
+              </select>
             </Field>
             <label className="flex items-start gap-2 text-sm">
               <input
