@@ -93,6 +93,12 @@ function applySession(
 
 export async function resolveSession(c: Context): Promise<void> {
   if (c.get("sessionResolved")) return;
+  const auth = c.get("authInstance");
+  if (auth) {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers });
+    applySession(c, session);
+    return;
+  }
   const session = await getServerAuthSession("client", c.req.raw);
   applySession(c, session);
 }
