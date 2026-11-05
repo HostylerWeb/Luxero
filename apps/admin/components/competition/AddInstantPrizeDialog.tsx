@@ -309,10 +309,9 @@ export function AddPrizeDrawer({
     }
 
     if (isProductPrizeSetup(setup)) {
-      const currentCategory =
-        editingCip.instantPrize?.prizeCategory ??
-        inferSetupFromInstantPrize(editingCip.instantPrize);
-      if (setup !== currentCategory) {
+      const storedCategory = editingCip.instantPrize?.prizeCategory;
+      // Persist category when missing in DB (UI may infer type from title only).
+      if (storedCategory !== setup) {
         payload.prizeCategory = setup;
       }
     }
