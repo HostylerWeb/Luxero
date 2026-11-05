@@ -40,7 +40,12 @@ dig +short A build.coolify.luxero.win @1.1.1.1  # 95.216.158.37 (build server â€
 ## Shut down Hetzner (operator checklist)
 
 1. Run `verify-hostinger-independence.sh` â€” all OK.
-2. Stop Luxero Coolify apps on **167.233.52.87** (main + agro + staging).
+2. Copy any secrets still only on Hetzner (e.g. `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, Stripe) into `/root/luxero-secrets.env`, then **`docker compose up -d --force-recreate`** client/admin (restart alone does not reload `env_file`).
+3. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), OAuth client **Authorized redirect URIs** must include:
+   - `https://luxero.win/api/auth/callback/google`
+   - `https://admin.luxero.win/api/auth/callback/google`
+   - (Agro if used) `https://agro.luxero.win/api/auth/callback/google`
+4. Stop Luxero Coolify apps on **167.233.52.87** (main + agro + staging).
 3. Optional final backup of Hetzner Mongo, then stop Mongo containers.
 4. Power off / cancel Hetzner VPS when satisfied.
 5. Remove `167.233.52.87` from `ssh.txt` / personal notes; rotate any secrets that only lived on Hetzner.

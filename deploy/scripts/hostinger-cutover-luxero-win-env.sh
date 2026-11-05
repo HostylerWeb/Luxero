@@ -70,3 +70,5 @@ if [[ -f "$LINK" ]]; then
 fi
 
 echo "Updated Hostinger env files for luxero.win production."
+echo "If you add GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET to luxero-secrets.env, run:"
+echo "  cd /var/www/luxero/deploy && docker compose -f docker-compose.hostinger.yml up -d --force-recreate client admin client-agro admin-agro"
