@@ -294,6 +294,8 @@ export const adminNavigationGroups: NavGroup[] = [
           "plugins",
           "extensions",
           "webp",
+          "cashback",
+          "site credit",
           "webm",
           "converter",
           "media",

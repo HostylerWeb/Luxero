@@ -9,7 +9,8 @@ export type BalanceTransactionType =
   | "purchase_refund"
   | "admin_credit"
   | "admin_debit"
-  | "prize_credit";
+  | "prize_credit"
+  | "cashback_credit";
 
 export type BalanceTransactionStatus = "pending" | "completed" | "failed" | "reversed";
 
@@ -44,6 +45,7 @@ const BalanceTransactionSchema = new Schema<IBalanceTransaction>(
         "admin_credit",
         "admin_debit",
         "prize_credit",
+        "cashback_credit",
       ],
     },
     amount: { type: Number, required: true },

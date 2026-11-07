@@ -2,6 +2,7 @@ import { Order, PaymentMethod } from "@luxero/api-db/models";
 import { withMongoTransactionOptional } from "@luxero/api-infra/mongo-capabilities";
 import { createLogger } from "@luxero/api-logger";
 import { rollbackOrderRefund } from "@luxero/api-payment-core";
+import { reverseOrderCashback } from "@luxero/api-server/lib/payment/apply-order-cashback";
 import type { StripeWebhookEvent } from "@luxero/api-payment-stripe";
 import {
   createStripeClient,
@@ -608,6 +609,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
             { session: txnSession ?? undefined }
           );
         });
+        await reverseOrderCashback(order._id.toString());
       }
       return { eventType, sessionId, status: "processing", orderId: order?._id.toString() };
     }
@@ -790,6 +792,7 @@ async function claimFailedOrderAutoRefund(
         },
       },
     });
+    await reverseOrderCashback(order._id.toString());
     log.info("[stripe.webhook] failed order auto-refunded after late success", {
       orderId: order._id.toString(),
     });

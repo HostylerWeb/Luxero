@@ -20,6 +20,7 @@ import { parsePagination, parseSort } from "@luxero/api-infra/pagination";
 import { created, error, paginated, success } from "@luxero/api-infra/response";
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { rollbackOrderRefund } from "@luxero/api-payment-core";
+import { reverseOrderCashback } from "@luxero/api-server/lib/payment/apply-order-cashback";
 import { buildRefundDeps } from "@luxero/api-server/lib/payment/build-refund-deps";
 import { sendPushNotification } from "@luxero/api-server/lib/push";
 import { onProgress } from "@luxero/api-server/lib/utils/extraction-events";
@@ -738,6 +739,7 @@ app.delete("/:id", async (c) => {
             );
           } else {
             refundedOrdersCount++;
+            await reverseOrderCashback(order._id.toString());
           }
         }
       }

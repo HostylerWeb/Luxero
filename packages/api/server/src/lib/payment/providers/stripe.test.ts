@@ -75,6 +75,11 @@ vi.mock("../finalize-successful-order", () => ({
   finalizeSuccessfulOrder: __mocks.__finalizeSuccessfulOrder,
 }));
 
+vi.mock("../apply-order-cashback", () => ({
+  applyOrderCashback: vi.fn(async () => ({ credited: false, amount: 0 })),
+  reverseOrderCashback: vi.fn(async () => {}),
+}));
+
 vi.mock("@luxero/api-db/models", () => ({
   Order: {
     findOne: __mocks.__orderFindOne,

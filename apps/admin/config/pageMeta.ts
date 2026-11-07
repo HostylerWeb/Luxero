@@ -56,6 +56,11 @@ export const pageMeta: Record<string, PageMetaEntry> = {
     parent: "/addons",
     group: "Configuration",
   },
+  "/addons/cashback": {
+    title: "Cashback",
+    parent: "/addons",
+    group: "Configuration",
+  },
   "/addons/ai-personalisation": {
     title: "OpenRouter AI",
     parent: "/addons",

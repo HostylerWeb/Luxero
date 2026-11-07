@@ -13,6 +13,7 @@ import { clearCheckoutCartFromMetadata } from "@luxero/api-tickets/load-cart";
 import { formatOrderNumber } from "@luxero/utils";
 import { Types } from "mongoose";
 import { buildFulfillmentDeps } from "./build-fulfillment-deps";
+import { applyOrderCashback } from "./apply-order-cashback";
 import { debitSiteCreditForOrder } from "./debit-site-credit-for-order";
 import { fireOrderPurchaseConversion } from "./fire-order-conversion";
 import { rollbackOrderFulfillment } from "./rollback-order-fulfillment";
@@ -248,6 +249,9 @@ export async function finalizeSuccessfulOrder(params: {
     );
 
     completedSteps.push("fulfillment_completed");
+    void applyOrderCashback(order._id.toString()).catch((err: unknown) => {
+      log.warn("[finalize] cashback credit failed", { orderId: order._id.toString(), error: err });
+    });
     if (
       (_result as { allAssignedNumbers?: Array<{ competitionId: string }> })?.allAssignedNumbers
         ?.length

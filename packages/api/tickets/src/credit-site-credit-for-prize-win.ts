@@ -8,6 +8,7 @@ export async function creditSiteCreditForPrizeWin(params: {
   idempotencyKey: string;
   note: string;
   session?: ClientSession;
+  type?: "prize_credit" | "cashback_credit";
 }): Promise<{ credited: boolean; balanceAfter: number }> {
   const amount = params.amount;
   if (amount <= 0) {
@@ -69,7 +70,7 @@ export async function creditSiteCreditForPrizeWin(params: {
       [
         {
           userId: userOid,
-          type: "prize_credit",
+          type: params.type ?? "prize_credit",
           amount,
           balanceBefore,
           balanceAfter: updated.available,

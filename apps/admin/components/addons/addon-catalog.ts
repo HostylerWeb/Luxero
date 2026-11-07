@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { Film } from "@luxero/icons";
+import { Film, Wallet } from "@luxero/icons";
 
 export type AddonCatalogStatus = "available" | "coming_soon";
 
@@ -23,6 +23,16 @@ export const ADDON_CATALOG: AddonCatalogEntry[] = [
     icon: Film,
     status: "available",
     tags: ["Images", "Video", "CDN"],
+  },
+  {
+    id: "cashback",
+    title: "Cashback",
+    description:
+      "Credit a percentage of a qualifying order to the customer’s site credit wallet.",
+    href: "/addons/cashback",
+    icon: Wallet,
+    status: "available",
+    tags: ["Site credit", "First order", "Payments"],
   },
 ];
 

@@ -1,5 +1,5 @@
 import { createLogger } from "@luxero/api-logger";
-import { getBool, getEnv } from "@luxero/env/server";
+import { getBool, getEnv, getNum } from "@luxero/env/server";
 import mongoose from "mongoose";
 import { resolveMongoConnectOptions } from "./mongo-capabilities";
 import { DEFAULT_AGGREGATE_MAX_TIME_MS } from "./mongo-query-options";
@@ -68,7 +68,7 @@ async function dbConnect(): Promise<typeof mongoose> {
         maxPoolSize: 50,
         minPoolSize: 5,
         serverSelectionTimeoutMS: 5_000,
-        socketTimeoutMS: Number(getEnv("MONGODB_SOCKET_TIMEOUT_MS", { optional: true }) || 30_000),
+        socketTimeoutMS: getNum("MONGODB_SOCKET_TIMEOUT_MS", 30_000),
         maxIdleTimeMS: 60_000,
         ...mongoOptions,
       })

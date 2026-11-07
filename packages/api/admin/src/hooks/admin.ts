@@ -74,6 +74,10 @@ export {
   useAdminMediaConverterSettings,
   useAdminMediaConverterSettingsMutations,
 } from "./admin/media-converter-settings";
+export {
+  useAdminCashbackSettings,
+  useAdminCashbackSettingsMutations,
+} from "./admin/cashback-settings";
 export { useInfiniteAdminOrders, useInfiniteAdminUsers } from "./admin/infinite";
 export {
   useAdminCompetitionInstantPrizeAssignmentMutations,

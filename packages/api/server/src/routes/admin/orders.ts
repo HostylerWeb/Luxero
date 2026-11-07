@@ -20,6 +20,7 @@ import { cursorPaginated, error, paginated, success } from "@luxero/api-infra/re
 import { captureRouteError } from "@luxero/api-infra/sentry";
 import { rollbackOrderRefund } from "@luxero/api-payment-core";
 import { incrementCounter } from "@luxero/api-server/lib/observability/metrics";
+import { reverseOrderCashback } from "@luxero/api-server/lib/payment/apply-order-cashback";
 import { buildRefundDeps } from "@luxero/api-server/lib/payment/build-refund-deps";
 import { requireManager } from "@luxero/api-server/middleware/auth";
 import { validateBody } from "@luxero/api-validation";
@@ -445,6 +446,7 @@ app.patch(
         if (refundError) {
           return error(c, ErrorCodes.INTERNAL_ERROR, refundError, 500);
         }
+        await reverseOrderCashback(id);
       }
 
       // For non-refunded statuses, create audit log before update
