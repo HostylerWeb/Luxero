@@ -15,7 +15,17 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile"]
+    command:
+      [
+        "mongod",
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--keyFile",
+        "/etc/mongo-keyfile",
+        "--setParameter",
+        "transactionLifetimeLimitSeconds=180",
+      ]
     volumes:
       - /var/www/luxero/data/mongo:/data/db
       - /var/www/luxero/data/mongo-keyfile:/etc/mongo-keyfile:ro

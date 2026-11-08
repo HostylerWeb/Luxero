@@ -249,6 +249,22 @@ export async function finalizeSuccessfulOrder(params: {
     );
 
     completedSteps.push("fulfillment_completed");
+    const fulfillmentAssigned = (
+      _result as { allAssignedNumbers?: Array<{ competitionId: string; ticketNumbers: number[] }> }
+    )?.allAssignedNumbers;
+    if (fulfillmentAssigned?.length && deps.notifyPendingBonusAwardFires) {
+      void deps
+        .notifyPendingBonusAwardFires({
+          userId,
+          assignedNumbers: fulfillmentAssigned,
+        })
+        .catch((bonusErr: unknown) => {
+          log.warn("[finalize] post-commit bonus award processing failed", {
+            orderId: order._id.toString(),
+            error: bonusErr,
+          });
+        });
+    }
     void applyOrderCashback(order._id.toString()).catch((err: unknown) => {
       log.warn("[finalize] cashback credit failed", { orderId: order._id.toString(), error: err });
     });

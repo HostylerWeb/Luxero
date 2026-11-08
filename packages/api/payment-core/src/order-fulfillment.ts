@@ -720,32 +720,6 @@ export async function processOrderFulfillment(options: ProcessOrderFulfillmentOp
     throw winErr;
   }
 
-  // Process bonus award milestone fires
-  if (deps.notifyPendingBonusAwardFires) {
-    try {
-      await deps.notifyPendingBonusAwardFires({
-        userId,
-        assignedNumbers: allAssignedNumbers,
-        session,
-      });
-    } catch (bonusAwardErr) {
-      logFulfillmentEvent(
-        "fulfillment.bonus_award_failed",
-        {
-          logPrefix,
-          orderId,
-          userId,
-          competitionIds: allAssignedNumbers.map((entry) => entry.competitionId),
-          error:
-            bonusAwardErr instanceof Error
-              ? { message: bonusAwardErr.message, stack: bonusAwardErr.stack }
-              : String(bonusAwardErr),
-        },
-        "error"
-      );
-    }
-  }
-
   const orderItemDocs = competitionIds
     .map((competitionId, i) => {
       const competition = competitionMap.get(competitionId);

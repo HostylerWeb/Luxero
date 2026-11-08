@@ -195,7 +195,7 @@ export function buildFulfillmentDeps(
         ).catch(() => {});
       }
     },
-    notifyPendingBonusAwardFires: async ({ assignedNumbers, session }) => {
+    notifyPendingBonusAwardFires: async ({ userId: _userId, assignedNumbers }) => {
       const compIds = [...new Set(assignedNumbers.map((a) => a.competitionId).filter(Boolean))];
       console.log(
         "[bonus-award] notifyPendingBonusAwardFires: compIds=%s isGuest=%s assignedCount=%d",
@@ -215,7 +215,7 @@ export function buildFulfillmentDeps(
       );
       await processBonusAwardFires({
         competitionIds: compIds,
-        session,
+        session: undefined,
         isGuest,
         onWins: async (wins, pendingFires, competitionName) => {
           await notifyBonusAwardWins({ wins, pendingFires, competitionName });
