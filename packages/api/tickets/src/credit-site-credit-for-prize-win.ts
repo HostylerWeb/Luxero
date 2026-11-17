@@ -2,6 +2,11 @@ import { Balance, BalanceTransaction } from "@luxero/api-db/models";
 import { isDuplicateKeyError } from "@luxero/api-infra/mongo-errors";
 import { type ClientSession, Types } from "mongoose";
 
+function roundMoney(amount: number): number {
+  if (!Number.isFinite(amount)) return 0;
+  return Math.round(amount * 100) / 100;
+}
+
 export async function creditSiteCreditForPrizeWin(params: {
   userId: Types.ObjectId | string;
   amount: number;
@@ -10,7 +15,7 @@ export async function creditSiteCreditForPrizeWin(params: {
   session?: ClientSession;
   type?: "prize_credit" | "cashback_credit";
 }): Promise<{ credited: boolean; balanceAfter: number }> {
-  const amount = params.amount;
+  const amount = roundMoney(params.amount);
   if (amount <= 0) {
     return { credited: false, balanceAfter: 0 };
   }
@@ -53,8 +58,7 @@ export async function creditSiteCreditForPrizeWin(params: {
     throw new Error("SITE_CREDIT_BALANCE_INIT_FAILED");
   }
 
-  const balanceBefore = balance.available;
-  const balanceAfter = balanceBefore + amount;
+  const balanceBefore = roundMoney(balance.available);
 
   const updated = await Balance.findOneAndUpdate(
     { userId: userOid },
@@ -65,6 +69,16 @@ export async function creditSiteCreditForPrizeWin(params: {
     throw new Error("SITE_CREDIT_CREDIT_FAILED");
   }
 
+  const normalizedAvailable = roundMoney(updated.available);
+  if (normalizedAvailable !== updated.available) {
+    await Balance.updateOne(
+      { userId: userOid },
+      { $set: { available: normalizedAvailable } },
+      sessionOpts
+    );
+    updated.available = normalizedAvailable;
+  }
+
   try {
     await BalanceTransaction.create(
       [
@@ -73,7 +87,7 @@ export async function creditSiteCreditForPrizeWin(params: {
           type: params.type ?? "prize_credit",
           amount,
           balanceBefore,
-          balanceAfter: updated.available,
+          balanceAfter: roundMoney(updated.available),
           status: "completed",
           note: params.note,
           idempotencyKey: params.idempotencyKey,

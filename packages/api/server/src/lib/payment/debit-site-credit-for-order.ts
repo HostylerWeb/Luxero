@@ -1,5 +1,6 @@
 import { Balance, BalanceTransaction } from "@luxero/api-db/models";
 import { isDuplicateKeyError } from "@luxero/api-infra/mongo-errors";
+import { roundCurrency } from "@luxero/utils";
 import type { ClientSession } from "mongoose";
 import { Types } from "mongoose";
 
@@ -13,7 +14,7 @@ export async function debitSiteCreditForOrder(params: {
   amount: number;
   session?: ClientSession;
 }): Promise<void> {
-  const amount = params.amount;
+  const amount = roundCurrency(params.amount);
   if (amount <= 0) return;
 
   const orderOid = new Types.ObjectId(params.orderId);
@@ -34,13 +35,13 @@ export async function debitSiteCreditForOrder(params: {
   let balanceQuery = Balance.findOne({ userId: userOid });
   if (params.session) balanceQuery = balanceQuery.session(params.session);
   const balance = await balanceQuery;
-  const available = balance?.available ?? 0;
-  if (available < amount) {
+  const available = roundCurrency(balance?.available ?? 0);
+  if (available + 0.000_001 < amount) {
     throw new Error("INSUFFICIENT_SITE_CREDIT");
   }
 
   const balanceBefore = available;
-  const balanceAfter = balanceBefore - amount;
+  const balanceAfter = roundCurrency(balanceBefore - amount);
 
   const updated = await Balance.findOneAndUpdate(
     { userId: userOid, available: { $gte: amount } },
@@ -49,6 +50,16 @@ export async function debitSiteCreditForOrder(params: {
   );
   if (!updated) {
     throw new Error("INSUFFICIENT_SITE_CREDIT");
+  }
+
+  const normalizedAvailable = roundCurrency(updated.available);
+  if (normalizedAvailable !== updated.available) {
+    await Balance.findOneAndUpdate(
+      { userId: userOid },
+      { $set: { available: normalizedAvailable } },
+      sessionOpts
+    );
+    updated.available = normalizedAvailable;
   }
 
   try {

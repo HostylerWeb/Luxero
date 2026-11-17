@@ -330,16 +330,15 @@ async function updateCompetitionCounters(
   await Competition.updateOne({ _id: competitionId }, { $inc: update }, sessionOpts(session));
   console.log("[BONUS-TRACE] updateCompetitionCounters: Competition.updateOne done");
 
-  if (deltaSold > 0) {
+  // Bonus milestone scans are heavy; never run them inside a payment fulfillment transaction.
+  if (deltaSold > 0 && !session) {
     console.log("[BONUS-TRACE] updateCompetitionCounters: deltaSold>0, checking bonus awards");
     try {
       const comp = await Competition.findById(competitionId, {
         ticketsSold: 1,
         status: 1,
         title: 1,
-      })
-        .session(session ?? null)
-        .lean();
+      }).lean();
       if (comp && comp.status === "active" && comp.ticketsSold >= 0) {
         console.log(
           "[bonus-award] updateCompetitionCounters: calling checkBonusAwardMilestones compId=%s ticketsSold=%d deltaSold=%d compTitle=%s",
@@ -351,7 +350,7 @@ async function updateCompetitionCounters(
         await checkBonusAwardMilestones(
           typeof competitionId === "string" ? new Types.ObjectId(competitionId) : competitionId,
           comp.ticketsSold,
-          session
+          undefined
         );
         console.log(
           "[bonus-award] updateCompetitionCounters: checkBonusAwardMilestones completed compId=%s",

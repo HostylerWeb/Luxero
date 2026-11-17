@@ -46,6 +46,7 @@ RUN rm -f /app/apps/client/.env /app/apps/client/.env.local /app/apps/client/.en
     [ -n "$PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY" ] && echo "PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY=$PUBLIC_ENV__STRIPE_PUBLISHABLE_KEY"; \
     [ -n "$PUBLIC_ENV__PAYMENT_BYPASS" ] && echo "PUBLIC_ENV__PAYMENT_BYPASS=$PUBLIC_ENV__PAYMENT_BYPASS"; \
     [ -n "$PUBLIC_ENV__PAYMENT_DEBUG" ] && echo "PUBLIC_ENV__PAYMENT_DEBUG=$PUBLIC_ENV__PAYMENT_DEBUG"; \
+    true; \
   } > /app/apps/client/.env.production
 
 WORKDIR /app/apps/client

@@ -68,7 +68,8 @@ async function dbConnect(): Promise<typeof mongoose> {
         maxPoolSize: 50,
         minPoolSize: 5,
         serverSelectionTimeoutMS: 5_000,
-        socketTimeoutMS: getNum("MONGODB_SOCKET_TIMEOUT_MS", 30_000),
+        // Checkout fulfillment (tickets + instant wins) can exceed 30s under load.
+        socketTimeoutMS: getNum("MONGODB_SOCKET_TIMEOUT_MS", 180_000),
         maxIdleTimeMS: 60_000,
         ...mongoOptions,
       })
