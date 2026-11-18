@@ -225,7 +225,7 @@ describe("finalizeSuccessfulOrder", () => {
   test("handles fulfillment error with rollback (returns 'fulfilled' so webhook does not poison redirect)", async () => {
     const order = __mocks.mockOrder();
     __mocks.orderFindOneAndUpdate.mockResolvedValue(order);
-    __mocks.withMongoTransactionOptional.mockRejectedValue(new Error("fulfillment failed"));
+    __mocks.processOrderFulfillment.mockRejectedValue(new Error("fulfillment failed"));
     __mocks.setFindByIdResult({
       ...order,
       metadata: {
@@ -286,7 +286,7 @@ describe("finalizeSuccessfulOrder", () => {
   test("skips rollback when lock token has changed (expiry)", async () => {
     const order = __mocks.mockOrder();
     __mocks.orderFindOneAndUpdate.mockResolvedValue(order);
-    __mocks.withMongoTransactionOptional.mockRejectedValue(new Error("fulfillment failed"));
+    __mocks.processOrderFulfillment.mockRejectedValue(new Error("fulfillment failed"));
     __mocks.setFindByIdResult({
       ...order,
       metadata: {

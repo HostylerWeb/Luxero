@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import { releaseReservedSpend } from "@luxero/api-compliance/spend-tracking";
 import { Competition, InstantPrizeWin, Order, Profile } from "@luxero/api-db/models";
 import { CH, invalidateByChannelSafe, invalidateUser } from "@luxero/api-infra/cache";
-import { withMongoTransactionOptional } from "@luxero/api-infra/mongo-capabilities";
 import { createLogger } from "@luxero/api-logger";
 import { attachPromoRedemptionOrderId } from "@luxero/api-tickets/promo-codes";
 import { getItemsFromOrder, processOrderFulfillment } from "@luxero/api-payment-core";
@@ -173,80 +172,71 @@ export async function finalizeSuccessfulOrder(params: {
 
   try {
     completedSteps.push("fulfillment_lock_acquired");
-    log.debug("[finalize] entering withMongoTransactionOptional", {
+    // Do not wrap fulfillment in a Mongo transaction. A later command inside that
+    // transaction waits on locks until the 180s socket timeout, then the abort
+    // rolls back tickets that were already sold after Stripe captured payment.
+    log.debug("[finalize] fulfilling without mongo transaction", {
       orderId: order._id.toString(),
     });
-    const _result = await withMongoTransactionOptional(
-      async (txnSession) => {
-      const siteCreditApplied = Number(metadata.siteCreditApplied ?? 0);
-      if (siteCreditApplied > 0) {
-        await debitSiteCreditForOrder({
-          userId,
-          orderId: order._id.toString(),
-          amount: siteCreditApplied,
-          session: txnSession ?? undefined,
-        });
-      }
-
-      log.debug("[finalize] calling processOrderFulfillment", {
-        orderId: order._id.toString(),
-        competitionIds,
-        itemCount: items.length,
-        referralBalanceUsed,
-        siteCreditApplied,
-      });
-      const fulfillmentResult = await processOrderFulfillment({
-        orderId: order._id.toString(),
-        orderNumber: order.orderNumber,
+    const siteCreditApplied = Number(metadata.siteCreditApplied ?? 0);
+    if (siteCreditApplied > 0) {
+      await debitSiteCreditForOrder({
         userId,
-        competitionIds,
-        items,
-        subtotal: order.subtotal,
-        discountAmount: order.discountAmount,
-        total: order.total,
-        metadata,
-        logPrefix,
-        deps,
-        referralBalanceUsed,
-        orderEmail: order.orderEmail,
-        shippingAddress: order.shippingAddress as Parameters<
-          typeof processOrderFulfillment
-        >[0]["shippingAddress"],
-        session: txnSession ?? undefined,
+        orderId: order._id.toString(),
+        amount: siteCreditApplied,
       });
+    }
 
-      profileStatsDelta = { entries: fulfillmentResult.totalQuantity, spent: order.total };
-      if (promoCode) {
-        await attachPromoRedemptionOrderId(promoCode, userId, order._id.toString()).catch(() => {});
+    log.debug("[finalize] calling processOrderFulfillment", {
+      orderId: order._id.toString(),
+      competitionIds,
+      itemCount: items.length,
+      referralBalanceUsed,
+      siteCreditApplied,
+    });
+    const _result = await processOrderFulfillment({
+      orderId: order._id.toString(),
+      orderNumber: order.orderNumber,
+      userId,
+      competitionIds,
+      items,
+      subtotal: order.subtotal,
+      discountAmount: order.discountAmount,
+      total: order.total,
+      metadata,
+      logPrefix,
+      deps,
+      referralBalanceUsed,
+      orderEmail: order.orderEmail,
+      shippingAddress: order.shippingAddress as Parameters<
+        typeof processOrderFulfillment
+      >[0]["shippingAddress"],
+    });
+
+    profileStatsDelta = { entries: _result.totalQuantity, spent: order.total };
+    if (promoCode) {
+      await attachPromoRedemptionOrderId(promoCode, userId, order._id.toString()).catch(() => {});
+    }
+    log.debug(`[finalize] processOrderFulfillment completed`, {
+      orderId: order._id.toString(),
+      totalQuantity: _result.totalQuantity,
+    });
+
+    await Order.findOneAndUpdate(
+      { _id: order._id, "metadata.fulfillmentLock.token": lockToken },
+      {
+        $set: { status: "completed", fulfillmentStatus: "completed" },
+        $unset: { "metadata.fulfillmentLock": 1 },
       }
-      log.debug(`[finalize] processOrderFulfillment completed`, {
-        orderId: order._id.toString(),
-        totalQuantity: fulfillmentResult.totalQuantity,
-        ticketCounts:
-          (fulfillmentResult as { ticketCounts?: unknown }).ticketCounts ?? "not available",
-      });
-
-      const updateQuery = Order.findOneAndUpdate(
-        { _id: order._id, "metadata.fulfillmentLock.token": lockToken },
-        {
-          $set: { status: "completed", fulfillmentStatus: "completed" },
-          $unset: { "metadata.fulfillmentLock": 1 },
-        }
-      );
-      await (txnSession ? updateQuery.session(txnSession) : updateQuery);
-
-      logFulfillmentEvent(logPrefix, "payment.fulfillment_completed", {
-        source: params.source,
-        orderId: order._id.toString(),
-        userId,
-        competitionIds,
-        totalQuantity: fulfillmentResult.totalQuantity,
-      });
-
-      return fulfillmentResult;
-    },
-      { logPrefix: "finalize", strictOnTxFailure: true }
     );
+
+    logFulfillmentEvent(logPrefix, "payment.fulfillment_completed", {
+      source: params.source,
+      orderId: order._id.toString(),
+      userId,
+      competitionIds,
+      totalQuantity: _result.totalQuantity,
+    });
 
     completedSteps.push("fulfillment_completed");
     const fulfillmentAssigned = (

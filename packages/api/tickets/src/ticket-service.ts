@@ -9,7 +9,7 @@ import { CH, invalidateByChannelSafe } from "@luxero/api-infra/cache";
 import { defaultAggregateOptions } from "@luxero/api-infra/mongo-query-options";
 import { createLogger } from "@luxero/api-logger";
 import { normalizeAnswerIndex } from "@luxero/api-payment-core";
-import { isOpenForTicketSales } from "@luxero/api-tickets/competition-sales";
+import { getTicketSalesCloseTime, isOpenForTicketSales } from "@luxero/api-tickets/competition-sales";
 import { generateOrderNumber } from "@luxero/api-tickets/create-session";
 import { getTicketIdsForSlotRange } from "@luxero/api-tickets/instant-prize-allocation";
 import { type ClientSession, Types } from "mongoose";
@@ -581,7 +581,8 @@ export async function checkAvailability(
   competitionId: string,
   targetCartQty: number,
   userId?: string,
-  existingCartQty = 0
+  existingCartQty = 0,
+  options?: { ignoreSalesWindow?: boolean }
 ): Promise<{ available: number; maxTicketsPerUser: number; status: string }> {
   const competition = await Competition.findById(competitionId).lean();
   if (!competition) {
@@ -595,7 +596,7 @@ export async function checkAvailability(
     );
   }
 
-  if (!isOpenForTicketSales(competition)) {
+  if (!options?.ignoreSalesWindow && !isOpenForTicketSales(competition)) {
     throw new TicketAvailabilityError(
       `Competition "${competition.title}" is no longer open for ticket sales`,
       "COMPETITION_INACTIVE"
@@ -631,12 +632,16 @@ async function findSoldTicketsForOrder(
   ownerIdObj: Types.ObjectId,
   session?: ClientSession
 ): Promise<LeanTicket[]> {
+  // Do not sort in Mongo. A number sort inside the fulfillment transaction can pick a
+  // plan that waits on locks this same transaction already holds, until the socket times out.
   const query = Ticket.find({
     orderId: orderIdObj,
     competitionId: compId,
     ownerId: ownerIdObj,
-  }).sort({ number: 1 });
-  return session ? query.session(session).lean() : query.lean();
+  }).select("_id number");
+  const rows: LeanTicket[] = session ? await query.session(session).lean() : await query.lean();
+  rows.sort((a, b) => a.number - b.number);
+  return rows;
 }
 
 function entryNameSnapshotFromProfile(
@@ -708,7 +713,7 @@ export async function claimTicketsForOrder(
   const orderIdObj = toObjectId(orderId);
   const opts = { ...sessionOpts(session), ordered: false };
 
-  const order = await Order.findById(orderIdObj).select("orderNumber userId").lean();
+  const order = await Order.findById(orderIdObj).select("orderNumber userId createdAt paidAt").lean();
   if (!order) {
     throw new Error(`Order ${orderId} not found`);
   }
@@ -737,7 +742,15 @@ export async function claimTicketsForOrder(
   }
 
   const remaining = qty - claimed.length;
-  await checkAvailability(competitionId, remaining, effectiveUserId);
+  // paidAt is stamped when fulfillment starts, which can be after sales close.
+  // The order was placed at createdAt, while sales were still open.
+  const placedAt = order.createdAt;
+  const closeAt = getTicketSalesCloseTime(competition);
+  const placedBeforeClose =
+    placedAt != null && closeAt != null && new Date(placedAt).getTime() < closeAt.getTime();
+  await checkAvailability(competitionId, remaining, effectiveUserId, 0, {
+    ignoreSalesWindow: placedBeforeClose,
+  });
   log.debug(
     `[ticket.claim] availability OK compId=${competitionId} remaining=${remaining} maxTickets=${competition.maxTickets} maxTicketsPerUser=${competition.maxTicketsPerUser}`
   );
@@ -823,7 +836,15 @@ export async function claimTicketsForOrder(
       });
     }
 
-    claimed = await findSoldTicketsForOrder(orderIdObj, compId, ownerIdObj, session);
+    if (bulkResult.modifiedCount === candidates.length) {
+      const byId = new Map(claimed.map((t) => [t._id.toString(), t]));
+      for (const candidate of candidates) {
+        byId.set(candidate._id.toString(), candidate as LeanTicket);
+      }
+      claimed = [...byId.values()];
+    } else {
+      claimed = await findSoldTicketsForOrder(orderIdObj, compId, ownerIdObj, session);
+    }
 
     if (claimed.length === prevCount) {
       await releaseByOrderId(orderId, session);
